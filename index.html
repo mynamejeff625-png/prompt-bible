@@ -1,0 +1,1768 @@
+<title>Prompt Bible</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<!-- iPhone app setup: full-screen when opened from the home screen, own icon + name -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0f15">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Prompt Bible">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a focused console. Enhance shows ONE step card at a time under a
+   4-point progress rail (Idea > Structure > Rules > Prompt). Library is a
+   chapter rail + verse list, like a reference book. */
+:root{
+  --bg:#0b0f15;
+  --surface:rgba(150,180,215,.045);
+  --raise:rgba(150,180,215,.085);
+  --line:rgba(160,190,225,.12);
+  --fg:#dde5ee;
+  --muted:#7d8c9e;
+  --accent:#8cc8e8;
+  --accent-soft:rgba(140,200,232,.12);
+  --accent-ink:#0b0f15;
+  --good:#7fd1a8; --warn:#e3c07a; --bad:#e48a8a;
+  --display:"Chakra Petch","Segoe UI",system-ui,sans-serif;
+  --body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --ease:cubic-bezier(.3,.7,.2,1);
+  color-scheme:dark;
+}
+html,body{background:var(--bg);color:var(--fg)}
+body{font-family:var(--body);font-size:15px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0 64px}
+/* PERFORMANCE: the glow + dot grid sit on their own fixed layer. It's painted
+   once and never repainted on scroll (the old "background-attachment:fixed"
+   repainted the whole page every scroll frame). */
+.backdrop{position:fixed;inset:0;z-index:-1;pointer-events:none;contain:strict;
+  background-image:
+    radial-gradient(900px 420px at 50% -12%,rgba(140,200,232,.08),transparent 70%),
+    radial-gradient(rgba(160,190,225,.06) 1px,transparent 1px);
+  background-size:auto,22px 22px}
+.wrap{max-width:1000px;margin:0 auto}
+.narrow{max-width:720px;margin:0 auto}
+button{font-family:inherit}
+/* "hidden" must always win, or every step shows at once outside the chat preview */
+[hidden]{display:none!important}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---------- MENU ---------- */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding-block:16px;background:linear-gradient(var(--bg) 70%,transparent)}
+.brand{display:flex;align-items:center;gap:12px}
+.mark{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--accent-soft);border:1px solid rgba(140,200,232,.3);
+  color:var(--accent);font:600 19px var(--display)}
+.brand b{display:block;font:600 18px var(--display);letter-spacing:.04em;line-height:1.1;white-space:nowrap}
+.brand small{font:500 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.menu{position:relative;display:flex;gap:2px}
+.menu button{font:500 14px var(--body);color:var(--muted);background:none;border:0;padding:8px 14px;cursor:pointer;border-radius:8px;transition:color .3s var(--ease)}
+.menu button:hover,.menu button[aria-selected="true"]{color:var(--fg)}
+.menu .ink{position:absolute;bottom:0;height:2px;border-radius:2px;background:var(--accent);transition:left .35s var(--ease),width .35s var(--ease)}
+.view{animation:fade .4s var(--ease)}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ---------- STEPPER ---------- */
+.stepper{list-style:none;margin:10px 0 22px;padding:0;display:grid;grid-template-columns:repeat(4,1fr);position:relative}
+.stepper .rail{position:absolute;top:13px;left:12.5%;right:12.5%;height:1px;background:var(--line)}
+.stepper .fill{position:absolute;inset:0 auto 0 0;width:0;background:var(--accent);transition:width .45s var(--ease)}
+.stepper button{position:relative;z-index:1;width:100%;display:flex;flex-direction:column;align-items:center;gap:7px;background:none;border:0;cursor:pointer;
+  color:var(--muted);font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;transition:color .3s var(--ease)}
+.stepper i{font-style:normal;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--bg);border:1px solid var(--line);font-size:11px;transition:all .35s var(--ease)}
+.stepper li.done i{border-color:var(--accent);color:var(--accent)}
+.stepper li.current button{color:var(--fg)}
+.stepper li.current i{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);box-shadow:0 0 0 5px var(--accent-soft)}
+
+/* ---------- STEP CARD ---------- */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:26px;display:flex;flex-direction:column;gap:18px;min-width:0}
+@media (max-width:520px){.card{padding:18px}}
+.card.in-next{animation:inNext .42s var(--ease)}
+.card.in-prev{animation:inPrev .42s var(--ease)}
+@keyframes inNext{from{opacity:0;transform:translateX(22px)}to{opacity:1;transform:none}}
+@keyframes inPrev{from{opacity:0;transform:translateX(-22px)}to{opacity:1;transform:none}}
+.ph{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.ph h2{margin:0;font:600 23px/1.2 var(--display);letter-spacing:.01em;text-wrap:balance}
+.ph p{margin:5px 0 0;color:var(--muted);font-size:13.5px}
+.stepnav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px}
+.hint{font:11px var(--mono);color:var(--muted);letter-spacing:.06em}
+@media (hover:none){.hint{display:none}}
+
+input[type=text],textarea{font:inherit;color:var(--fg);background:rgba(0,0,0,.22);border:1px solid var(--line);border-radius:11px;padding:11px 13px;box-sizing:border-box;width:100%;transition:border-color .25s var(--ease)}
+textarea{font-family:var(--mono);font-size:13.5px;line-height:1.65;resize:vertical}
+#rough{min-height:120px}
+#out{min-height:330px}
+input:focus,textarea:focus{outline:none;border-color:var(--accent)}
+.project{display:flex;align-items:center;gap:10px;color:var(--muted);font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.project input{flex:1;min-width:0;width:auto;background:none;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:5px 2px;font:15px var(--body);letter-spacing:0;text-transform:none}
+
+.switch{display:inline-flex;background:rgba(0,0,0,.22);border:1px solid var(--line);border-radius:999px;padding:3px;position:relative;flex:none}
+.switch button{position:relative;z-index:1;font:500 12.5px var(--body);color:var(--muted);background:none;border:0;padding:6px 14px;border-radius:999px;cursor:pointer;transition:color .3s var(--ease)}
+.switch button[aria-pressed="true"]{color:var(--accent-ink)}
+.switch .knob{position:absolute;top:3px;bottom:3px;border-radius:999px;background:var(--accent);transition:left .35s var(--ease),width .35s var(--ease)}
+
+.more summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-size:13.5px;color:var(--muted);transition:color .25s var(--ease)}
+.more summary::-webkit-details-marker{display:none}
+.more summary:hover,.more[open] summary{color:var(--fg)}
+.more summary em{font:normal 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;opacity:.75}
+.more .plus{display:inline-block;transition:transform .3s var(--ease)}
+.more[open] .plus{transform:rotate(45deg)}
+.more-fields{display:flex;flex-direction:column;gap:10px;margin-top:12px;padding-left:12px;border-left:1px solid var(--line);animation:fade .35s var(--ease)}
+.more-fields label{display:flex;flex-direction:column;gap:5px;font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.more-fields input{font:14px var(--body);letter-spacing:0;text-transform:none;padding:8px 12px}
+
+/* reading of your idea */
+.reading{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;color:var(--muted)}
+.tagx{font:500 11px var(--mono);letter-spacing:.05em;text-transform:uppercase;padding:4px 9px;border-radius:6px;background:rgba(0,0,0,.25);color:var(--fg)}
+.tagx.intent{background:var(--accent-soft);color:var(--accent)}
+
+/* structure options */
+.opts{display:flex;flex-direction:column;gap:10px}
+.optlabel{font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.opt{display:grid;grid-template-columns:48px 1fr auto;gap:4px 12px;align-items:start;text-align:left;width:100%;cursor:pointer;
+  background:rgba(0,0,0,.18);border:1px solid var(--line);border-radius:13px;padding:14px 16px;color:var(--fg);transition:border-color .25s var(--ease),background .25s var(--ease)}
+.opt:hover{border-color:rgba(140,200,232,.35)}
+.opt[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.opt .vn{font:500 13px var(--mono);color:var(--accent);padding-top:1px}
+.opt strong{font-size:15px;font-weight:600}
+.opt .use{grid-column:2/4;color:var(--muted);font-size:13px}
+.opt .flag{font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--good)}
+.skel{grid-column:2/4;display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.skel span{font:500 10px var(--mono);letter-spacing:.06em;color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:2px 6px}
+.linkbtn{background:none;border:0;padding:0;color:var(--accent);font:500 13.5px var(--body);cursor:pointer;text-align:left}
+.linkbtn:hover{text-decoration:underline}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:13.5px var(--body);color:var(--muted);background:none;border:1px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer;transition:all .25s var(--ease)}
+.chip:hover{color:var(--fg)}
+.chip[aria-pressed="true"]{color:var(--fg);border-color:rgba(140,200,232,.55);background:var(--accent-soft)}
+
+.built{margin:0;font-size:13px;color:var(--muted)}
+.built b{color:var(--fg);font-weight:500}
+.check{display:flex;flex-direction:column;gap:8px}
+.segs{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.seg{display:flex;flex-direction:column;gap:5px;font:500 10.5px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);min-width:0}
+.seg i{display:block;height:4px;border-radius:4px;background:rgba(255,255,255,.07);transition:background .4s var(--ease)}
+.seg.ok{color:var(--fg)} .seg.ok i{background:var(--good)}
+.seg.guess{color:var(--fg)} .seg.guess i{background:var(--accent)}
+.seg span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:440px){.seg span{display:none}}
+.missing{margin:0;font-size:13px;color:var(--muted)}
+.missing b{color:var(--warn);font-weight:500}
+.missing.all b{color:var(--good)}
+
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{font:600 13.5px var(--body);border-radius:10px;padding:10px 18px;cursor:pointer;border:1px solid var(--line);background:var(--raise);color:var(--fg);transition:all .25s var(--ease)}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{background:none;border-color:transparent;color:var(--muted)}
+.btn.ghost:hover{color:var(--fg)}
+.btn.danger.armed{background:var(--bad);color:var(--accent-ink);border-color:var(--bad)}
+.btn[data-hide="true"]{visibility:hidden}
+.savebox{display:flex;gap:8px;flex:1;min-width:220px}
+.savebox input{padding:9px 12px}
+
+/* ---------- LIBRARY ---------- */
+.lib-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin:10px 0 22px}
+.lib-head h1{margin:0;font:600 28px/1.1 var(--display);letter-spacing:.02em}
+.lib-head p{margin:6px 0 0;color:var(--muted);font-size:13.5px}
+.lib-head input{max-width:300px}
+.lib{display:grid;grid-template-columns:200px minmax(0,1fr);gap:32px;align-items:start}
+.chapters{position:sticky;top:84px;display:flex;flex-direction:column;gap:1px}
+.chapters .grp{font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:14px 10px 6px}
+.chapters .grp:first-child{padding-top:0}
+.chapters button{display:flex;justify-content:space-between;gap:10px;align-items:baseline;text-align:left;background:none;border:0;border-radius:8px;
+  padding:7px 10px;color:var(--muted);font:500 13.5px var(--body);cursor:pointer;transition:all .2s var(--ease);white-space:nowrap}
+.chapters button:hover{color:var(--fg)}
+.chapters button[aria-pressed="true"]{color:var(--fg);background:var(--raise)}
+.chapters button small{font:11px var(--mono);color:var(--muted)}
+@media (max-width:760px){
+  .lib{grid-template-columns:1fr;gap:16px}
+  .chapters{position:static;flex-direction:row;overflow-x:auto;gap:4px;padding-bottom:6px;scrollbar-width:none}
+  .chapters .grp{display:none}
+  .chapters button{border:1px solid var(--line)}
+  .lib-head input{max-width:none}
+}
+.chhead{display:flex;align-items:baseline;gap:12px;margin:26px 0 8px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.chhead:first-child{margin-top:0}
+.chhead span{font:500 12px var(--mono);color:var(--accent)}
+.chhead h3{margin:0;font:600 17px var(--display);letter-spacing:.03em}
+.chhead em{margin-left:auto;font:normal 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.entry{border-bottom:1px solid var(--line)}
+.entry>button{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:2px 12px;align-items:baseline;width:100%;text-align:left;background:none;border:0;padding:13px 6px;cursor:pointer;color:var(--fg);border-radius:8px;transition:background .2s var(--ease)}
+.entry>button:hover{background:var(--surface)}
+.entry .vn{font:500 12.5px var(--mono);color:var(--muted)}
+.entry strong{font-size:15px;font-weight:500}
+.entry .use{grid-column:2/4;font-size:13px;color:var(--muted)}
+.pill{font:500 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.pill.code{color:var(--accent)} .pill.art{color:var(--warn)} .pill.any{color:var(--good)} .pill.general{color:#c3a6e8}
+#clearBtn{margin-left:auto}
+.detail{padding:4px 6px 18px 62px;display:flex;flex-direction:column;gap:12px;animation:fade .35s var(--ease)}
+@media (max-width:520px){.detail{padding-left:6px}}
+.detail pre{margin:0;padding:14px 16px;font:12.5px/1.6 var(--mono);color:var(--muted);white-space:pre-wrap;word-break:break-word;background:rgba(0,0,0,.25);border-radius:11px;max-height:320px;overflow:auto}
+.detail .note{margin:0;font-size:12.5px;color:var(--muted)}
+.empty{color:var(--muted);text-align:center;padding:40px 16px;border:1px dashed var(--line);border-radius:14px}
+
+.card{contain:layout paint}
+
+/* ---------- SETTINGS GEAR + DEV MENU (v1.7) ---------- */
+.brand{gap:10px}
+.gear{width:32px;height:32px;flex:none;display:grid;place-items:center;border-radius:9px;border:1px solid transparent;background:none;
+  color:var(--muted);cursor:pointer;transition:color .25s var(--ease),border-color .25s var(--ease),transform .5s var(--ease)}
+.gear:hover{color:var(--fg);border-color:var(--line);transform:rotate(45deg)}
+@media (max-width:440px){.mark{display:none}}
+.dev{position:fixed;inset:0;z-index:30;background:rgba(5,8,12,.72);display:flex;justify-content:center;align-items:flex-start;overflow-y:auto;
+  padding:calc(24px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+  animation:fade .3s var(--ease)}
+.dev-sheet{width:100%;max-width:620px;background:#0f141c;border:1px solid var(--line);border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:18px;box-sizing:border-box}
+.dev-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.dev-head h2{margin:2px 0 0;font:600 20px var(--display);letter-spacing:.02em}
+.eyebrow{font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.dev-lock{display:flex;flex-direction:column;align-items:center;gap:10px;padding:24px 0 12px}
+.dev-lock label{font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.dev-lock input{width:150px;text-align:center;font:500 24px var(--mono);letter-spacing:.5em;padding:10px 0 10px .5em}
+.dev-lock.shake input{animation:shake .4s var(--ease);border-color:var(--bad)}
+@keyframes shake{25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-3px)}}
+.dev-err{margin:0;min-height:1.2em;color:var(--bad);font-size:13px}
+#devBody{display:flex;flex-direction:column;gap:18px}
+.dev-sec{display:flex;flex-direction:column;gap:10px;padding-top:16px;border-top:1px solid var(--line)}
+.dev-sec:first-child{border-top:0;padding-top:0}
+.dev-sec h3{margin:0;font:600 14px var(--display);letter-spacing:.06em;text-transform:uppercase}
+.dev-sec h3 small{font:400 11px var(--mono);color:var(--muted);letter-spacing:.04em;text-transform:none;margin-left:6px}
+.dev-note{margin:0;font-size:13px;color:var(--muted)}
+.dev-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.dev-stats div{background:rgba(0,0,0,.22);border:1px solid var(--line);border-radius:11px;padding:10px 12px}
+.dev-stats b{display:block;font:500 20px var(--mono);font-variant-numeric:tabular-nums}
+.dev-stats span{font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tog{display:grid;grid-template-columns:auto 1fr;column-gap:12px;align-items:center;cursor:pointer;font-size:14px}
+.tog em{grid-column:2;font-style:normal;font-size:12.5px;color:var(--muted)}
+.tog input{position:absolute;opacity:0;width:1px;height:1px}
+.tog span{grid-row:1/3;width:38px;height:22px;border-radius:99px;background:rgba(255,255,255,.1);position:relative;transition:background .25s var(--ease)}
+.tog span::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--fg);transition:transform .25s var(--ease)}
+.tog input:checked+span{background:var(--accent)}
+.tog input:checked+span::after{transform:translateX(16px);background:var(--accent-ink)}
+.tog input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+#devTest{min-height:70px}
+.dev-result{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.dev-result{grid-template-columns:1fr}}
+.dev-result h4{margin:0 0 6px;font:500 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.bar{display:grid;grid-template-columns:minmax(0,1fr) 42px;gap:2px 8px;align-items:center;font-size:13px;margin-bottom:6px}
+.bar span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar b{font:500 12px var(--mono);text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+.bar i{grid-column:1/3;height:3px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden}
+.bar i::after{content:"";display:block;height:100%;width:var(--w);background:var(--accent);border-radius:3px;transition:width .35s var(--ease)}
+.bar:first-of-type b{color:var(--fg)}
+.dev-teach{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.dev-teach label{display:flex;flex-direction:column;gap:5px;flex:1;min-width:150px;font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.dev select{font:14px var(--body);color:var(--fg);background:rgba(0,0,0,.22);border:1px solid var(--line);border-radius:10px;padding:9px 10px;min-height:40px;width:100%}
+.dev-list{display:flex;flex-direction:column;max-height:260px;overflow:auto;border-top:1px solid var(--line)}
+.dev-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;align-items:center;padding:9px 2px;border-bottom:1px solid var(--line);font-size:13px}
+.dev-row span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dev-row small{grid-column:1;font:11px var(--mono);color:var(--muted)}
+.dev-row button{grid-row:1/3;grid-column:2;background:none;border:0;color:var(--muted);cursor:pointer;font-size:18px;padding:4px 8px;border-radius:6px}
+.dev-row button:hover{color:var(--bad)}
+.dev-import{display:flex;flex-direction:column;gap:8px}
+.dev-import textarea{min-height:80px;font-size:12px}
+.dev-next{opacity:.75}
+
+/* ---------- PHONE APP (v1.5) ---------- */
+/* When opened from the iPhone home screen, keep content clear of the notch and home bar */
+@media (display-mode: standalone){
+  :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+}
+/* iPhone zooms in on any text box smaller than 16px; this stops that */
+@media (hover:none) and (pointer:coarse){
+  input[type=text],textarea{font-size:16px!important}
+  .chip,.btn,.switch button,.chapters button{min-height:40px}
+}
+/* On phones, Back/Next stick to the bottom so your thumb can always reach them */
+@media (max-width:600px){
+  .stepnav{position:sticky;bottom:0;z-index:4;margin-top:12px;padding-block:12px calc(10px + env(safe-area-inset-bottom,0px));
+    background:linear-gradient(transparent,var(--bg) 35%)}
+  .stepnav .btn.primary{flex:1;max-width:240px}
+  .ph h2{font-size:20px}
+  .tagline{display:none}
+  .stepper button{letter-spacing:.04em;font-size:10px}
+  #out{min-height:260px}
+}
+.toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);opacity:0;background:rgba(28,38,50,.97);border:1px solid var(--line);padding:9px 16px;border-radius:999px;font-size:13.5px;transition:all .35s var(--ease);pointer-events:none;z-index:20}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="backdrop" aria-hidden="true"></div>
+<div class="wrap">
+  <nav class="topbar">
+    <div class="brand"><button class="gear" id="gearBtn" aria-label="Settings" title="Settings">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      </button><span class="mark">§</span><div><b>Prompt Bible</b><small><span class="tagline">Every prompt, by the book · </span><span id="ver"></span></small></div></div>
+    <div class="menu" role="tablist" id="menu">
+      <button role="tab" id="tab-enhance" aria-selected="true">Enhance</button>
+      <button role="tab" id="tab-library" aria-selected="false">Library</button>
+      <span class="ink" id="ink"></span>
+    </div>
+  </nav>
+
+  <!-- ================= ENHANCE: one step at a time ================= -->
+  <section id="view-enhance" class="view narrow">
+    <ol class="stepper" id="stepper">
+      <span class="rail"><span class="fill" id="railFill"></span></span>
+      <li><button data-step="1"><i>1</i>Idea</button></li>
+      <li><button data-step="2"><i>2</i>Structure</button></li>
+      <li><button data-step="3"><i>3</i>Rules</button></li>
+      <li><button data-step="4"><i>4</i>Prompt</button></li>
+    </ol>
+
+    <div class="card" data-panel="1">
+      <div class="ph">
+        <div><h2>What do you need?</h2><p>Say it the way you'd say it out loud.</p></div>
+        <div class="switch" id="target">
+          <span class="knob" id="knob"></span>
+          <button data-t="general" aria-pressed="true" title="Questions, advice, writing, research: any AI">General</button>
+          <button data-t="code" aria-pressed="false" title="Building and fixing software">Code</button>
+          <button data-t="art" aria-pressed="false" title="Images and game art">Art</button>
+        </div>
+      </div>
+      <label class="project" for="project"><span id="projLabel">Project</span> <input type="text" id="project" placeholder="e.g. My Game"></label>
+      <textarea id="rough" placeholder="e.g. add a pause menu with resume and quit buttons"></textarea>
+      <details class="more" id="more">
+        <summary><span class="plus">+</span> Add context <em>optional</em></summary>
+        <div class="more-fields">
+          <label for="ctxHave"><span id="lblHave">What already exists</span>
+            <input type="text" id="ctxHave" placeholder="e.g. the main menu and saving already work"></label>
+          <label for="ctxTried"><span id="lblTried">What you tried or what went wrong</span>
+            <input type="text" id="ctxTried" placeholder="e.g. the button shows up but nothing happens when tapped"></label>
+          <label for="ctxRefs"><span id="lblRefs">Files, screens or references</span>
+            <input type="text" id="ctxRefs" placeholder="e.g. game.js, menu.html"></label>
+        </div>
+      </details>
+    </div>
+
+    <div class="card" data-panel="2" hidden>
+      <div class="ph"><div><h2>Pick a structure</h2><p>Your idea drops into it automatically.</p></div></div>
+      <div class="reading" id="reading"></div>
+      <div class="opts" id="opts"></div>
+      <button class="linkbtn" id="browseBtn">Browse the whole Library</button>
+    </div>
+
+    <div class="card" data-panel="3" hidden>
+      <div class="ph"><div><h2>House rules</h2><p>Tap what applies. They merge into the structure.</p></div></div>
+      <div class="chips" id="chips"></div>
+    </div>
+
+    <div class="card" data-panel="4" hidden>
+      <div class="ph">
+        <div><h2>Your prompt</h2><p class="built" id="built"></p></div>
+        <div class="switch" id="format" title="Structured adds section markers the agent reads. Your words don't change.">
+          <span class="knob" id="knob2"></span>
+          <button data-f="plain" aria-pressed="false">Plain</button>
+          <button data-f="structured" aria-pressed="true">Structured</button>
+        </div>
+      </div>
+      <div class="check"><div class="segs" id="segs"></div><p class="missing" id="missing"></p></div>
+      <textarea id="out" spellcheck="false"></textarea>
+      <div class="actions">
+        <button class="btn primary" id="copyBtn">Copy prompt</button>
+        <button class="btn ghost" id="saveOpen">Save…</button>
+        <button class="btn ghost" id="clearBtn" title="Clear this prompt and start a new one">Clear</button>
+        <div class="savebox" id="saveBox" hidden>
+          <input type="text" id="saveTitle" placeholder="Name this prompt">
+          <button class="btn" id="saveBtn">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="stepnav">
+      <button class="btn ghost" id="backBtn">← Back</button>
+      <span class="hint">Ctrl + Enter</span>
+      <button class="btn primary" id="nextBtn">Next</button>
+    </div>
+  </section>
+
+  <!-- ================= LIBRARY ================= -->
+  <section id="view-library" class="view" hidden>
+    <div class="lib-head">
+      <div><h1>The Library</h1><p id="libSub"></p></div>
+      <input type="text" id="search" placeholder="Search structures and saved prompts">
+    </div>
+    <div class="lib">
+      <nav class="chapters" id="chapters"></nav>
+      <div id="entries"></div>
+    </div>
+  </section>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- ================= DEV MENU (hidden, PIN protected) ================= -->
+<div class="dev" id="dev" hidden role="dialog" aria-modal="true" aria-labelledby="devTitle">
+  <div class="dev-sheet">
+    <div class="dev-head">
+      <div><span class="eyebrow">Developer</span><h2 id="devTitle">Educated Guess engine</h2></div>
+      <button class="btn ghost" id="devClose">Close</button>
+    </div>
+
+    <div id="devLock" class="dev-lock">
+      <label for="devPin">Enter PIN</label>
+      <input id="devPin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="••••">
+      <p class="dev-err" id="devErr"></p>
+    </div>
+
+    <div id="devBody" hidden>
+      <section class="dev-sec">
+        <div class="dev-stats" id="devStats"></div>
+        <label class="tog"><input type="checkbox" id="devGuess"><span></span>Educated guesses <em>fill blank boxes with sensible defaults</em></label>
+        <label class="tog"><input type="checkbox" id="devLearn"><span></span>Learn from my choices <em>remember the structure used each time a prompt is copied</em></label>
+      </section>
+
+      <section class="dev-sec">
+        <h3>Test bench</h3>
+        <p class="dev-note">Type an idea and see what the engine guesses. If it's wrong, correct it and teach it.</p>
+        <textarea id="devTest" placeholder="e.g. the shop button doesn't open on iPhone"></textarea>
+        <div id="devResult" class="dev-result"></div>
+        <div class="dev-teach">
+          <label>Correct intent<select id="devIntent"></select></label>
+          <label>Correct structure<select id="devStruct"></select></label>
+          <button class="btn primary" id="devTeach">Teach this</button>
+        </div>
+      </section>
+
+      <section class="dev-sec">
+        <h3>Training data <small id="devCount"></small></h3>
+        <div id="devList" class="dev-list"></div>
+        <div class="actions">
+          <button class="btn" id="devExport">Copy model</button>
+          <button class="btn ghost" id="devImportOpen">Import…</button>
+          <button class="btn ghost danger" id="devClear">Clear my examples</button>
+        </div>
+        <div id="devImportBox" hidden class="dev-import">
+          <textarea id="devImport" placeholder="Paste a copied model here"></textarea>
+          <button class="btn" id="devImportBtn">Import</button>
+        </div>
+        <p class="dev-note">Your examples live on this device. Copy the model on one device and import it on the other to share what it learned.</p>
+      </section>
+
+      <section class="dev-sec dev-next">
+        <h3>Next phase · Local AI teacher</h3>
+        <p class="dev-note">Connect the bigger AI on your PC (LM Studio) to write and label training examples in bulk. The phone keeps using this small, fast model.</p>
+      </section>
+
+      <button class="btn ghost" id="devLockBtn">Lock</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   PROMPT BIBLE v1.3
+   How it works, in order:
+     A. DATA      chips, checklist, chapters, structures, topic rules
+     B. READER    reads your idea: intent, topics, a clean goal sentence
+     C. BUILDER   merges idea + structure + context + rules into sections
+     D. RENDER    prints sections as Plain or Structured text
+     E. SCREENS   step flow, structure picker, library
+     F. WIRING    clicks and typing
+   Everything runs in your browser with rules. No AI, no internet.
+   ===================================================================== */
+
+// Bump this every update so you can see which version is running.
+const APP_VERSION = 'v1.8';
+
+// ===================== A. DATA =====================
+
+// House-rule chips. "covers" = which checklist ingredient it fills.
+const CHIPS = {
+  general: [
+    { id:'simple',   label:'Keep it simple',    covers:'output', line:'Use plain words and keep it short; no jargon.' },
+    { id:'steps',    label:'Step by step',      covers:'output', line:'Break it into clear, numbered steps.' },
+    { id:'beginner', label:'I\'m a beginner',   covers:'detail', line:'Assume I\'m a complete beginner.' },
+    { id:'free',     label:'Free options only', covers:'limits', line:'Only suggest free options, or clearly mark anything that costs money.' },
+    { id:'sources',  label:'Show sources',      covers:'done',   line:'Include links or sources so I can check the facts.' },
+    { id:'askfirst', label:'Ask me first',      covers:'limits', line:'If you need more details to answer well, ask me up to 3 quick questions first.' },
+  ],
+  code: [
+    { id:'learn',  label:'Explain like I\'m learning', covers:'output', line:'Explain each change in plain words; I\'m a beginner coder.' },
+    { id:'full',   label:'Full files, no snippets',   covers:'output', line:'Give me complete, ready-to-use files, not partial snippets.' },
+    { id:'scope',  label:'Don\'t touch other features', covers:'limits', line:'Change only what this task needs. Don\'t touch other features.' },
+    { id:'ask',    label:'Ask before big changes',    covers:'limits', line:'If the change is large or risky, stop and ask me first.' },
+    { id:'modular',label:'Keep it modular',           covers:'limits', line:'Keep the code modular so new features can plug in later.' },
+    { id:'handoff',label:'End with a handoff note',   covers:'done',   line:'Finish with a short handoff note: what changed, what\'s next, what to test.' },
+  ],
+  art: [
+    { id:'png',    label:'Transparent PNG',        covers:'output', line:'Deliver a PNG with a transparent background.' },
+    { id:'match',  label:'Match existing style',   covers:'limits', line:'Match the style, line weight and palette of my existing assets exactly.' },
+    { id:'noai',   label:'Not AI-looking',         covers:'limits', line:'Avoid the glossy AI look: no airbrushed shine, no random detail, no warped hands or text.' },
+    { id:'retro',  label:'Half pixel / half real', covers:'detail', line:'Style: 1980s retro, half pixel art and half realism.' },
+    { id:'frames', label:'Animation frames',       covers:'output', line:'Lay frames out left to right on one sheet, same size, same character position.' },
+  ]
+};
+
+// The six ingredients of a good prompt.
+const DEFAULT_CHIPS = { general:['simple','steps'], code:['learn','full','scope'], art:['png','match','noai'] };
+const CHECKS = [
+  { id:'goal',    name:'Goal',      hint:'say what to build, fix or change.',
+    test:t=>/\b(make|add|build|create|fix|change|remove|turn|improve|optimi[sz]e|refactor|draw|design|generate|update|replace|move|explain|plan|write|redo|overhaul|find|recommend|learn|research|decide|choose|compare|organi[sz]e|schedule|draft|summari[sz]e)\b/i.test(t) },
+  { id:'context', name:'Context',   hint:'name the project, screen or file.',
+    test:t=>/\.(js|html|css|json|png)\b|\b(screen|file|folder|menu|level|scene)\b/i.test(t) },
+  { id:'detail',  name:'Specifics', hint:'give a number, name or example.',
+    test:t=>/\d|"[^"]+"|\be\.g\.|\bfor example\b|\blike (a|the|in)\b/i.test(t) },
+  { id:'limits',  name:'Limits',    hint:'say what must not change.',
+    test:t=>/\b(don'?t|do not|only|keep|without|never|must|avoid)\b/i.test(t) },
+  { id:'output',  name:'Output',    hint:'say what you want back.',
+    test:t=>/\b(give me|return|full files?|png|sprite sheet|steps|list|download)\b/i.test(t) },
+  { id:'done',    name:'Done',      hint:'say how you\'ll know it works.',
+    test:t=>/\b(so that|should|test|works when|done when|until)\b/i.test(t) },
+];
+
+// Chapters of the Library. kw = words that suggest this chapter fits your idea.
+const CHAPTERS = [
+  { n:1,  name:'Build',         target:'code', kw:/\b(add|new|create|build|make|implement|feature)\b/i },
+  { n:2,  name:'Fix',           target:'code', kw:/\b(fix|bug|broken|error|crash|glitch|wrong|not working|doesn'?t work)\b/i },
+  { n:3,  name:'Improve',       target:'code', kw:/\b(slow|lag|fps|optimi[sz]e|refactor|clean|faster|messy|polish|smooth|feel)\b/i },
+  { n:4,  name:'Interface',     target:'code', kw:/\b(ui|ux|layout|redesign|look|menu|screen|button|mobile|style|sleek|hud)\b/i },
+  { n:5,  name:'Plan',          target:'code', kw:/\b(plan|phases?|roadmap|architecture|structure|should i|which|approach|decide)\b/i },
+  { n:6,  name:'Learn',         target:'code', kw:/\b(explain|why|how does|understand|teach|learn|what is)\b/i },
+  { n:7,  name:'Session',       target:'any',  kw:/\b(handoff|continue|pick up|fresh|session|sign off|checklist|review)\b/i },
+  { n:8,  name:'Characters',    target:'art',  kw:/\b(character|hero|enemy|sprite|walk|run|animation|frames|portrait|pose|expression)\b/i },
+  { n:9,  name:'World',         target:'art',  kw:/\b(background|environment|scene|level|tiles?|tileset|props?|items?|map)\b/i },
+  { n:10, name:'Interface art', target:'art',  kw:/\b(icons?|logo|title|cover|banner|thumbnail|badge)\b/i },
+  { n:11, name:'Consistency',   target:'art',  kw:/\b(match|consistent|style guide|redo|same style)\b/i },
+  { n:12, name:'Ship',          target:'code', kw:/\b(itch|release|publish|patch|store|launch|description)\b/i },
+  { n:13, name:'Everyday',      target:'general', kw:/\b(apps?|websites?|learn\w*|write|email|decide|ideas?|recommend\w*|best|plan|schedule|research|question)\b/i },
+];
+
+// The structures ("verses"). {task} is where your idea drops in.
+// Section names decide their job: TASK / WHAT TO MAKE = your idea,
+// RULES / STYLE = limits, OUTPUT = what comes back, DONE WHEN / CHECK = test.
+const STRUCTURES = [
+  // ---- 1 Build
+  { id:'1.1', ch:1, t:'New feature', use:'Add one feature from start to finish.', s:{
+    'TASK':['{task}'],
+    'HOW IT SHOULD WORK':['- Trigger: [what starts it]','- Result: [what the player sees or gets]','- Edge cases: [what happens if it goes wrong]'],
+    'RULES':['- Build it as its own module so it can be removed or extended later.'],
+    'OUTPUT':['- List the files you changed and why, then the complete files.'],
+    'DONE WHEN':[] }},
+  { id:'1.2', ch:1, t:'New screen', use:'Add a screen, page or menu that fits the existing look.', s:{
+    'TASK':['{task}'],
+    'LAYOUT':['- Top: [..]','- Middle: [..]','- Bottom: [..]'],
+    'RULES':['- Reuse the existing colors, fonts and buttons.'],
+    'OUTPUT':['- Complete files.'],
+    'DONE WHEN':['- I can open the screen, use every control and get back.'] }},
+  { id:'1.3', ch:1, t:'Game mechanic', use:'Add a gameplay rule with numbers you can tune.', s:{
+    'TASK':['{task}'],
+    'TUNING':['- Put every number (speed, damage, timing) in one config block at the top.','- Starting values: [list them, or "your pick"]'],
+    'RULES':['- Don\'t change existing controls or balance.'],
+    'DONE WHEN':['- I feel the mechanic in a quick playtest and can retune it in one place.'] }},
+  { id:'1.4', ch:1, t:'Quick prototype', use:'A throwaway test to see if an idea is fun.', s:{
+    'TASK':['Build a rough, standalone prototype to test this idea: {task}'],
+    'KEEP IT SMALL':['- One file, placeholder shapes instead of art.','- Skip menus, saving and polish.'],
+    'OUTPUT':['- One file I can open directly in a browser.'],
+    'DONE WHEN':['- I can answer one question: [what I\'m testing]'] }},
+  { id:'1.5', ch:1, t:'Save data', use:'Make something persist between sessions.', s:{
+    'TASK':['{task}'],
+    'WHAT TO SAVE':['- Values: [list them]','- When: [on change / on exit / at checkpoints]'],
+    'RULES':['- Old saves must not crash the game if the format changes later.','- Start cleanly when no save exists.'],
+    'DONE WHEN':['- I close and reopen it and everything is where I left it.'] }},
+  // ---- 2 Fix
+  { id:'2.1', ch:2, t:'Bug report', use:'Describe a bug so it gets fixed, not guessed at.', s:{
+    'TASK':['Fix this bug: {task}'],
+    'STEPS TO REPEAT':['1. [..]','2. [..]','3. [..]'],
+    'EXPECTED VS ACTUAL':['- Expected: [..]','- Actual: [..]'],
+    'RULES':['- Find and explain the cause before changing code.','- Change only what the fix needs.'],
+    'DONE WHEN':['- I repeat the steps and the bug is gone, with nothing else changed.'] }},
+  { id:'2.2', ch:2, t:'Error message', use:'Paste an error and get the real cause.', s:{
+    'TASK':['{task}'],
+    'ERROR':['[paste the full error text exactly]'],
+    'WHERE':['- Shows up when: [..]','- Device / browser: [..]'],
+    'OUTPUT':['- What the error means in plain words, the cause, then the fix.'],
+    'DONE WHEN':['- The error no longer appears in the console.'] }},
+  { id:'2.3', ch:2, t:'Device-only bug', use:'Works on PC, breaks on iPhone, or the reverse.', s:{
+    'TASK':['{task}'],
+    'DEVICES':['- Works on: [..]','- Broken on: [..]','- What looks different: [..]'],
+    'RULES':['- The fix must leave the working device exactly as it is.'],
+    'DONE WHEN':['- It behaves the same on both devices.'] }},
+  { id:'2.4', ch:2, t:'Broke after a change', use:'Something worked before the last update.', s:{
+    'TASK':['{task}'],
+    'TIMELINE':['- Last working version: [..]','- What changed since: [..]'],
+    'RULES':['- Compare before and after first; undo only what caused it.','- Keep the new change if possible.'],
+    'DONE WHEN':['- The old behavior works again and the new change still works.'] }},
+  // ---- 3 Improve
+  { id:'3.1', ch:3, t:'Speed it up', use:'Find and fix the biggest causes of lag.', s:{
+    'TASK':['{task}'],
+    'SYMPTOMS':['- Where it\'s slow: [..]','- Device: [..]'],
+    'RULES':['- Find the 3 biggest causes first and rank them.','- No visible or gameplay change.'],
+    'OUTPUT':['- Each fix with a one-line before/after reason, then complete files.'],
+    'DONE WHEN':[] }},
+  { id:'3.2', ch:3, t:'Clean up code', use:'Tidy messy code without changing what it does.', s:{
+    'TASK':['Clean up this code: {task}'],
+    'RULES':['- Behavior must stay exactly the same.','- Clearer names, remove dead code, add short comments.'],
+    'OUTPUT':['- A short list of what you cleaned and why, then complete files.'],
+    'DONE WHEN':['- Everything works exactly as before.'] }},
+  { id:'3.3', ch:3, t:'Split into modules', use:'Break one big file into clear parts.', s:{
+    'TASK':['{task}'],
+    'PLAN FIRST':['- Propose the module list (name + one-line job) and wait for my go.'],
+    'RULES':['- One job per file.','- No behavior change.'],
+    'DONE WHEN':['- Same app, smaller files, each with one clear job.'] }},
+  { id:'3.4', ch:3, t:'Polish the feel', use:'Add smoothness, feedback and juice.', s:{
+    'TASK':['{task}'],
+    'FEEL':['- Mood: [calm / punchy / snappy]','- Moments to polish: [..]'],
+    'RULES':['- Subtle and smooth, nothing abrupt.'],
+    'DONE WHEN':['- It feels better and nothing about the gameplay changed.'] }},
+  // ---- 4 Interface
+  { id:'4.1', ch:4, t:'Redesign a screen', use:'Restyle a screen while keeping every feature.', s:{
+    'TASK':['{task}'],
+    'DIRECTION':['- Feel: [e.g. calm, dark, slightly futuristic]','- Keep: [..]','- Change: [..]'],
+    'RULES':['- Keep every existing feature working.'],
+    'DONE WHEN':['- Every control still works and the screen matches the direction.'] }},
+  { id:'4.2', ch:4, t:'Mobile-friendly', use:'Make it comfortable on a phone.', s:{
+    'TASK':['{task}'],
+    'TARGET':['- Phone and orientation: [e.g. iPhone, portrait]','- Problems now: [..]'],
+    'RULES':['- No sideways scrolling.','- Desktop must look the same as now.'],
+    'DONE WHEN':['- I can use everything one-handed on my phone.'] }},
+  { id:'4.3', ch:4, t:'One consistent style', use:'Make colors, fonts and buttons match everywhere.', s:{
+    'TASK':['Make the look consistent across the app: {task}'],
+    'SYSTEM':['- Put colors, fonts, spacing and button styles in one shared place.','- Replace one-off values with the shared ones.'],
+    'RULES':['- No visible change except fixing inconsistencies.'],
+    'DONE WHEN':['- Changing one color in the shared place updates it everywhere.'] }},
+  { id:'4.4', ch:4, t:'Step-by-step flow', use:'Turn a busy screen into one focused step at a time.', s:{
+    'TASK':['{task}'],
+    'STEPS':['1. [..]','2. [..]','3. [..]'],
+    'RULES':['- Only one step visible at a time, with Back and Next.','- Show progress so I always know where I am.'],
+    'DONE WHEN':['- I can finish the flow without reading instructions.'] }},
+  // ---- 5 Plan
+  { id:'5.1', ch:5, t:'Phase plan', use:'Break a big idea into small playtestable phases.', s:{
+    'TASK':['Help me plan: {task}'],
+    'OUTPUT':['- 3 to 6 phases, each small enough to finish and playtest.','- For each: goal, what I\'ll test, what it unlocks next.'],
+    'RULES':['- No code yet.','- Phase 1 is the smallest playable version.'],
+    'DONE WHEN':['- I can start Phase 1 today.'] }},
+  { id:'5.2', ch:5, t:'Compare options', use:'Pick between two or three approaches.', s:{
+    'TASK':['Help me decide: {task}'],
+    'OPTIONS':['- A: [..]','- B: [..]'],
+    'RULES':['- Free tools only, beginner friendly, works on PC and iPhone.'],
+    'OUTPUT':['- A short pros and cons table, then your pick and why.'] }},
+  { id:'5.3', ch:5, t:'Project architecture', use:'Lay out files and parts for a new project.', s:{
+    'TASK':['Set up the structure for: {task}'],
+    'OUTPUT':['- Folder and file layout, one line per file.','- How the parts talk to each other.','- What to build first.'],
+    'RULES':['- Modular so features plug in later.','- As simple as the project allows.'],
+    'DONE WHEN':['- I understand where every future feature would go.'] }},
+  // ---- 6 Learn
+  { id:'6.1', ch:6, t:'Explain this code', use:'Understand what a piece of code does.', s:{
+    'TASK':['Explain this code: {task}'],
+    'CODE':['[paste the code or name the file]'],
+    'OUTPUT':['- What it does in one sentence.','- A walk through it in plain words, top to bottom.','- One thing I could change to see how it works.'] }},
+  { id:'6.2', ch:6, t:'Teach while building', use:'Build something and learn the concepts as you go.', s:{
+    'TASK':['{task}'],
+    'TEACHING':['- Before each change, one sentence on what you\'re about to do.','- After, one new concept I just saw, in plain words.'],
+    'OUTPUT':['- Complete files.'] }},
+  { id:'6.3', ch:6, t:'Why did that work?', use:'Understand a fix so you can spot it next time.', s:{
+    'TASK':['Why did this fix work? {task}'],
+    'OUTPUT':['- The cause in plain words.','- Why the fix solves it.','- How to spot this kind of problem next time.'] }},
+  // ---- 7 Session
+  { id:'7.1', ch:7, t:'Pick up from handoff', use:'Start a fresh session exactly where the last stopped.', s:{
+    'TASK':['You are continuing an existing project. {task}'],
+    'HANDOFF':['[paste the last handoff note]'],
+    'RULES':['- Don\'t redo finished work.','- Summarize the current state in 3 lines, then wait for my go.'] }},
+  { id:'7.2', ch:7, t:'Write a handoff', use:'End a session so the next one starts clean.', s:{
+    'TASK':['Write a handoff note for this session. {task}'],
+    'OUTPUT':['- What we finished.','- Decisions we made.','- Open problems.','- The single next step.','- Files changed.'],
+    'RULES':['- Written so a fresh session can continue without asking me anything.'] }},
+  { id:'7.3', ch:7, t:'Sign-off checklist', use:'Get a playtest list before approving a feature.', s:{
+    'TASK':['Give me a playtest checklist for: {task}'],
+    'OUTPUT':['- 5 to 10 checks I can tick off by hand.','- Include one edge case and one phone check.'],
+    'DONE WHEN':['- I can sign off this feature in under 10 minutes.'] }},
+  // ---- 8 Characters
+  { id:'8.1', ch:8, t:'Character concept', use:'Design a new character on one turnaround sheet.', s:{
+    'WHAT TO MAKE':['{task}'],
+    'DETAILS':['- Personality in 3 words: [..]','- Silhouette: [..]','- Colors: [..]'],
+    'OUTPUT':['- Front, side and back views on one sheet, neutral pose.'],
+    'CHECK':['- Readable as a silhouette at small size.'] }},
+  { id:'8.2', ch:8, t:'Animation frames', use:'A sprite sheet for one action.', s:{
+    'WHAT TO MAKE':['{task}'],
+    'FRAMES':['- Action: [walk / attack / idle]','- Frame count: [..]','- Frame size: [..]'],
+    'OUTPUT':['- One sheet, frames left to right, equal size, transparent background.'],
+    'CHECK':[] }},
+  { id:'8.3', ch:8, t:'Expression set', use:'One face, several emotions, same framing.', s:{
+    'WHAT TO MAKE':['{task}'],
+    'EXPRESSIONS':['- [neutral, happy, angry, hurt, ...]'],
+    'OUTPUT':['- Same framing and lighting for every face, in one row.'],
+    'CHECK':['- Only the face changes between images.'] }},
+  // ---- 9 World
+  { id:'9.1', ch:9, t:'Background scene', use:'A backdrop that gameplay sits on top of.', s:{
+    'WHAT TO MAKE':['{task}'],
+    'SCENE':['- Mood and time of day: [..]','- Layers: [far / mid / near]'],
+    'OUTPUT':['- [size], wide format, middle kept clear for gameplay.'],
+    'CHECK':['- Characters stay readable on top of it.'] }},
+  { id:'9.2', ch:9, t:'Tileset', use:'Repeating tiles for building levels.', s:{
+    'WHAT TO MAKE':['{task}'],
+    'TILES':['- Tile size: [..]','- Pieces: floor, wall, corners, edges, [..]'],
+    'OUTPUT':['- One grid sheet, no gaps, tiles that repeat seamlessly.'],
+    'CHECK':['- No visible seams when tiles sit side by side.'] }},
+  { id:'9.3', ch:9, t:'Props and items', use:'A matching set of objects for one world.', s:{
+    'WHAT TO MAKE':['{task}'],
+    'ITEMS':['- [list them]'],
+    'OUTPUT':['- Same angle, scale and lighting, transparent PNG, one per cell.'],
+    'CHECK':['- They look like they belong in the same world.'] }},
+  // ---- 10 Interface art
+  { id:'10.1', ch:10, t:'Icon set', use:'Icons that read clearly at small size.', s:{
+    'WHAT TO MAKE':['{task}'],
+    'ICONS':['- [list the icons]','- Size: [..]'],
+    'OUTPUT':['- One grid, same stroke weight and padding, transparent background.'],
+    'CHECK':['- Each icon is clear at its smallest size.'] }},
+  { id:'10.2', ch:10, t:'Logo or title card', use:'A game logo or title treatment.', s:{
+    'WHAT TO MAKE':['{task}'],
+    'DETAILS':['- Name exactly as written: "[..]"','- Feel: [..]'],
+    'OUTPUT':['- Transparent PNG plus a version on a dark background.'],
+    'CHECK':['- Every letter is spelled correctly and readable.'] }},
+  { id:'10.3', ch:10, t:'Store cover art', use:'A cover image for your itch.io page.', s:{
+    'WHAT TO MAKE':['{task}'],
+    'DETAILS':['- Size: [e.g. 630 x 500 for itch.io]','- Focus: [main character / key moment]'],
+    'OUTPUT':['- Leave space for the title. No fake UI or text.'],
+    'CHECK':['- It reads clearly as a small thumbnail.'] }},
+  // ---- 11 Consistency
+  { id:'11.1', ch:11, t:'Style guide', use:'Turn your existing art into rules you can reuse.', s:{
+    'WHAT TO MAKE':['Create a style guide from my existing art: {task}'],
+    'OUTPUT':['- Palette swatches, line weight, shading rules, 3 do\'s and 3 don\'ts.'],
+    'CHECK':['- Someone could follow it and make matching art.'] }},
+  { id:'11.2', ch:11, t:'Redo to match', use:'Fix one asset that stands out from the set.', s:{
+    'WHAT TO MAKE':['Redo this asset so it matches the rest: {task}'],
+    'WHAT IS OFF':['- [what doesn\'t match]'],
+    'STYLE':['- Keep pose and composition; change only what\'s off.'],
+    'CHECK':['- It sits next to the others without standing out.'] }},
+  // ---- 12 Ship
+  { id:'12.1', ch:12, t:'Store page text', use:'Write the description for an itch.io page.', s:{
+    'TASK':['Write store page text for: {task}'],
+    'FACTS':['- Genre and hook: [..]','- Controls: [..]','- Platform: [..]'],
+    'OUTPUT':['- A one-line hook, a short paragraph, a feature list, controls.'],
+    'RULES':['- Plain, confident, no hype words.'] }},
+  { id:'12.2', ch:12, t:'Patch notes', use:'Turn a list of changes into clean update notes.', s:{
+    'TASK':['Write patch notes: {task}'],
+    'CHANGES':['[paste the list of changes]'],
+    'OUTPUT':['- Grouped as New, Changed, Fixed. One short line each.'] }},
+  { id:'12.3', ch:12, t:'Release checklist', use:'Everything to check before you publish.', s:{
+    'TASK':['Give me a release checklist for: {task}'],
+    'OUTPUT':['- Build, test, upload and page steps as checkboxes.','- Include a phone test and a fresh-browser test.'],
+    'DONE WHEN':['- I can release without forgetting a step.'] }},
+  // ---- 13 Everyday (General: any AI chatbot)
+  { id:'13.1', ch:13, t:'Find the right tool', use:'Get real apps, sites or products recommended, not built.', s:{
+    'GOAL':['Help me find: {task}'],
+    'WHAT MATTERS TO ME':['- Budget: [free / under a set amount]','- Device: [iPhone / PC / both]','- My level: [beginner / intermediate]'],
+    'PREFERENCES':['- Only real, existing options. Don\'t build or code anything.'],
+    'FORMAT':['- 3 to 5 options: name, what it\'s best for, and cost.','- Then your top pick and how to get started with it.'],
+    'A GOOD ANSWER':['- I can pick one and start using it today.'] }},
+  { id:'13.2', ch:13, t:'Learn a new skill', use:'A learning path with real resources for your level.', s:{
+    'GOAL':['Help me learn: {task}'],
+    'ABOUT ME':['- Current level: [..]','- Time per week: [..]','- How I like to learn: [videos / apps / reading / practice]'],
+    'FORMAT':['- A beginner path and an intermediate path.','- Free resources first, with links where possible.'],
+    'A GOOD ANSWER':['- I know exactly what to do this week.'] }},
+  { id:'13.3', ch:13, t:'Research a question', use:'A reliable summary with the key points and sources.', s:{
+    'GOAL':['Research: {task}'],
+    'PREFERENCES':['- Use reliable sources and say where facts come from.','- Say clearly when something is uncertain or disputed.'],
+    'FORMAT':['- A 2 to 3 sentence summary first.','- Then the key points.'],
+    'A GOOD ANSWER':['- I could explain it to a friend.'] }},
+  { id:'13.4', ch:13, t:'Write a message', use:'An email, text or post written in the right tone.', s:{
+    'GOAL':['Write this for me: {task}'],
+    'DETAILS':['- Who it\'s for: [..]','- Tone: [friendly / professional / firm]','- Length: [short / medium]'],
+    'FORMAT':['- The finished text, ready to send.','- One shorter alternative.'],
+    'A GOOD ANSWER':['- I can send it without editing.'] }},
+  { id:'13.5', ch:13, t:'Make a decision', use:'Weigh options and get a clear recommendation.', s:{
+    'GOAL':['Help me decide: {task}'],
+    'OPTIONS':['- A: [..]','- B: [..]'],
+    'WHAT MATTERS':['- [cost / time / quality / risk]'],
+    'FORMAT':['- A pros and cons table, then your pick and why.'],
+    'A GOOD ANSWER':['- I can decide today.'] }},
+  { id:'13.6', ch:13, t:'Plan a routine or trip', use:'A realistic day-by-day or step-by-step plan.', s:{
+    'GOAL':['Make me a plan: {task}'],
+    'LIMITS':['- Time available: [..]','- Budget: [..]'],
+    'FORMAT':['- A day-by-day or step-by-step plan.','- Keep it realistic.'],
+    'A GOOD ANSWER':['- I can follow it starting tomorrow.'] }},
+  { id:'13.7', ch:13, t:'Quick question', use:'A direct answer without the fluff.', s:{
+    'GOAL':['{task}'],
+    'FORMAT':['- Answer in 1 to 3 sentences first.','- Then a little detail only if it helps.'] }},
+  { id:'13.8', ch:13, t:'Brainstorm ideas', use:'Varied ideas to choose from.', s:{
+    'GOAL':['Give me ideas for: {task}'],
+    'PREFERENCES':['- Mix safe ideas with a few bold ones.'],
+    'FORMAT':['- 8 to 10 ideas, one line each.','- Mark your top 3.'] }},
+];
+
+// The "Default enhancer" is just the simplest structure.
+const DEFAULTS = {
+  general: { id:null, t:'Default enhancer', use:'A clean all-purpose shape for any question.', s:{ 'GOAL':['{task}'], 'PREFERENCES':[], 'FORMAT':[], 'A GOOD ANSWER':[] } },
+  code: { id:null, t:'Default enhancer', use:'A clean all-purpose shape for any request.', s:{ 'TASK':['{task}'], 'RULES':[], 'OUTPUT':[], 'DONE WHEN':[] } },
+  art:  { id:null, t:'Default enhancer', use:'A clean all-purpose shape for any asset.',   s:{ 'WHAT TO MAKE':['{task}'], 'STYLE':[], 'OUTPUT':[], 'CHECK':[] } },
+};
+
+// What a section is FOR, judged from its name.
+function roleOf(title){
+  if (/^(TASK|WHAT TO MAKE|GOAL)$/.test(title)) return 'task';
+  if (/^(RULES|STYLE|KEEP IT SMALL|PREFERENCES)$/.test(title)) return 'rules';
+  if (/^(OUTPUT|FORMAT)$/.test(title)) return 'output';
+  if (/^(DONE WHEN|CHECK|A GOOD ANSWER)$/.test(title)) return 'done';
+  if (title === 'CONTEXT') return 'context';
+  return 'info';
+}
+const ROLE_TO_CHECK = { rules:'limits', output:'output', done:'done', context:'context' };
+
+// INTENTS: what kind of job is this? First match wins, so order matters.
+// Each gives the agent a matching expert ROLE.
+const INTENTS = [
+  { id:'fix',     label:'Fix',     kw:/\b(fix\w*|bug\w*|broken|breaks|crash\w*|glitch\w*|error\w*|freez\w*|stuck|wrong|issue|problem|doesn'?t|does not|won'?t|isn'?t|aren'?t|can'?t|cannot|stopped|not (working|loading|opening|showing|saving))\b/i,
+    role:'Act as a careful debugger: find and explain the real cause before changing anything.' },
+  { id:'learn',   label:'Learn',   kw:/\b(explain\w*|teach|understand|why (does|is|did|do)|how (does|do|is|did)|what (is|are|does)|walk me through)\b/i,
+    role:'Act as a patient coding teacher who explains in plain words.' },
+  { id:'plan',    label:'Plan',    kw:/\b(plan\w*|roadmap|phases?|architecture|should i|decide|compare|figure out|brainstorm|ideas?|next steps?|what (to|should i) (build|do|add|make) next)\b/i,
+    role:'Act as a software architect planning for a beginner who builds phase by phase.' },
+  { id:'improve', label:'Improve', kw:/\b(optimi\w*|faster|slow\w*|lag\w*|stutter\w*|fps|clean ?up|refactor\w*|improve\w*|polish\w*|smooth\w*|overhaul\w*|performance|tidy)\b/i,
+    role:'Act as a senior developer improving quality and speed without breaking behavior.' },
+  { id:'design',  label:'Design',  kw:/\b(redesign\w*|restyle\w*|layout|look\w*|ui|ux|styl\w*|sleek\w*|interface|prettier|ugly|modern|cleaner|aesthetic|colou?rs?|fonts?)\b/i,
+    role:'Act as a UI/UX designer who also writes clean front-end code.' },
+  { id:'build',   label:'Build',   kw:/./,
+    role:'Act as a senior game developer who builds features cleanly and modularly.' },
+];
+// General mode (any AI chatbot): everyday jobs. First match wins. "rule" = the
+// one line that keeps the AI doing the RIGHT kind of job (e.g. recommend, not build).
+const G_INTENTS = [
+  { id:'write', label:'Write', kw:/\b(write|draft|rewrite|reword|proofread|email|letter|message to|text to|caption|essay|cover letter|bio)\b/i,
+    role:'Act as a clear, friendly writer who matches the tone the reader needs.', rule:'Keep my meaning; match the tone to who is reading.' },
+  { id:'decide', label:'Decide', kw:/\b(should i|decide|choose between|worth it|is it worth|pros and cons|which is better|or should)\b/i,
+    role:'Act as a practical advisor who lays out the options and trade-offs before recommending one.', rule:'Show the trade-offs before giving your pick.' },
+  { id:'recommend', label:'Recommend', kw:/\b(recommend\w*|suggest\w*|best|find (me )?(a|an|some)|which (app|tool|site|website|product)|apps?|websites?|alternatives?|tools? (for|to))\b/i,
+    role:'Act as a knowledgeable guide who recommends real, existing options.', rule:'Point me to real, existing options (apps, sites, tools, products). Don\'t build, code or design anything.' },
+  { id:'organize', label:'Plan', kw:/\b(schedule|routine|itinerary|meal plan|plan (a|my|for|out)|checklist|budget|organi[sz]e|trip)\b/i,
+    role:'Act as an organized planner who turns goals into realistic steps.', rule:'Keep it realistic and easy to follow.' },
+  { id:'brainstorm', label:'Ideas', kw:/\b(ideas?|brainstorm|names? for|things to do)\b/i,
+    role:'Act as a creative partner who gives varied, original ideas.', rule:'Give varied ideas, not many versions of the same one.' },
+  { id:'study', label:'Learn', kw:/\b(teach me|learn\w*|study\w*|quiz me|practice|understand|explain|get better at)\b/i,
+    role:'Act as a patient tutor who adapts to my level.', rule:'Use real, existing resources where they help. Don\'t build anything.' },
+  { id:'research', label:'Research', kw:/\b(research|compare|difference between|information|facts?|summari[sz]e|news|history of|benefits of)\b/i,
+    role:'Act as a careful researcher who checks facts and says when something is uncertain.', rule:'Separate facts from opinions and say when you are unsure.' },
+  { id:'ask', label:'Ask', kw:/./,
+    role:'Act as a helpful expert who answers directly and clearly.', rule:'Answer directly first, then add detail only if it helps.' },
+];
+const ART_INTENT = { id:'create', label:'Create', role:'Act as a professional game artist with a consistent, hand-crafted style.' };
+
+// TOPICS: when your idea mentions one, the expert lines it implies get added.
+// This is the "knowledge" part: what a pro would remember to say.
+const TOPICS = [
+  // General mode topics
+  { label:'Free', target:'general', kw:/\b(free|no cost|cheap|budget|without paying)\b/i,
+    rules:['Free options first; clearly mark anything that costs money, including trials and paid tiers.'] },
+  { label:'Learning', target:'general', kw:/\b(learn\w*|study\w*|courses?|lessons?|languages?|spanish|french|japanese|german|skills?|practice)\b/i,
+    rules:['Cover how to start as a beginner and how to keep progressing at an intermediate level.'] },
+  { label:'Phone', target:'general', kw:/\b(iphone|ios|phone|mobile|android)\b/i,
+    rules:['It has to work on my phone; say whether each option supports iPhone.'] },
+  { label:'Up to date', target:'general', kw:/\b(latest|current|newest|today|right now|recent|this year)\b/i,
+    rules:['Use current information and say if something may have changed.'] },
+  { label:'Local', target:'general', kw:/\b(near me|nearby|in my area|local)\b/i,
+    rules:['If my location matters, ask me where I am instead of guessing.'] },
+  { label:'Multiplayer', target:'code', kw:/\b(multiplayer|online|co-?op|pvp|lobby|both players|opponent|matchmaking|rematch)\b/i,
+    rules:['Keep both players in sync: host and guest always see the same state.'],
+    done:['Tested in two browser windows at once; both update without a refresh.'] },
+  { label:'iPhone', target:'any', kw:/\b(iphone|phone|mobile|touch|ios|safari|ipad|portrait)\b/i,
+    rules:['Touch-first: tap targets at least 44px, nothing that needs hover.'],
+    done:['Works on iPhone Safari in portrait.'] },
+  { label:'Interface', target:'code', kw:/\b(button|menu|screen|ui|ux|layout|panel|hud|popup|modal|tabs?|library|page)\b/i,
+    rules:['Match the existing look; transitions smooth, never abrupt.'],
+    done:['Every new control has a clear hover and pressed state and works with mouse and touch.'] },
+  { label:'Save data', target:'code', kw:/\b(save|load|persist|progress|localstorage|remember|storage)\b/i,
+    rules:['Handle a missing or old save without crashing.'],
+    done:['Close and reopen: everything is where it was left.'] },
+  { label:'Performance', target:'code', kw:/\b(slow|lag|fps|stutter|freeze|optimi[sz]e|performance|heavy|memory)\b/i,
+    rules:['Measure before and after; never trade away visuals for speed without asking.'],
+    done:['Runs smoothly (around 60 fps) on the slowest target device.'] },
+  { label:'Motion', target:'any', kw:/\b(animat\w*|transitions?|tween|smooth|fade|slide|juice|polish)\b/i,
+    rules:['Respect reduced-motion settings; motion supports the action, never blocks it.'],
+    done:['Motion is smooth and nothing jumps or flickers.'] },
+  { label:'Audio', target:'code', kw:/\b(sound|audio|music|sfx)\b/i,
+    rules:['Start audio only after the first tap or click (browsers block it before that).'],
+    done:['Sound plays on PC and iPhone and can be muted.'] },
+  { label:'Controls', target:'code', kw:/\b(controls?|keyboard|joystick|swipe|input|keys|gamepad)\b/i,
+    rules:['Keyboard on PC and touch on iPhone give the same result.'] },
+  { label:'Gizmo/Pocket', target:'any', kw:/\b(gizmo|pocket|png[- ]?pack\w*)\b/i,
+    context:['Runs as a Gizmo/Pocket build on iPhone (PNG-packed).'],
+    rules:['Keep the build fully self-contained: no external files or network calls.'] },
+  { label:'Firebase', target:'code', kw:/\b(firebase|firestore|database|server)\b/i,
+    rules:['Stay on the free tier: keep reads and writes to the minimum needed.'] },
+  { label:'Gameplay', target:'code', kw:/\b(attack|damage|enem(y|ies)|combo|health|hp|boss|spawn|weapon|jump|dash)\b/i,
+    rules:['Put every tunable number (damage, speed, timing) in one config block.'],
+    done:['A quick playtest feels right, and numbers retune in one place.'] },
+  { label:'Sprites', target:'art', kw:/\b(sprites?|frames?|walk|run|idle|animation|cycle)\b/i,
+    rules:['Same frame size and character position in every frame.'],
+    done:['Feet and head line up frame to frame, and it loops cleanly.'] },
+  { label:'Retro', target:'art', kw:/\b(retro|pixel|8-?bit|16-?bit|1980s|80s)\b/i,
+    rules:['One consistent pixel grid; no mixed resolutions or blurry scaling.'] },
+  { label:'Manga', target:'art', kw:/\b(manga|anime|ink|b&w|black and white|shinobi|ninja)\b/i,
+    rules:['Clean ink line art with deliberate screentone; no painterly gradients.'] },
+  { label:'Character', target:'art', kw:/\b(character|hero|enemy|boss|portrait|pose|face)\b/i,
+    rules:['Strong silhouette that reads at small size.'] },
+  { label:'Environment', target:'art', kw:/\b(background|environment|scene|level|tiles?|tileset|sewer|city|room)\b/i,
+    rules:['Keep gameplay areas readable; save fine detail for the edges.'] },
+];
+
+// ===================== STATE + SAVING =====================
+const KEY = 'promptbible.v1', FORMAT_KEY = 'promptbible.format';
+const state = { target:'general', chips:new Set(['simple','steps']), library:[], format:'structured',
+                structure:null, step:1, ch:'all', open:null };
+try {
+  const saved = JSON.parse(localStorage.getItem(KEY));
+  // old versions stored starter examples in here; those now live in the Library chapters
+  if (Array.isArray(saved)) state.library = saved.filter(p => !p.starter);
+  const f = localStorage.getItem(FORMAT_KEY); if (f==='plain'||f==='structured') state.format = f;
+} catch(e){}
+function saveLibrary(){ try { localStorage.setItem(KEY, JSON.stringify(state.library)); } catch(e){} }
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+const chapterOf = s => CHAPTERS.find(c => c.n === s.ch);
+// 'any' = code or art (the Session chapter and shared topics); General has its own
+const fits = s => { const t = chapterOf(s).target; return t === state.target || (t === 'any' && state.target !== 'general'); };
+const topicFits = t => t.target === state.target || (t.target === 'any' && state.target !== 'general');
+const currentStructure = () => STRUCTURES.find(s => s.id === state.structure) || DEFAULTS[state.target];
+
+// ===================== G. EDUCATED GUESS ENGINE =====================
+// Two jobs:
+//  1. A small LEARNING model ("Naive Bayes", a classic text classifier).
+//     It counts which words show up with which intent and which structure,
+//     then uses those counts to guess for a new idea. It learns from built-in
+//     examples, from what you teach it in the dev menu, and from the
+//     structures you actually use when you copy a prompt.
+//     Training = counting, so it takes milliseconds and works offline.
+//  2. GUESS TABLES: when a box is left blank, fill it with a sensible default
+//     for that kind of job, and tell the agent to state its assumptions.
+
+const MODEL_KEY = 'promptbible.model', PROJECTS_KEY = 'promptbible.projects';
+const GUESS = { settings:{ guess:true, learn:true }, examples:[], projects:[] };
+try {
+  const m = JSON.parse(localStorage.getItem(MODEL_KEY));
+  if (m) { Object.assign(GUESS.settings, m.settings || {}); if (Array.isArray(m.examples)) GUESS.examples = m.examples; }
+  const p = JSON.parse(localStorage.getItem(PROJECTS_KEY)); if (Array.isArray(p)) GUESS.projects = p;
+} catch(e){}
+function saveModel(){
+  try {
+    localStorage.setItem(MODEL_KEY, JSON.stringify({ v:1, settings:GUESS.settings, examples:GUESS.examples }));
+    localStorage.setItem(PROJECTS_KEY, JSON.stringify(GUESS.projects));
+  } catch(e){}
+}
+
+// Text -> words the model can count. "buttons" and "button" become one word.
+const STOPW = new Set(('a an the and or but to of in on at for with from by is are be it its this that my me i we you your our us ' +
+  'can could would should will just so some any all also into up out about like get let need want please thanks hey hi do does ' +
+  'when then there their them they have has was were been am not no yes how what').split(' '));
+function tokens(text){
+  return (String(text).toLowerCase().match(/[a-z0-9]+/g) || [])
+    .map(w => w.length > 4 ? w.replace(/(ing|ed|es|s)$/, '') : w)
+    .filter(w => w.length > 1 && !STOPW.has(w));
+}
+
+// Naive Bayes: words[label][word] = how often that word appeared with that label
+function nbNew(){ return { words:{}, totals:{}, vocab:new Set() }; }
+function nbAdd(m, label, text, weight){
+  const w = m.words[label] || (m.words[label] = {});
+  tokens(text).forEach(t => { w[t] = (w[t] || 0) + weight; m.totals[label] = (m.totals[label] || 0) + weight; m.vocab.add(t); });
+  if (!m.totals[label]) m.totals[label] = 0;
+}
+// returns [{label, p}] best first, or [] when it doesn't know any of the words
+function nbPredict(m, text, allowed){
+  const t = tokens(text).filter(x => m.vocab.has(x));
+  if (!t.length) return [];
+  const V = m.vocab.size, labels = Object.keys(m.words).filter(l => !allowed || allowed.has(l));
+  const logs = labels.map(l => { const w = m.words[l], tot = m.totals[l]; return t.reduce((s, x) => s + Math.log(((w[x] || 0) + 1) / (tot + V)), 0); });
+  const mx = Math.max(...logs), ex = logs.map(s => Math.exp(s - mx)), z = ex.reduce((a, b) => a + b, 0);
+  return labels.map((l, i) => ({ label:l, p:ex[i] / z })).sort((a, b) => b.p - a.p);
+}
+
+// Built-in training examples. Your own examples count 3x as much.
+const INTENT_SEED = {
+  // General mode
+  recommend:['i want to learn spanish from a free website or app','whats the best free app for budgeting','recommend a good laptop for school','find me a free tool to edit videos',
+             'which app should i use to track workouts','best free website to learn guitar','suggest some good books on history','free alternatives to photoshop'],
+  study:    ['teach me the basics of spanish','help me study for my biology test','explain how credit scores work','quiz me on world capitals',
+             'how do i get better at chess','teach me how to cook rice','help me understand algebra','i want to get better at drawing'],
+  research: ['what are the health benefits of green tea','find information about electric cars','research the history of the roman empire','compare iphone and android',
+             'difference between a roth ira and a 401k','summarize the latest news on ai','what does the research say about sleep','facts about the ocean'],
+  write:    ['write an email to my boss asking for a day off','help me write a cover letter','rewrite this message to sound nicer','draft a text to my landlord',
+             'write a birthday message for my mom','make this paragraph shorter','write a product description','proofread my essay'],
+  decide:   ['should i buy a new phone or wait','help me decide between two job offers','is it worth getting a gym membership','pros and cons of moving to a new city',
+             'should i learn python or javascript first','help me choose a college','which is better renting or buying'],
+  organize: ['make me a weekly workout schedule','plan a 3 day trip to chicago','create a meal plan for the week','organize my morning routine',
+             'make a study schedule for finals','plan a birthday party','create a budget for the month','checklist for moving apartments'],
+  brainstorm:['give me ideas for a youtube channel','names for my small business','fun things to do this weekend','gift ideas for my dad',
+             'ideas for a short story','date night ideas on a budget','themes for a party','ideas to make money online'],
+  ask:      ['how tall is mount everest','what time zone is tokyo in','how do i reset my iphone','why is the sky blue',
+             'how many cups in a quart','what does this word mean','how do i fix a running toilet','convert 5 miles to km'],
+  // Code mode
+  build:  ['add a pause menu','create a new level select screen','build an inventory system','make a shop where players buy upgrades',
+           'implement a double jump','add sound effects to the buttons','save high scores','add a settings page with a volume slider','new enemy type that chases the player'],
+  fix:    ['the menu doesnt open','nothing happens when i tap the button','the game wont load','saving isnt working','my character falls through the floor','the game crashes when I press start','the button does nothing when tapped','error in the console undefined is not a function',
+           'players get stuck in the wall','the score resets for no reason','it broke after the last update','works on pc but not on iphone','the timer freezes','sprites flicker and glitch'],
+  improve:['it feels laggy','make it smoother and faster','the code is a mess','loading takes forever','the game lags on my phone','clean up this messy code','make it load faster','optimize the frame rate','split this big file into modules',
+           'polish the animations so it feels smoother','refactor the enemy code','reduce memory use','make the code easier to read'],
+  design: ['make it look cleaner','the menu looks ugly','make the screen look more modern','cleaner looking pause screen','redesign the main menu so it looks sleeker','make the layout work on mobile','restyle the buttons to match','make the hud cleaner',
+           'change the colors and fonts to look professional','make the interface less cluttered','new look for the settings screen','improve the ux of the shop'],
+  plan:   ['what should i build next','give me ideas for new features','help me figure out the next step','plan out the multiplayer update','help me plan the next phases','what is the best approach for multiplayer','should i use firebase or local storage','make a roadmap for my game',
+           'how should i structure this project','compare options for saving data','break this big idea into steps','architecture for a card game'],
+  learn:  ['what does this code do','how does the save system work','i dont understand this part','explain how this function works','why does this code use async','teach me how loops work','what is a service worker',
+           'help me understand this error','explain what you changed','how does collision detection work','walk me through this file'],
+};
+// Extra phrases for structures whose titles alone don't say enough
+const STRUCT_SEED = {
+  '13.1':'recommend app website tool free best which', '13.2':'learn skill language course beginner', '13.3':'research facts information compare summary',
+  '13.4':'write email message text letter tone', '13.5':'decide choose should i pros cons', '13.6':'plan schedule routine trip itinerary week',
+  '13.7':'what how why quick question answer', '13.8':'ideas brainstorm names gift fun',
+  '1.2':'add a menu screen page popup', '1.3':'mechanic jump dash damage speed tune', '1.5':'save progress high score load remember',
+  '2.2':'error console message undefined exception', '2.3':'iphone safari works on pc not phone touch', '2.4':'broke after update used to work last change',
+  '3.1':'lag slow fps stutter performance frame rate', '3.2':'messy code clean tidy rename', '4.2':'mobile phone layout touch small screen',
+  '4.4':'too many steps wizard one at a time flow', '7.1':'continue handoff new session pick up', '7.2':'handoff note end session summary',
+  '8.2':'walk run idle attack cycle sprite sheet frames animation', '8.3':'face emotions expressions portrait', '9.2':'tiles tileset level floor wall',
+  '10.1':'icons buttons symbols', '10.3':'itch cover thumbnail store image', '12.2':'patch notes changelog update list',
+};
+
+function trainModels(){
+  const im = nbNew(), sm = nbNew();
+  Object.entries(INTENT_SEED).forEach(([id, list]) => list.forEach(t => nbAdd(im, id, t, 1)));
+  STRUCTURES.forEach(s => {
+    const lines = Object.entries(s.s).map(([k, v]) => k + ' ' + v.join(' ').replace(/\[[^\]]*\]|\{task\}/g, ' ')).join(' ');
+    nbAdd(sm, s.id, [s.t, s.use, chapterOf(s).name, lines, STRUCT_SEED[s.id] || ''].join(' '), 1);
+  });
+  GUESS.examples.forEach(e => {
+    if (e.intent) nbAdd(im, e.intent, e.text, 3);
+    if (e.structure) nbAdd(sm, e.structure, e.text, 3);
+  });
+  GUESS.intentM = im; GUESS.structM = sm;
+}
+
+// Intent = 60% learned model + 40% keyword rules, so what you teach can override a keyword (rules are reliable for obvious words)
+function guessIntent(text, target){
+  const list = (target || state.target) === 'general' ? G_INTENTS : INTENTS;
+  const fallback = list[list.length - 1].id;
+  const score = {}; list.forEach(i => score[i.id] = 0);
+  const nb = nbPredict(GUESS.intentM, text, new Set(list.map(i => i.id)));
+  nb.forEach(r => score[r.label] += 0.6 * r.p);
+  const rule = list.find(i => i.id !== fallback && i.kw.test(text));
+  if (rule) score[rule.id] += 0.4; else if (!nb.length) score[fallback] += 1;
+  const ranked = Object.entries(score).map(([id, p]) => ({ id, p })).sort((a, b) => b.p - a.p);
+  const z = ranked.reduce((a, r) => a + r.p, 0) || 1; ranked.forEach(r => r.p /= z);
+  return { intent: list.find(i => i.id === ranked[0].id), conf: ranked[0].p, ranked, learned: nb.length > 0 };
+}
+function guessStructures(text, allowed){ return nbPredict(GUESS.structM, text, allowed); }
+
+// Project: one you named in the idea, otherwise the one you used last
+function guessProject(text){
+  const t = text.toLowerCase();
+  const named = GUESS.projects.find(p => p && t.includes(p.toLowerCase()));
+  if (named) return { name:named, sure:true };
+  return GUESS.projects[0] ? { name:GUESS.projects[0], sure:false } : null;
+}
+
+// Guess tables: what a sensible default is for each kind of job
+const WHY_GUESS = {
+  recommend:'So I can pick something good without spending hours comparing.', study:'So I can actually learn it, one step at a time.',
+  research:'So I get an accurate picture I can rely on.', write:'So it says what I mean, clearly and in the right tone.',
+  decide:'So I can make a confident choice.', organize:'So I have a plan I can actually follow.',
+  brainstorm:'So I have good options to choose from.', ask:'So I get a clear, quick answer.',
+  build:'So it works smoothly as part of the existing project.', fix:'So it works reliably again without breaking anything else.',
+  improve:'So it runs and reads better while behaving exactly the same.', design:'So it looks consistent and is easier to use.',
+  plan:'So I can build it in small steps and test each one.', learn:'So I understand it well enough to change it myself.',
+  create:'So it fits the existing look and reads clearly in play.' };
+const OUTPUT_GUESS = {
+  recommend:'3 to 5 real options (free ones first), each with what it is best for. Then your top pick and how to get started with it.',
+  study:'A simple learning path: where to start, what to practice, and how to know I am improving.',
+  research:'A short summary first, then the key points, with sources where possible.', write:'The finished text, ready to copy, plus one shorter alternative.',
+  decide:'The options side by side with pros and cons, then your recommendation and why.', organize:'A clear step-by-step plan or checklist.',
+  brainstorm:'8 to 10 varied ideas, one line each, with your top 3 marked.', ask:'A direct answer in 1 to 3 sentences, then any helpful detail.',
+  build:'Complete updated files, plus a short list of what changed.', fix:'The cause in one or two lines, then the complete fixed files.',
+  improve:'Each change with a one-line reason, then the complete files.', design:'Complete updated files, plus a short before/after summary.',
+  plan:'A numbered plan with a goal and a test for each step. No code yet.', learn:'A plain-words explanation with one small example.',
+  create:'One clean image sized for where it is used; transparent background for sprites and icons.' };
+const DONE_GUESS = {
+  recommend:'I can choose an option and start using it today.', study:'I know exactly what to do first.', research:'I understand it well enough to explain it.',
+  write:'I can send it as is.', decide:'I can make the decision with confidence.', organize:'I can start following the plan right away.',
+  brainstorm:'At least one idea I want to try.', ask:'My question is fully answered.',
+  build:'The feature works start to finish and nothing else changed.', fix:'The problem no longer happens and everything else still works.',
+  improve:'It works the same or better, with no change in behavior.', design:'Every control still works and the new look is consistent.',
+  plan:'I can start step 1 right away.', learn:'I can explain it back in my own words.' };
+const GOAL_PREFIX = { fix:'Fix this: ', improve:'Improve this: ', design:'Redesign this: ', plan:'Help me plan this: ', learn:'Explain this: ', build:'Build this: ' };
+const LIMIT_GUESS = { general:'Keep it practical and easy to understand; no jargon.', code:'Keep everything that already works unchanged.', art:'Stay consistent with the existing art style; add nothing unrelated.' };
+
+// Called when you copy a prompt: remember which structure you chose for this idea
+function learnFromCopy(){
+  const text = $('rough').value.trim(), project = $('project').value.trim();
+  if (project && state.target !== 'general') { GUESS.projects = [project, ...GUESS.projects.filter(p => p.toLowerCase() !== project.toLowerCase())].slice(0, 8); }
+  if (GUESS.settings.learn && text.length >= 8 && state.structure) {
+    GUESS.examples = GUESS.examples.filter(e => !(e.src === 'copy' && e.text === text));
+    GUESS.examples.unshift({ text, intent:null, structure:state.structure, target:state.target, src:'copy', at:Date.now() });
+    GUESS.examples = GUESS.examples.slice(0, 500);
+    trainModels();
+  }
+  saveModel();
+}
+trainModels();
+
+// ===================== B. READER =====================
+// Reads your rough idea and works out: a clean goal sentence, the reason
+// behind it, the intent (what kind of job), and the topics it touches.
+function readIdea(rough, extra){
+  let g = rough.trim().replace(/\s+/g, ' ');
+  // 1. strip chatty openers: "hey can you please...", "i want to...", "we need to..."
+  const opener = /^(hey|hi|ok(ay)?|so|um+|also|please|pls|can you|could you|would you|i want you to|i'?d like you to|i need you to|i want to|i'?d like to|i need to|we need to|we should|we want to|let'?s|lets|help me( to)?|i want)\b[\s,]*/i;
+  for (let i = 0; i < 5 && opener.test(g); i++) g = g.replace(opener, '');
+  // 2. strip polite endings and trailing punctuation
+  g = g.replace(/[\s,]*(please|pls|thanks|thank you|thx)\W*$/i, '').replace(/[?!.\s]+$/, '');
+  // 3. pull out the reason if you gave one ("so that...", "because...")
+  let why = '';
+  const m = g.match(/^(.+?)\s*,?\s*\b(so that|because|in order to)\b\s+(.+)$/i);
+  if (m) { g = m[1]; why = m[3]; }
+  const goal = g ? g.charAt(0).toUpperCase() + g.slice(1) + '.' : '';
+  // intent now comes from the Educated Guess engine (learned model + keyword rules)
+  const gi = state.target === 'art' ? null : guessIntent(rough);
+  const intent = state.target === 'art' ? ART_INTENT : gi.intent;
+  const all = rough + ' ' + extra;
+  const topics = TOPICS.filter(t => topicFits(t) && t.kw.test(all));
+  return { goal, why, intent, topics, conf: gi ? gi.conf : 1 };
+}
+
+// ===================== C. BUILDER =====================
+// Merges: your idea + the chosen structure + context + topic lines + chips.
+function build(){
+  const art = state.target === 'art', gen = state.target === 'general';
+  const rough = $('rough').value.trim();
+  const project = $('project').value.trim();
+  const ctx = { have:$('ctxHave').value.trim(), tried:$('ctxTried').value.trim(), refs:$('ctxRefs').value.trim() };
+  const ctxCount = [ctx.have, ctx.tried, ctx.refs].filter(Boolean).length;
+  const R = readIdea(rough, [ctx.have, ctx.tried, ctx.refs].join(' '));
+  const picked = CHIPS[state.target].filter(c => state.chips.has(c.id));
+  const T = currentStructure();
+
+  // 1. which ingredients did YOU already give?
+  const have = {};
+  CHECKS.forEach(c => have[c.id] = c.test(rough));
+  if (project || ctxCount || R.topics.length) have.context = true;
+  picked.forEach(c => have[c.covers] = true);
+
+  // 2. copy the structure's sections, dropping your clean goal into {task}
+  const goalText = R.goal || '[describe what you want]';
+  const guessOn = GUESS.settings.guess;
+  let guesses = 0;
+  // project: yours, or an educated guess, or (guess on + nothing to go on) leave the line out
+  let projLine = project || (gen ? null : '[project name]');
+  if (!project && guessOn && !gen) {
+    const gp = guessProject(rough);
+    projLine = gp ? gp.name + (gp.sure ? '' : ' (assumed)') : null;
+    if (gp) guesses++;
+  }
+  const S = projLine ? [{ title: art ? 'ASSET FOR' : gen ? 'TOPIC' : 'PROJECT', role:'head', inline:true, lines:[projLine] }] : [];
+  S.push({ title:'ROLE', role:'info', lines:[R.intent.role] });
+  Object.entries(T.s).forEach(([title, lines]) => S.push({
+    title, role: roleOf(title), quote: art && roleOf(title) === 'task',
+    lines: lines.map(l => {
+      if (!l.includes('{task}')) return l;
+      // if the structure already says "Fix this bug:", drop the repeated verb from your goal
+      const before = l.split('{task}')[0];
+      const body = before.trim() ? goalText.replace(/^(fix|explain|plan|write|clean up|redo|create|give me|find|research|decide|learn about)\s+/i, '') : goalText;
+      // guess mode: an idea that only describes a problem gets the action it implies
+      if (!before.trim() && guessOn && rough && !have.goal && GOAL_PREFIX[R.intent.id]) {
+        have.goal = 'guess'; guesses++;
+        return l.replace('{task}', GOAL_PREFIX[R.intent.id] + goalText.charAt(0).toLowerCase() + goalText.slice(1));
+      }
+      return l.replace('{task}', before.trim() ? body.charAt(0).toLowerCase() + body.slice(1) : body);
+    })
+  }));
+
+  // helper: find a section by job, or create it in a sensible spot
+  const ensure = role => {
+    let sec = S.find(s => s.role === role);
+    if (sec) return sec;
+    const title = { rules: art?'STYLE':gen?'PREFERENCES':'RULES', output: gen?'FORMAT':'OUTPUT', done: art?'CHECK':gen?'A GOOD ANSWER':'DONE WHEN', context:'CONTEXT' }[role];
+    sec = { title, role, lines:[] };
+    if (role === 'context') S.splice(S.findIndex(s => s.role === 'task') + 1, 0, sec);
+    else if (role === 'done') S.push(sec);
+    else { const d = S.findIndex(s => s.role === 'done'); d < 0 ? S.push(sec) : S.splice(d, 0, sec); }
+    return sec;
+  };
+  const addLine = (role, text) => { const sec = ensure(role), line = '- ' + text; if (!sec.lines.includes(line)) sec.lines.push(line); };
+
+  // 3. under the goal: the reason, or a blank asking for it (intent = precision)
+  const task = S.find(s => s.role === 'task');
+  if (task) {
+    if (R.why) task.lines.push('Why: ' + R.why.charAt(0).toUpperCase() + R.why.slice(1) + '.');
+    else if (guessOn && rough) { task.lines.push((art ? 'Purpose (assumed): ' : 'Why (assumed): ') + WHY_GUESS[R.intent.id]); guesses++; }
+    else task.lines.push(art ? 'Purpose: [where it appears and what it should make the player feel]' : 'Why: [what this lets the player or you do]');
+    // missing specifics: guess mode hands them to the agent as assumptions instead of a blank
+    if (!have.detail) {
+      if (guessOn && rough) { have.detail = 'guess'; guesses++; }
+      else task.lines.push(art ? '[Add size, pose, colors or a reference]' : '[Add a specific: a number, a name, or "like X"]');
+    }
+  }
+
+  // 4. context: who you are, what you told us, what the topics imply
+  if (!art && !gen) addLine('context', 'I direct AI to build my projects. You handle code and architecture; ChatGPT handles art.');
+  if (gen && R.intent.rule && rough) addLine('rules', R.intent.rule);   // keeps the AI on the right KIND of job
+  if (ctx.have)  addLine('context', (art ? 'Existing assets: ' : gen ? 'What I already know or have: ' : 'Already working: ') + ctx.have);
+  if (ctx.tried) addLine('context', 'Tried so far / went wrong: ' + ctx.tried);
+  if (ctx.refs)  addLine('context', (art || gen ? 'References: ' : 'Files or screens involved: ') + ctx.refs);
+  R.topics.forEach(t => (t.context || []).forEach(l => addLine('context', l)));
+
+  // 5. topic lines + your chips go into rules / output / done
+  R.topics.forEach(t => { (t.rules || []).forEach(l => addLine('rules', l)); (t.done || []).forEach(l => addLine('done', l)); });
+  if (!guessOn && !art && !gen && /^(build|fix|design|improve)$/.test(R.intent.id)) addLine('rules', 'If anything is unclear, list your assumptions in 1 to 3 lines before you start.');
+  picked.forEach(c => addLine({ limits:'rules', output:'output', done:'done', detail:'rules' }[c.covers], c.line));
+
+  // 6. any section with a real (no-blank) line counts toward the checklist
+  S.forEach(s => { const k = ROLE_TO_CHECK[s.role]; if (k && s.lines.some(l => !l.includes('['))) have[k] = true; });
+
+  // 7. still missing something?
+  //    Guess mode: fill it with the sensible default for this kind of job.
+  //    Guess mode off: leave a clear [blank] for you to fill.
+  const id = R.intent.id, fill = guessOn && !!rough;
+  if (!have.limits) {
+    if (fill) { addLine('rules', LIMIT_GUESS[state.target]); have.limits = 'guess'; guesses++; }
+    else addLine('rules', art ? '[What should it avoid looking like?]' : gen ? '[Anything to avoid or must have?]' : '[What must NOT change?]');
+  }
+  if (!have.output) {
+    if (fill) { addLine('output', OUTPUT_GUESS[id]); have.output = 'guess'; guesses++; }
+    else addLine('output', art ? '[File type, size, background]' : gen ? '[What should the answer look like: a list, steps, a short answer?]' : '[What do you want back: files, steps, a list?]');
+  }
+  if (!have.done) {
+    if (art) { addLine('done', 'Before you finish, confirm it matches every line above.'); have.done = true; }
+    else if (fill) { addLine('done', DONE_GUESS[id]); have.done = 'guess'; guesses++; }
+    else addLine('done', gen ? '[What would make this answer useful to you?]' : '[How will you test that it works?]');
+  }
+  if (fill && !have.context) { have.context = 'guess'; }
+  if (fill && gen && !have.goal) have.goal = 'guess';   // the role + rule already state the job
+
+  // 8. guess mode: a structure's own blanks become "(infer)" for the agent to decide,
+  //    except things only YOU can supply (pasting an error, code, a handoff note)
+  let inferred = 0;
+  if (fill) S.forEach(s => {
+    s.lines = s.lines.map(l => {
+      if (!/\[[^\]]*\]/.test(l) || /paste/i.test(l)) return l;
+      const out = l.replace(/\[[^\]]*\]/g, '(infer)');
+      if (out !== l) inferred++;
+      return out;
+    });
+  });
+  guesses += inferred;
+
+  // 9. guess mode: one short section telling the agent how to handle the guesses
+  if (fill && (inferred || have.detail === 'guess' || S.some(s => s.lines.some(l => /\(assumed\)/.test(l))))) {
+    const lines = gen
+      ? ['- If a detail isn\'t given, assume what suits a typical person in my situation.',
+         '- Say what you assumed in one line at the start, so I can correct it.']
+      : art
+      ? ['- Anything marked (infer) or (assumed), or any detail not given: choose what fits the style best.',
+         '- Note your choices in one line before the image so I can correct them.']
+      : ['- Anything marked (infer) or (assumed), or any detail not given (numbers, names, sizes): pick what fits the task best.',
+         '- Before you start, list those choices in 1 to 3 lines so I can correct them.'];
+    const at = S.findIndex(s => s.role === 'output');
+    S.splice(at < 0 ? S.length : at, 0, { title:'ASSUMPTIONS', role:'info', lines });
+  }
+
+  return { S, have, R, T, upgrades: R.topics.length, guesses };
+}
+
+// ===================== D. RENDER =====================
+function renderPlain(S){
+  const L = [];
+  S.forEach(s => {
+    if (s.inline) L.push(s.title + ': ' + s.lines[0]);
+    else if (s.lines.length) L.push('', s.title, ...s.lines);
+  });
+  return L.join('\n');
+}
+// Structured: same words + markers. Claude gets XML tags, ChatGPT gets
+// Markdown headings with your own words fenced in """ quotes.
+function renderStructured(S, target){
+  const filled = S.filter(s => s.lines.length);
+  const tag = t => t.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+  if (target !== 'art') {
+    return filled.map(s => s.inline
+      ? `<${tag(s.title)}>${s.lines[0]}</${tag(s.title)}>`
+      : `<${tag(s.title)}>\n${s.lines.join('\n')}\n</${tag(s.title)}>`).join('\n\n');
+  }
+  const nice = t => t.charAt(0) + t.slice(1).toLowerCase();
+  return filled.map(s => {
+    if (s.inline) return `# ${nice(s.title)}: ${s.lines[0]}`;
+    const [first, ...rest] = s.lines;
+    return `## ${nice(s.title)}\n${(s.quote ? ['"""', first, '"""', ...rest] : s.lines).join('\n')}`;
+  }).join('\n\n');
+}
+
+// ===================== E. SCREENS =====================
+let last = null;   // the most recent build result
+
+function refresh(){
+  last = build();
+  const text = state.format === 'structured' ? renderStructured(last.S, state.target) : renderPlain(last.S);
+  $('out').value = text;
+
+  // checklist strip + the one next thing to do
+  const gaps = CHECKS.filter(c => !last.have[c.id]);
+  const blanks = (text.match(/\[[^\]\n]+\]/g) || []).length;
+  $('segs').innerHTML = CHECKS.map(c =>
+    `<div class="seg ${last.have[c.id]==='guess'?'guess':last.have[c.id]?'ok':''}" title="${c.name}: ${last.have[c.id]==='guess'?'filled by educated guess':c.hint}"><i></i><span>${c.name}</span></div>`).join('');
+  const m = $('missing');
+  const guessed = CHECKS.filter(c => last.have[c.id] === 'guess').length;
+  m.classList.toggle('all', !gaps.length);
+  m.innerHTML = gaps.length
+    ? `<b>${6-gaps.length}/6</b> · Next: ${gaps[0].name.toLowerCase()} — ${gaps[0].hint}`
+    : blanks ? `<b>6/6</b> · ${blanks} [blank${blanks>1?'s':''}] left to fill, then copy.`
+    : guessed ? `<b>6/6</b> · ${guessed} filled by educated guess (blue). Edit anything, then copy.` : `<b>6/6</b> · Ready to send.`;
+
+  const T = last.T;
+  $('built').innerHTML = `Built on <b>${T.id ? T.id + ' ' + esc(T.t) : 'Default enhancer'}</b>`
+    + (last.upgrades ? ` · ${last.upgrades} topic upgrade${last.upgrades>1?'s':''}` : '')
+    + (last.guesses ? ` · ${last.guesses} guess${last.guesses>1?'es':''}` : '')
+    + ` · <button class="linkbtn" id="changeStruct">Change</button>`;
+  $('more').querySelector('em').textContent = [$('ctxHave'),$('ctxTried'),$('ctxRefs')].filter(i=>i.value.trim()).length + ' added';
+  if ($('more').querySelector('em').textContent === '0 added') $('more').querySelector('em').textContent = 'optional';
+  if (state.step === 2) renderOpts();
+  if (typeof saveDraft === 'function') saveDraft();
+}
+
+// --- Structure picker (step 2) ---
+// Score each structure: +2 if its chapter matches your intent, +2 if the chapter's
+// keywords appear, +1 for each meaningful word it shares with your idea.
+const INTENT_CHAPTER = { build:1, fix:2, improve:3, design:4, plan:5, learn:6 };
+const INTENT_STRUCT = { recommend:'13.1', study:'13.2', research:'13.3', write:'13.4', decide:'13.5', organize:'13.6', ask:'13.7', brainstorm:'13.8' };
+const STOP = new Set(['that','this','with','from','your','into','make','what','when','then','them','they','have','just','each','every','start','finish','after','before']);
+// v1.7: plus up to +8 from the learned model (it gets better as it learns your choices)
+function suggestions(){
+  const raw = $('rough').value + ' ' + $('ctxRefs').value, text = raw.toLowerCase();
+  const words = new Set(text.split(/\W+/).filter(w => w.length > 3 && !STOP.has(w)));
+  const home = INTENT_CHAPTER[last.R.intent.id];
+  const pool = STRUCTURES.filter(fits), learned = {};
+  guessStructures(raw, new Set(pool.map(s => s.id))).forEach(r => learned[r.label] = r.p);
+  return pool.map(s => ({ s,
+      score: (s.ch === home ? 2 : 0) + (chapterOf(s).kw.test(text) ? 2 : 0) + (INTENT_STRUCT[last.R.intent.id] === s.id ? 4 : 0)
+           + (s.t + ' ' + s.use).toLowerCase().split(/\W+/).filter(w => words.has(w)).length
+           + 8 * (learned[s.id] || 0) }))
+    .filter(x => x.score > 0).sort((a, b) => b.score - a.score).slice(0, 3).map(x => x.s);
+}
+function optCard(s, flag){
+  const sel = (s.id || null) === state.structure;
+  const skel = Object.keys(s.s).map(k => `<span>${esc(k)}</span>`).join('');
+  return `<button class="opt" data-id="${s.id || ''}" aria-pressed="${sel}">
+    <span class="vn">${s.id ? s.id : '§'}</span><strong>${esc(s.t)}</strong><span class="flag">${flag || ''}</span>
+    <span class="use">${esc(s.use)}</span><span class="skel">${skel}</span></button>`;
+}
+function renderOpts(){
+  const R = last.R, sug = suggestions();
+  $('reading').innerHTML = `Read as <span class="tagx intent">${R.intent.label}</span>` + R.topics.map(t => `<span class="tagx">${t.label}</span>`).join('');
+  let html = optCard(DEFAULTS[state.target]);
+  const cur = STRUCTURES.find(s => s.id === state.structure);
+  if (cur && !sug.includes(cur)) html += `<div class="optlabel">Selected</div>` + optCard(cur);
+  html += sug.length ? `<div class="optlabel">Suggested for your idea</div>` + sug.map((s, i) => optCard(s, i === 0 ? 'Best match' : '')).join('')
+                     : `<div class="optlabel">No close match. Try the Library.</div>`;
+  $('opts').innerHTML = html;
+}
+
+// --- Step flow ---
+const STEP_NAMES = ['', 'Idea', 'Structure', 'Rules', 'Prompt'];
+function goStep(n){
+  const dir = n >= state.step ? 'in-next' : 'in-prev';
+  state.step = Math.max(1, Math.min(4, n));
+  document.querySelectorAll('[data-panel]').forEach(p => {
+    const on = +p.dataset.panel === state.step;
+    p.hidden = !on;
+    p.classList.remove('in-next', 'in-prev');
+    if (on) { void p.offsetWidth; p.classList.add(dir); }   // restart the slide animation
+  });
+  document.querySelectorAll('#stepper li').forEach((li, i) => {
+    li.classList.toggle('current', i + 1 === state.step);
+    li.classList.toggle('done', i + 1 < state.step);
+  });
+  $('railFill').style.width = ((state.step - 1) / 3 * 100) + '%';
+  $('backBtn').dataset.hide = state.step === 1;
+  $('nextBtn').dataset.hide = state.step === 4;
+  if (state.step < 4) $('nextBtn').textContent = 'Next: ' + STEP_NAMES[state.step + 1] + ' →';
+  refresh();
+  placeMarkers();
+  if (state.step === 1) $('rough').focus({ preventScroll:true });
+}
+
+// --- Library ---
+function renderChapters(){
+  const n = c => STRUCTURES.filter(s => s.ch === c.n).length;
+  const btn = (key, label, count) => `<button data-ch="${key}" aria-pressed="${state.ch == key}">${label}<small>${count}</small></button>`;
+  $('chapters').innerHTML =
+    btn('all', 'Everything', STRUCTURES.length) +
+    `<div class="grp">General · any AI</div>` + CHAPTERS.filter(c => c.target === 'general').map(c => btn(c.n, c.name, n(c))).join('') +
+    `<div class="grp">Code · Claude</div>` + CHAPTERS.filter(c => c.target === 'code' || c.target === 'any').map(c => btn(c.n, c.name, n(c))).join('') +
+    `<div class="grp">Art · ChatGPT</div>` + CHAPTERS.filter(c => c.target === 'art').map(c => btn(c.n, c.name, n(c))).join('') +
+    `<div class="grp">Yours</div>` + btn('saved', 'Saved prompts', state.library.length);
+}
+function previewOf(s){
+  const ct = chapterOf(s).target, t = ct === 'any' ? 'code' : ct;
+  const S = [{ title: t==='art' ? 'ASSET FOR' : t==='general' ? 'TOPIC' : 'PROJECT', inline:true, lines:[t==='general' ? '[topic]' : '[project]'] }]
+    .concat(Object.entries(s.s).map(([title, lines]) => ({ title, quote: t==='art' && roleOf(title)==='task',
+      lines: lines.length ? lines.map(l => l.replace('{task}', '[your idea]')) : ['[filled from your idea]'] })));
+  return state.format === 'structured' ? renderStructured(S, t) : renderPlain(S);
+}
+function renderLibrary(){
+  const q = $('search').value.trim().toLowerCase();
+  const match = s => !q || (s.id + ' ' + s.t + ' ' + s.use + ' ' + JSON.stringify(s.s)).toLowerCase().includes(q);
+  $('libSub').textContent = `${STRUCTURES.length} structures in ${CHAPTERS.length} chapters · ${state.library.length} saved`;
+  let html = '';
+  const ORDER = c => c.target === 'general' ? 0 : 1;
+  const chs = state.ch === 'all' ? CHAPTERS.slice().sort((a, b) => ORDER(a) - ORDER(b) || a.n - b.n) : state.ch === 'saved' ? [] : CHAPTERS.filter(c => c.n == state.ch);
+  chs.forEach(c => {
+    const items = STRUCTURES.filter(s => s.ch === c.n && match(s));
+    if (!items.length) return;
+    html += `<div class="chhead"><span>${String(c.n).padStart(2,'0')}</span><h3>${c.name}</h3><em>${c.target === 'any' ? 'code or art' : c.target}</em></div>`;
+    html += items.map(s => {
+      const open = state.open === s.id;
+      return `<div class="entry"><button data-open="${s.id}" aria-expanded="${open}">
+        <span class="vn">${s.id}</span><strong>${esc(s.t)}</strong><span class="pill ${c.target}">${c.target}</span>
+        <span class="use">${esc(s.use)}</span></button>
+        ${open ? `<div class="detail"><pre>${esc(previewOf(s))}</pre>
+          <p class="note">Your idea, context, topic upgrades and rules merge in when you use it.</p>
+          <div class="actions"><button class="btn primary" data-use="${s.id}">Use this structure</button>
+          <button class="btn" data-copyblank="${s.id}">Copy blank</button></div></div>` : ''}</div>`;
+    }).join('');
+  });
+  if (state.ch === 'all' || state.ch === 'saved') {
+    const mine = state.library.filter(p => !q || (p.title + p.text).toLowerCase().includes(q));
+    if (mine.length) {
+      html += `<div class="chhead"><span>§</span><h3>Saved prompts</h3><em>yours</em></div>` + mine.map(p => {
+        const open = state.open === p.id;
+        return `<div class="entry"><button data-open="${p.id}" aria-expanded="${open}">
+          <span class="vn">§</span><strong>${esc(p.title)}</strong><span class="pill ${p.target}">${p.target}</span></button>
+          ${open ? `<div class="detail"><pre>${esc(p.text)}</pre><div class="actions">
+            <button class="btn primary" data-copy="${p.id}">Copy</button>
+            <button class="btn" data-edit="${p.id}">Open in editor</button>
+            <button class="btn ghost danger" data-del="${p.id}">Delete</button></div></div>` : ''}</div>`;
+      }).join('');
+    } else if (state.ch === 'saved') html += `<div class="empty">Nothing saved yet. Finish a prompt in Enhance and tap Save.</div>`;
+  }
+  $('entries').innerHTML = html || `<div class="empty">Nothing matches "${esc(q)}".</div>`;
+  renderChapters();
+}
+
+// --- helpers ---
+function slideTo(marker, btn){ if (!btn || !btn.offsetWidth) return; marker.style.left = btn.offsetLeft + 'px'; marker.style.width = btn.offsetWidth + 'px'; }
+function placeMarkers(){
+  slideTo($('ink'), $('menu').querySelector('[aria-selected="true"]'));
+  slideTo($('knob'), $('target').querySelector('[aria-pressed="true"]'));
+  slideTo($('knob2'), $('format').querySelector('[aria-pressed="true"]'));
+}
+function toast(msg){ const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 1900); }
+function copyText(text){
+  navigator.clipboard.writeText(text).then(() => toast('Copied'))
+    .catch(() => { $('out').value = text; $('out').select(); toast('Selected. Press Ctrl+C to copy'); });
+}
+function setTarget(t){
+  state.target = t;
+  $('target').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x.dataset.t === t));
+  state.chips = new Set(DEFAULT_CHIPS[t]);
+  updateFieldLabels();
+  const cur = STRUCTURES.find(s => s.id === state.structure);
+  if (cur && !fits(cur)) { state.structure = null; toast('Structure reset to Default'); }
+  renderChips(); placeMarkers();
+}
+// Labels and hints that fit the mode (a "Topic" for questions, a "Project" for builds)
+const FIELD_TEXT = {
+  general:{ proj:'Topic', projPh:'e.g. learning Spanish', rough:'e.g. find me a free app to learn Spanish',
+            have:'What you already know or have', havePh:'e.g. I know a few basic words', tried:'What you tried', triedPh:'e.g. I tried an app but it felt too slow',
+            refs:'Links or references', refsPh:'e.g. a link, an app name, an article' },
+  code:   { proj:'Project', projPh:'e.g. My Game', rough:'e.g. add a pause menu with resume and quit buttons',
+            have:'What already exists', havePh:'e.g. the main menu and saving already work', tried:'What you tried or what went wrong', triedPh:'e.g. the button shows up but nothing happens when tapped',
+            refs:'Files, screens or references', refsPh:'e.g. game.js, menu.html' },
+  art:    { proj:'Project', projPh:'e.g. My Game', rough:'e.g. a 6-frame walk cycle for a small robot character',
+            have:'Existing assets', havePh:'e.g. the hero and two enemies are done', tried:'What you tried or what went wrong', triedPh:'e.g. the colors came out too bright',
+            refs:'References', refsPh:'e.g. hero.png, a style you like' },
+};
+function updateFieldLabels(){
+  const f = FIELD_TEXT[state.target];
+  $('projLabel').textContent = f.proj;
+  $('project').placeholder = state.target !== 'general' && GUESS.projects[0] ? GUESS.projects[0] + ' (last used)' : f.projPh;
+  $('rough').placeholder = f.rough;
+  $('lblHave').textContent = f.have; $('ctxHave').placeholder = f.havePh;
+  $('lblTried').textContent = f.tried; $('ctxTried').placeholder = f.triedPh;
+  $('lblRefs').textContent = f.refs; $('ctxRefs').placeholder = f.refsPh;
+}
+
+// Clear: wipe this prompt and go back to step 1 for a new one
+function clearAll(){
+  DRAFT_FIELDS.forEach(id => $(id).value = '');
+  state.structure = null;
+  state.chips = new Set(DEFAULT_CHIPS[state.target]);
+  renderChips();
+  $('more').open = false;
+  $('saveBox').hidden = true; $('saveOpen').hidden = false;
+  goStep(1);
+  toast('Cleared. Ready for a new prompt');
+}
+
+function renderChips(){
+  $('chips').innerHTML = CHIPS[state.target].map(c =>
+    `<button class="chip" data-id="${c.id}" aria-pressed="${state.chips.has(c.id)}">${c.label}</button>`).join('');
+}
+function showTab(name){
+  ['enhance','library'].forEach(n => { $('view-'+n).hidden = n !== name; $('tab-'+n).setAttribute('aria-selected', n === name); });
+  if (name === 'library') renderLibrary(); else goStep(state.step);
+  placeMarkers();
+}
+function useStructure(id){
+  const s = STRUCTURES.find(x => x.id === id); if (!s) return;
+  const t = chapterOf(s).target;
+  if (t !== 'any' && t !== state.target) setTarget(t);
+  state.structure = id;
+  showTab('enhance');
+  goStep($('rough').value.trim() ? 4 : 1);
+  toast('Using ' + s.id + ' ' + s.t);
+}
+
+// ===================== PERFORMANCE + DRAFT + UPDATES (v1.4) =====================
+
+// 1. Rebuild at most once per screen frame. Typing fast used to rebuild the
+//    whole prompt on every key; now extra keys inside one frame are merged.
+let queued = false;
+function scheduleRefresh(){
+  if (queued) return;
+  queued = true;
+  requestAnimationFrame(() => { queued = false; refresh(); });
+}
+
+// 2. Draft: your current idea, settings and step are kept, so closing the
+//    window or an auto-refresh never loses what you were typing.
+const DRAFT_KEY = 'promptbible.draft';
+const DRAFT_FIELDS = ['project','rough','ctxHave','ctxTried','ctxRefs'];
+let draftTimer = 0;
+function saveDraftNow(){
+  clearTimeout(draftTimer);
+  const d = { target:state.target, structure:state.structure, step:state.step, chips:[...state.chips] };
+  DRAFT_FIELDS.forEach(id => d[id] = $(id).value);
+  try { localStorage.setItem(DRAFT_KEY, JSON.stringify(d)); } catch(e){}
+}
+// called after every rebuild; waits until you pause for 0.4s, then writes once
+function saveDraft(){ clearTimeout(draftTimer); draftTimer = setTimeout(saveDraftNow, 400); }
+function loadDraft(){
+  let d; try { d = JSON.parse(localStorage.getItem(DRAFT_KEY)); } catch(e){}
+  if (!d) return;
+  if (d.target && d.target !== state.target) setTarget(d.target);
+  // v1.6: older versions saved the example text as a draft; don't bring it back
+  if (d.rough === 'add a rematch button after a multiplayer match ends') d.rough = '';
+  if (d.project === 'Element Bound' && !d.rough) d.project = '';
+  DRAFT_FIELDS.forEach(id => { if (typeof d[id] === 'string') $(id).value = d[id]; });
+  if (Array.isArray(d.chips)) { state.chips = new Set(d.chips); renderChips(); }
+  if (d.structure && STRUCTURES.some(s => s.id === d.structure)) state.structure = d.structure;
+  if (d.step) state.step = d.step;
+}
+
+// 3. Auto-update: when you come back to the app after 10+ minutes away, it
+//    quietly reloads itself from the file, so any update made while you were
+//    away is live. Your draft (above) comes back with it.
+//    Runs in the desktop app (file://) and the iPhone home-screen app, never in the chat preview.
+const AWAY_MS = 10 * 60 * 1000;
+let awaySince = 0;
+const isInstalled = location.protocol === 'file:' || (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+if (isInstalled) {
+  const leave = () => { if (!awaySince) awaySince = Date.now(); };
+  const back  = () => {
+    if (awaySince && Date.now() - awaySince > AWAY_MS) { saveDraftNow(); location.reload(); }
+    awaySince = 0;
+  };
+  document.addEventListener('visibilitychange', () => document.hidden ? leave() : back());
+  window.addEventListener('blur', leave);
+  window.addEventListener('focus', back);
+}
+
+// 4. iPhone app: a "service worker" is a small helper (sw.js) the phone keeps
+//    next to the app. It always tries to fetch the newest version first, and
+//    falls back to the saved copy when you're offline. Only on the web version.
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  try { navigator.serviceWorker.register('sw.js').catch(() => {}); } catch(e){}
+}
+
+// ===================== F. WIRING =====================
+DRAFT_FIELDS.forEach(id => $(id).addEventListener('input', scheduleRefresh));
+$('target').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { setTarget(b.dataset.t); refresh(); } });
+$('format').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  state.format = b.dataset.f;
+  try { localStorage.setItem(FORMAT_KEY, state.format); } catch(err){}
+  $('format').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b));
+  slideTo($('knob2'), b); refresh();
+});
+$('chips').addEventListener('click', e => {
+  const b = e.target.closest('.chip'); if (!b) return;
+  state.chips.has(b.dataset.id) ? state.chips.delete(b.dataset.id) : state.chips.add(b.dataset.id);
+  b.setAttribute('aria-pressed', state.chips.has(b.dataset.id)); refresh();
+});
+$('opts').addEventListener('click', e => {
+  const b = e.target.closest('.opt'); if (!b) return;
+  state.structure = b.dataset.id || null; refresh(); renderOpts();
+});
+$('browseBtn').addEventListener('click', () => { state.ch = 'all'; showTab('library'); });
+$('view-enhance').addEventListener('click', e => { if (e.target.id === 'changeStruct') goStep(2); });
+
+$('stepper').addEventListener('click', e => { const b = e.target.closest('button'); if (b) goStep(+b.dataset.step); });
+$('nextBtn').addEventListener('click', () => goStep(state.step + 1));
+$('backBtn').addEventListener('click', () => goStep(state.step - 1));
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && !$('view-enhance').hidden) { e.preventDefault(); goStep(state.step + 1); }
+});
+
+$('copyBtn').addEventListener('click', () => { copyText($('out').value); learnFromCopy(); });
+$('saveOpen').addEventListener('click', () => { $('saveBox').hidden = false; $('saveOpen').hidden = true; $('saveTitle').focus(); });
+function doSave(){
+  const text = $('out').value.trim(); if (!text) return;
+  const title = $('saveTitle').value.trim() || $('rough').value.trim().split(/\s+/).slice(0, 6).join(' ') || 'Untitled prompt';
+  state.library.unshift({ id:'p' + Date.now(), title, target:state.target, text });
+  saveLibrary(); $('saveTitle').value = ''; $('saveBox').hidden = true; $('saveOpen').hidden = false;
+  toast('Saved to Library');
+}
+$('saveBtn').addEventListener('click', doSave);
+$('saveTitle').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doSave();
+  if (e.key === 'Escape') { $('saveBox').hidden = true; $('saveOpen').hidden = false; }
+});
+
+$('tab-enhance').onclick = () => showTab('enhance');
+$('tab-library').onclick = () => showTab('library');
+$('menu').addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') { showTab('library'); $('tab-library').focus(); }
+  if (e.key === 'ArrowLeft')  { showTab('enhance'); $('tab-enhance').focus(); }
+});
+$('search').addEventListener('input', renderLibrary);
+$('chapters').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.ch = b.dataset.ch; state.open = null; renderLibrary(); } });
+$('entries').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const d = b.dataset;
+  if (d.open) { state.open = state.open === d.open ? null : d.open; renderLibrary(); return; }
+  if (d.use) return useStructure(d.use);
+  if (d.copyblank) return copyText(previewOf(STRUCTURES.find(s => s.id === d.copyblank)));
+  const p = state.library.find(x => x.id === (d.copy || d.edit || d.del)); if (!p) return;
+  if (d.copy) copyText(p.text);
+  if (d.edit) { showTab('enhance'); goStep(4); $('out').value = p.text; toast('Loaded into editor'); }
+  if (d.del) {
+    if (!b.classList.contains('armed')) { b.classList.add('armed'); b.textContent = 'Tap again to delete'; setTimeout(() => { b.classList.remove('armed'); b.textContent = 'Delete'; }, 3000); return; }
+    state.library = state.library.filter(x => x.id !== p.id); state.open = null; saveLibrary(); renderLibrary(); toast('Deleted');
+  }
+});
+
+// ===================== H. DEV MENU =====================
+// Opened by the gear (top left). The PIN only hides the menu from casual users;
+// it isn't real security, since anyone can read this file.
+const DEV_PIN = '0000';
+const INTENT_NAMES = {};
+G_INTENTS.forEach(i => INTENT_NAMES[i.id] = 'General · ' + i.label);
+INTENTS.forEach(i => INTENT_NAMES[i.id] = 'Code · ' + i.label);
+let devUnlocked = false;
+try { devUnlocked = sessionStorage.getItem('pb.dev') === '1'; } catch(e){}
+
+function openDev(){
+  $('dev').hidden = false;
+  $('devLock').hidden = devUnlocked; $('devBody').hidden = !devUnlocked;
+  if (devUnlocked) renderDev(); else { $('devPin').value = ''; $('devErr').textContent = ''; setTimeout(() => $('devPin').focus(), 50); }
+}
+function closeDev(){ $('dev').hidden = true; refresh(); }
+
+function fillSelects(){
+  $('devIntent').innerHTML = `<option value="">(leave as is)</option>` + Object.entries(INTENT_NAMES).map(([k, v]) => `<option value="${k}">${v}</option>`).join('');
+  $('devStruct').innerHTML = `<option value="">(leave as is)</option>` + CHAPTERS.map(c =>
+    `<optgroup label="${String(c.n).padStart(2,'0')} ${c.name}">` + STRUCTURES.filter(s => s.ch === c.n).map(s => `<option value="${s.id}">${s.id} ${esc(s.t)}</option>`).join('') + `</optgroup>`).join('');
+}
+function bars(list){ return list.map(r => `<div class="bar"><span>${esc(r.name)}</span><b>${Math.round(r.p * 100)}%</b><i style="--w:${Math.round(r.p * 100)}%"></i></div>`).join(''); }
+
+function renderDevTest(){
+  const text = $('devTest').value.trim();
+  if (!text) { $('devResult').innerHTML = `<p class="dev-note">Guesses appear here as you type.</p>`; return; }
+  const gi = guessIntent(text);
+  const st = guessStructures(text).slice(0, 3);
+  $('devResult').innerHTML =
+    `<div><h4>Intent</h4>${bars(gi.ranked.slice(0, 3).map(r => ({ name:INTENT_NAMES[r.id], p:r.p })))}</div>` +
+    `<div><h4>Structure</h4>${st.length ? bars(st.map(r => { const s = STRUCTURES.find(x => x.id === r.label); return { name:r.label + ' ' + s.t, p:r.p }; }))
+                                       : '<p class="dev-note">No words it knows yet. Teach it.</p>'}</div>`;
+  $('devIntent').value = gi.intent.id;
+  $('devStruct').value = st[0] ? st[0].label : '';
+}
+function renderDev(){
+  const mine = GUESS.examples, taught = mine.filter(e => e.src === 'teach').length;
+  const seedCount = Object.values(INTENT_SEED).reduce((a, l) => a + l.length, 0) + STRUCTURES.length;
+  $('devStats').innerHTML = `<div><b>${seedCount}</b><span>Built-in</span></div><div><b>${taught}</b><span>Taught</span></div><div><b>${mine.length - taught}</b><span>Learned</span></div>`;
+  $('devGuess').checked = GUESS.settings.guess; $('devLearn').checked = GUESS.settings.learn;
+  $('devCount').textContent = mine.length ? `${mine.length} yours` : '';
+  $('devList').innerHTML = mine.length ? mine.slice(0, 100).map((e, i) =>
+    `<div class="dev-row"><span>${esc(e.text)}</span><small>${e.intent ? INTENT_NAMES[e.intent] + ' · ' : ''}${e.structure || 'no structure'} · ${e.src === 'teach' ? 'taught' : 'learned'}</small>
+     <button data-del="${i}" aria-label="Remove example">×</button></div>`).join('')
+    : `<p class="dev-note" style="padding:12px 0">No examples yet. Teach one above, or copy prompts with "Learn from my choices" on.</p>`;
+  renderDevTest();
+}
+
+$('gearBtn').addEventListener('click', openDev);
+$('devClose').addEventListener('click', closeDev);
+$('dev').addEventListener('click', e => { if (e.target === $('dev')) closeDev(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('dev').hidden) closeDev(); });
+$('devPin').addEventListener('input', () => {
+  const v = $('devPin').value.replace(/\D/g, '');
+  $('devPin').value = v;
+  if (v.length < 4) return;
+  if (v === DEV_PIN) {
+    devUnlocked = true; try { sessionStorage.setItem('pb.dev', '1'); } catch(e){}
+    $('devLock').hidden = true; $('devBody').hidden = false; renderDev();
+  } else {
+    $('devErr').textContent = 'Wrong PIN. Try again.';
+    $('devLock').classList.remove('shake'); void $('devLock').offsetWidth; $('devLock').classList.add('shake');
+    $('devPin').value = '';
+  }
+});
+$('devLockBtn').addEventListener('click', () => { devUnlocked = false; try { sessionStorage.removeItem('pb.dev'); } catch(e){} closeDev(); toast('Dev menu locked'); });
+$('devGuess').addEventListener('change', e => { GUESS.settings.guess = e.target.checked; saveModel(); refresh(); });
+$('devLearn').addEventListener('change', e => { GUESS.settings.learn = e.target.checked; saveModel(); });
+let devTestQueued = false;
+$('devTest').addEventListener('input', () => { if (devTestQueued) return; devTestQueued = true; requestAnimationFrame(() => { devTestQueued = false; renderDevTest(); }); });
+$('devTeach').addEventListener('click', () => {
+  const text = $('devTest').value.trim(), intent = $('devIntent').value || null, structure = $('devStruct').value || null;
+  if (!text) return toast('Type an idea first');
+  if (!intent && !structure) return toast('Pick an intent or a structure');
+  GUESS.examples = GUESS.examples.filter(e => !(e.src === 'teach' && e.text === text));
+  const s = STRUCTURES.find(x => x.id === structure);
+  GUESS.examples.unshift({ text, intent, structure, target: s && chapterOf(s).target === 'art' ? 'art' : 'code', src:'teach', at:Date.now() });
+  trainModels(); saveModel(); renderDev(); toast('Taught');
+});
+$('devList').addEventListener('click', e => {
+  const b = e.target.closest('[data-del]'); if (!b) return;
+  GUESS.examples.splice(+b.dataset.del, 1); trainModels(); saveModel(); renderDev();
+});
+$('devExport').addEventListener('click', () => copyText(JSON.stringify({ app:'prompt-bible', v:1, examples:GUESS.examples, projects:GUESS.projects })));
+$('devImportOpen').addEventListener('click', () => { $('devImportBox').hidden = false; $('devImport').focus(); });
+$('devImportBtn').addEventListener('click', () => {
+  let d; try { d = JSON.parse($('devImport').value); } catch(e){}
+  if (!d || !Array.isArray(d.examples)) return toast('That isn’t a Prompt Bible model');
+  const key = e => e.src + '|' + e.text;
+  const seen = new Set(GUESS.examples.map(key));
+  const add = d.examples.filter(e => e && typeof e.text === 'string' && !seen.has(key(e)));
+  GUESS.examples = GUESS.examples.concat(add).slice(0, 500);
+  if (Array.isArray(d.projects)) GUESS.projects = [...new Set(GUESS.projects.concat(d.projects))].slice(0, 8);
+  trainModels(); saveModel(); $('devImport').value = ''; $('devImportBox').hidden = true; renderDev();
+  toast(`Imported ${add.length} example${add.length === 1 ? '' : 's'}`);
+});
+$('devClear').addEventListener('click', e => {
+  const b = e.currentTarget;
+  if (!b.classList.contains('armed')) { b.classList.add('armed'); b.textContent = 'Tap again to clear'; setTimeout(() => { b.classList.remove('armed'); b.textContent = 'Clear my examples'; }, 3000); return; }
+  GUESS.examples = []; trainModels(); saveModel(); renderDev(); toast('Your examples cleared');
+});
+fillSelects();
+$('clearBtn').addEventListener('click', clearAll);
+
+// ---------- START ----------
+$('ver').textContent = APP_VERSION;
+document.title = 'Prompt Bible';
+$('format').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x.dataset.f === state.format));
+renderChips();
+loadDraft();
+updateFieldLabels();
+goStep(state.step || 1);
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(placeMarkers);
+// resize fires dozens of times per second while dragging; handle once per frame
+let resizeQueued = false;
+window.addEventListener('resize', () => {
+  if (resizeQueued) return; resizeQueued = true;
+  requestAnimationFrame(() => { resizeQueued = false; placeMarkers(); });
+});
+</script>
