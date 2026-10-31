@@ -143,6 +143,20 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
 .chip[aria-pressed="true"]{color:var(--fg);border-color:rgba(140,200,232,.55);background:var(--accent-soft)}
 
 .built{margin:0;font-size:13px;color:var(--muted)}
+/* v1.9: auto-size + quick questions */
+.asis{margin:0;font-size:13.5px;color:var(--good);display:flex;flex-wrap:wrap;gap:4px 6px;align-items:baseline;animation:fade .35s var(--ease)}
+.asis b{font-weight:600}
+.asis .tick{font-weight:700}
+.asis .linkbtn{font-size:13px}
+.qs{display:flex;flex-direction:column;gap:12px;padding:14px 16px;border-radius:13px;background:rgba(0,0,0,.18);border:1px solid var(--line);animation:fade .35s var(--ease)}
+.qs-head{font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.qs-head em{font-style:normal;color:var(--muted);letter-spacing:.04em;text-transform:none;font-family:var(--body);font-size:12px;margin-left:6px}
+.q{display:flex;flex-direction:column;gap:7px}
+.q p{margin:0;font-size:14px}
+.q .chips{gap:6px}
+.q .chip{padding:5px 12px;font-size:13px}
+.status-good{color:var(--good)}
+.dim{opacity:.35;pointer-events:none}
 .built b{color:var(--fg);font-weight:500}
 .check{display:flex;flex-direction:column;gap:8px}
 .segs{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
@@ -331,6 +345,12 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
       </div>
       <label class="project" for="project"><span id="projLabel">Project</span> <input type="text" id="project" placeholder="e.g. My Game"></label>
       <textarea id="rough" placeholder="e.g. add a pause menu with resume and quit buttons"></textarea>
+      <p class="asis" id="asis" hidden><span class="tick">✓</span> <b>Good as is.</b> This is already clear, so send it like this.
+        <button class="linkbtn" id="asisCopy">Copy it</button> · <button class="linkbtn" id="asisEnhance">Enhance anyway</button></p>
+      <div class="qs" id="qs" hidden>
+        <div class="qs-head">Quick questions <em>optional · tap to answer, skip to let it guess</em></div>
+        <div id="qList"></div>
+      </div>
       <details class="more" id="more">
         <summary><span class="plus">+</span> Add context <em>optional</em></summary>
         <div class="more-fields">
@@ -365,7 +385,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
           <button data-f="structured" aria-pressed="true">Structured</button>
         </div>
       </div>
-      <div class="check"><div class="segs" id="segs"></div><p class="missing" id="missing"></p></div>
+      <div class="check" id="checkBox"><div class="segs" id="segs"></div><p class="missing" id="missing"></p></div>
       <textarea id="out" spellcheck="false"></textarea>
       <div class="actions">
         <button class="btn primary" id="copyBtn">Copy prompt</button>
@@ -471,7 +491,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
    ===================================================================== */
 
 // Bump this every update so you can see which version is running.
-const APP_VERSION = 'v1.8';
+const APP_VERSION = 'v1.9';
 
 // ===================== A. DATA =====================
 
@@ -905,7 +925,7 @@ const TOPICS = [
 
 // ===================== STATE + SAVING =====================
 const KEY = 'promptbible.v1', FORMAT_KEY = 'promptbible.format';
-const state = { target:'general', chips:new Set(['simple','steps']), library:[], format:'structured',
+const state = { answers:{}, forceFull:false, target:'general', chips:new Set(['simple','steps']), library:[], format:'structured',
                 structure:null, step:1, ch:'all', open:null };
 try {
   const saved = JSON.parse(localStorage.getItem(KEY));
@@ -922,6 +942,123 @@ const chapterOf = s => CHAPTERS.find(c => c.n === s.ch);
 const fits = s => { const t = chapterOf(s).target; return t === state.target || (t === 'any' && state.target !== 'general'); };
 const topicFits = t => t.target === state.target || (t.target === 'any' && state.target !== 'general');
 const currentStructure = () => STRUCTURES.find(s => s.id === state.structure) || DEFAULTS[state.target];
+
+// ===================== I. QUICK QUESTIONS =====================
+// Basic questions that fill gaps which change the answer the most.
+// Each one only shows when its gap is really there ("when"), and each answer
+// becomes one line in the prompt ("to" = which section, "line" = the wording).
+// Skipped questions are left to the Educated Guess engine.
+const QUESTIONS = [
+  // ---- General
+  { id:'g_level', target:'general', q:'What\'s your level?', opts:['Beginner','Some experience','Advanced'], to:'context',
+    when:(R, t) => /^(study|recommend)$/.test(R.intent.id) && /\b(learn\w*|study\w*|course|lessons?|language|skill|practice|teach|spanish|french|guitar|piano|coding)\b/i.test(t) && !/\b(beginner|intermediate|advanced|new to|never|expert|experience)\b/i.test(t),
+    line:a => 'My level: ' + a.toLowerCase() + '.' },
+  { id:'g_goal', target:'general', q:'What\'s the goal?', opts:['Just the basics','Use it day to day','Get really good'], to:'context',
+    when:(R, t) => R.intent.id === 'study' || (R.intent.id === 'recommend' && /\blearn\w*\b/i.test(t)),
+    line:a => 'My goal: ' + a.toLowerCase() + '.' },
+  { id:'g_budget', target:'general', q:'Budget?', opts:['Free only','Cheap is fine','Any price'], to:'rules',
+    when:(R, t) => /^(recommend|organize)$/.test(R.intent.id) && !/\b(free|cheap|budget|price|cost|paid|\$\d*)/i.test(t),
+    line:a => ({ 'Free only':'Free options only.', 'Cheap is fine':'Low-cost options are fine; include the price.', 'Any price':'Price doesn\'t matter; pick the best.' })[a] },
+  { id:'g_device', target:'general', q:'Where will you use it?', opts:['iPhone','Android','PC','Any'], to:'rules',
+    when:(R, t) => R.intent.id === 'recommend' && /\b(apps?|tools?|websites?|sites?|software|programs?|games?|learn\w*)\b/i.test(t) && !/\b(iphone|ios|android|pc|mac|windows|phone|laptop|ipad|computer)\b/i.test(t),
+    line:a => a === 'Any' ? 'Any device is fine.' : 'It has to work on ' + a + '.' },
+  { id:'g_audience', target:'general', q:'Who\'s it for?', opts:['Work','Friend or family','A customer','Something official'], to:'context',
+    when:(R, t) => R.intent.id === 'write' && !/\b(to|for) (my|the|a|an|our|his|her)\b/i.test(t),
+    line:a => 'It\'s for: ' + a.toLowerCase() + '.' },
+  { id:'g_tone', target:'general', q:'Tone?', opts:['Friendly','Professional','Firm'], to:'rules',
+    when:(R, t) => R.intent.id === 'write' && !/\b(friendly|formal|professional|casual|polite|firm|funny|nice|warm|serious)\b/i.test(t),
+    line:a => 'Tone: ' + a.toLowerCase() + '.' },
+  { id:'g_length', target:'general', q:'How long?', opts:['Short','Medium','Detailed'], to:'output',
+    when:(R, t) => R.intent.id === 'write' && !/\b(short|long|brief|paragraph|sentences?|words|page)\b/i.test(t),
+    line:a => 'Length: ' + a.toLowerCase() + '.' },
+  { id:'g_priority', target:'general', q:'What matters most?', opts:['Cost','Quality','Time','Long-term value'], to:'context',
+    when:(R, t) => R.intent.id === 'decide',
+    line:a => 'What matters most to me: ' + a.toLowerCase() + '.' },
+  { id:'g_time', target:'general', q:'How much time?', opts:['One day','A week','A month or more'], to:'context',
+    when:(R, t) => R.intent.id === 'organize' && !/\d|\b(day|days|week|weeks|month|weekend|hours?|morning|evening)\b/i.test(t),
+    line:a => 'Timeframe: ' + a.toLowerCase() + '.' },
+  { id:'g_depth', target:'general', q:'How deep?', opts:['Quick overview','In-depth with sources'], to:'output',
+    when:(R, t) => R.intent.id === 'research',
+    line:a => a === 'Quick overview' ? 'Keep it to a quick overview.' : 'Go in depth and include sources.' },
+  { id:'g_ideas', target:'general', q:'What kind of ideas?', opts:['Practical','Creative','A mix'], to:'rules',
+    when:(R, t) => R.intent.id === 'brainstorm' && !/\b(practical|creative|wild|realistic|crazy|safe)\b/i.test(t),
+    line:a => 'Kind of ideas: ' + a.toLowerCase() + '.' },
+  // ---- Code
+  { id:'c_where', target:'code', q:'Where does it run?', opts:['PC browser','iPhone','Both'], to:'context',
+    when:(R, t) => /^(fix|build|design|improve)$/.test(R.intent.id) && !/\b(iphone|phone|mobile|pc|desktop|browser|safari|chrome|edge|android|ios|windows)\b/i.test(t),
+    line:a => 'Runs on: ' + a + '.' },
+  { id:'c_error', target:'code', q:'Is there an error message?', opts:['Yes, I\'ll paste it','No error','Not sure'], to:'context',
+    when:(R, t) => R.intent.id === 'fix' && !/\b(error|console|exception|message)\b/i.test(t),
+    line:a => a === 'No error' ? 'No error message shows up.' : a === 'Not sure' ? 'I\'m not sure if there\'s an error; tell me how to check the console.' : 'Error message: [paste the full error here]' },
+  { id:'c_when', target:'code', q:'When did it start?', opts:['Always been like this','After a recent change','Not sure'], to:'context',
+    when:(R, t) => R.intent.id === 'fix' && !/\b(after|since|update|always|used to|started)\b/i.test(t),
+    line:a => 'It started: ' + a.toLowerCase() + '.' },
+  { id:'c_scope', target:'code', q:'How big should it be?', opts:['Quick and simple','Full feature'], to:'rules',
+    when:(R, t) => R.intent.id === 'build',
+    line:a => a === 'Quick and simple' ? 'Keep it as small and simple as possible.' : 'Build it fully, including edge cases.' },
+  { id:'c_level', target:'code', q:'Your level?', opts:['Total beginner','Know the basics'], to:'context',
+    when:(R, t) => R.intent.id === 'learn',
+    line:a => 'My coding level: ' + a.toLowerCase() + '.' },
+  { id:'c_focus', target:'code', q:'Main goal?', opts:['Speed','Cleaner code','Smoother feel'], to:'rules',
+    when:(R, t) => R.intent.id === 'improve' && !/\b(speed|fast|lag\w*|slow|clean\w*|readab\w*|smooth\w*|feel|fps)\b/i.test(t),
+    line:a => 'Main goal: ' + a.toLowerCase() + '.' },
+  { id:'c_feel', target:'code', q:'What feel?', opts:['Minimal','Bold','Playful','Match current look'], to:'rules',
+    when:(R, t) => R.intent.id === 'design' && !/\b(minimal|bold|playful|clean|sleek|dark|light|modern|retro)\b/i.test(t),
+    line:a => 'Look and feel: ' + a.toLowerCase() + '.' },
+  // ---- Art
+  { id:'a_use', target:'art', q:'What is it for?', opts:['Game sprite','Background','Icon or UI','Cover art'], to:'output',
+    when:(R, t) => !/\b(sprites?|background|icons?|cover|banner|logo|tiles?|tileset|portrait|thumbnail)\b/i.test(t),
+    line:a => 'It will be used as: ' + a.toLowerCase() + '.' },
+  { id:'a_style', target:'art', q:'Style?', opts:['Pixel art','Hand-drawn','Realistic','Match my art'], to:'rules',
+    when:(R, t) => !/\b(pixel|hand-?drawn|realistic|cartoon|anime|manga|watercolou?r|retro|style|ink)\b/i.test(t) && !state.chips.has('retro') && !state.chips.has('match'),
+    line:a => a === 'Match my art' ? 'Match the style of my existing art exactly.' : 'Style: ' + a.toLowerCase() + '.' },
+  { id:'a_bg', target:'art', q:'Background?', opts:['Transparent','Solid color','Full scene'], to:'output',
+    when:(R, t) => !/\b(transparent|background|png|scene)\b/i.test(t) && !state.chips.has('png'),
+    line:a => 'Background: ' + a.toLowerCase() + '.' },
+];
+const MAX_QUESTIONS = 3;
+// answered questions stay visible; then the most useful open ones, 3 at most
+function activeQuestions(R, text){
+  if (!text.trim()) return [];
+  const fitsNow = QUESTIONS.filter(q => q.target === state.target && q.when(R, text));
+  const answered = fitsNow.filter(q => state.answers[q.id]);
+  const open = fitsNow.filter(q => !state.answers[q.id]).slice(0, Math.max(0, MAX_QUESTIONS - answered.length));
+  // keep the original order so nothing jumps around when you tap an answer
+  return fitsNow.filter(q => answered.includes(q) || open.includes(q));
+}
+
+// ===================== J. AUTO SIZE =====================
+// simple = "Good as is": a short, single, clear question in General mode
+// lean   = a short ask: just the goal, the key rules, and the answer format
+// full   = bigger jobs: the whole structure
+const SIMPLE_START = /^(what|who|when|where|which|how (many|much|tall|far|long|old|big|do i|do you)|convert|define|is|are|does|do|can|why)\b/i;
+function sizeOf(R, rough, ctxCount){
+  if (state.forceFull || state.target !== 'general' || state.structure) return 'full';
+  const words = rough.split(/\s+/).filter(Boolean).length;
+  const sentences = rough.split(/[.?!]+\s+|\n+/).filter(x => x.trim()).length;
+  if (words && words <= 12 && sentences === 1 && !ctxCount && R.intent.id === 'ask' && !R.topics.length
+      && SIMPLE_START.test(rough.trim()) && !Object.keys(state.answers).length) return 'simple';
+  if (words <= 30 && ctxCount <= 1) return 'lean';
+  return 'full';
+}
+// a "good as is" prompt is just your words, tidied: capital letter + question mark
+function tidy(rough){
+  let t = rough.trim().replace(/\s+/g, ' ');
+  t = t.charAt(0).toUpperCase() + t.slice(1);
+  if (!/[.?!]$/.test(t)) t += SIMPLE_START.test(t) ? '?' : '.';
+  return t;
+}
+// lean prompt: plain sentences, no tags, only what changes the answer
+function renderLean(S){
+  const get = role => (S.find(s => s.role === role) || { lines:[] }).lines;
+  const task = get('task').filter(l => !/^Why \(assumed\)|^Purpose \(assumed\)/.test(l));
+  const ctx = get('context'), rules = get('rules'), out = get('output');
+  const L = [task.join('\n')];
+  if (ctx.length)   L.push('About me:\n' + ctx.join('\n'));
+  if (rules.length) L.push('Keep in mind:\n' + rules.join('\n'));
+  if (out.length)   L.push('In your answer:\n' + out.join('\n'));
+  return L.join('\n\n');
+}
 
 // ===================== G. EDUCATED GUESS ENGINE =====================
 // Two jobs:
@@ -1205,9 +1342,17 @@ function build(){
   if (ctx.tried) addLine('context', 'Tried so far / went wrong: ' + ctx.tried);
   if (ctx.refs)  addLine('context', (art || gen ? 'References: ' : 'Files or screens involved: ') + ctx.refs);
   R.topics.forEach(t => (t.context || []).forEach(l => addLine('context', l)));
+  // 4b. your quick-question answers (only the ones still relevant to this idea)
+  const qs = activeQuestions(R, rough);
+  qs.forEach(q => { const a = state.answers[q.id]; if (a) { addLine(q.to, q.line(a)); have[{ context:'context', rules:'limits', output:'output' }[q.to]] = true; } });
 
   // 5. topic lines + your chips go into rules / output / done
-  R.topics.forEach(t => { (t.rules || []).forEach(l => addLine('rules', l)); (t.done || []).forEach(l => addLine('done', l)); });
+  R.topics.forEach(t => {
+    if (t.label === 'Learning' && state.answers.g_level) return;   // you already said your level
+    (t.rules || []).forEach(l => addLine('rules', l)); (t.done || []).forEach(l => addLine('done', l));
+  });
+  // General: always say what SHAPE of answer fits this kind of job (house rules only set the style)
+  if (gen && rough && GUESS.settings.guess && OUTPUT_GUESS[R.intent.id] && !state.answers.g_depth) { addLine('output', OUTPUT_GUESS[R.intent.id]); guesses++; }
   if (!guessOn && !art && !gen && /^(build|fix|design|improve)$/.test(R.intent.id)) addLine('rules', 'If anything is unclear, list your assumptions in 1 to 3 lines before you start.');
   picked.forEach(c => addLine({ limits:'rules', output:'output', done:'done', detail:'rules' }[c.covers], c.line));
 
@@ -1261,7 +1406,7 @@ function build(){
     S.splice(at < 0 ? S.length : at, 0, { title:'ASSUMPTIONS', role:'info', lines });
   }
 
-  return { S, have, R, T, upgrades: R.topics.length, guesses };
+  return { S, have, R, T, upgrades: R.topics.length, guesses, qs, size: sizeOf(R, rough, ctxCount) };
 }
 
 // ===================== D. RENDER =====================
@@ -1296,8 +1441,16 @@ let last = null;   // the most recent build result
 
 function refresh(){
   last = build();
-  const text = state.format === 'structured' ? renderStructured(last.S, state.target) : renderPlain(last.S);
+  const rough = $('rough').value.trim();
+  const size = last.size;
+  const text = size === 'simple' ? tidy(rough)
+             : size === 'lean' ? renderLean(last.S)
+             : state.format === 'structured' ? renderStructured(last.S, state.target) : renderPlain(last.S);
   $('out').value = text;
+  $('asis').hidden = size !== 'simple';
+  $('checkBox').hidden = size === 'simple';
+  $('format').classList.toggle('dim', size !== 'full');
+  renderQuestions();
 
   // checklist strip + the one next thing to do
   const gaps = CHECKS.filter(c => !last.have[c.id]);
@@ -1313,7 +1466,12 @@ function refresh(){
     : guessed ? `<b>6/6</b> · ${guessed} filled by educated guess (blue). Edit anything, then copy.` : `<b>6/6</b> · Ready to send.`;
 
   const T = last.T;
-  $('built').innerHTML = `Built on <b>${T.id ? T.id + ' ' + esc(T.t) : 'Default enhancer'}</b>`
+  if (size === 'simple') {
+    $('built').innerHTML = `<span class="status-good"><b>✓ Good as is.</b> Clear and simple, so nothing was added.</span> <button class="linkbtn" id="sizeFull">Enhance anyway</button>`;
+  } else if (size === 'lean') {
+    $('built').innerHTML = `<b>Lean prompt</b> · short asks work best in plain words` + (last.guesses ? ` · ${last.guesses} guess${last.guesses>1?'es':''}` : '')
+      + ` · <button class="linkbtn" id="sizeFull">Use full structure</button>`;
+  } else $('built').innerHTML = (state.forceFull ? `<button class="linkbtn" id="sizeAuto">Auto size</button> · ` : '') + `Built on <b>${T.id ? T.id + ' ' + esc(T.t) : 'Default enhancer'}</b>`
     + (last.upgrades ? ` · ${last.upgrades} topic upgrade${last.upgrades>1?'s':''}` : '')
     + (last.guesses ? ` · ${last.guesses} guess${last.guesses>1?'es':''}` : '')
     + ` · <button class="linkbtn" id="changeStruct">Change</button>`;
@@ -1458,6 +1616,7 @@ function setTarget(t){
   state.target = t;
   $('target').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x.dataset.t === t));
   state.chips = new Set(DEFAULT_CHIPS[t]);
+  state.answers = {}; state.forceFull = false;
   updateFieldLabels();
   const cur = STRUCTURES.find(s => s.id === state.structure);
   if (cur && !fits(cur)) { state.structure = null; toast('Structure reset to Default'); }
@@ -1485,10 +1644,23 @@ function updateFieldLabels(){
   $('lblRefs').textContent = f.refs; $('ctxRefs').placeholder = f.refsPh;
 }
 
+// Quick questions: re-draw only when the set of questions changes, so typing stays smooth
+let qKey = '';
+function renderQuestions(){
+  const qs = last ? last.qs : [];
+  const key = qs.map(q => q.id + '=' + (state.answers[q.id] || '')).join('|') + (last && last.size === 'simple' ? '#s' : '');
+  if (key === qKey) return;
+  qKey = key;
+  $('qs').hidden = !qs.length || (last && last.size === 'simple');
+  $('qList').innerHTML = qs.map(q => `<div class="q" data-q="${q.id}"><p>${esc(q.q)}</p><div class="chips">` +
+    q.opts.map(o => `<button class="chip" data-a="${esc(o)}" aria-pressed="${state.answers[q.id] === o}">${esc(o)}</button>`).join('') + `</div></div>`).join('');
+}
+
 // Clear: wipe this prompt and go back to step 1 for a new one
 function clearAll(){
   DRAFT_FIELDS.forEach(id => $(id).value = '');
   state.structure = null;
+  state.answers = {}; state.forceFull = false; qKey = '';
   state.chips = new Set(DEFAULT_CHIPS[state.target]);
   renderChips();
   $('more').open = false;
@@ -1534,7 +1706,7 @@ const DRAFT_FIELDS = ['project','rough','ctxHave','ctxTried','ctxRefs'];
 let draftTimer = 0;
 function saveDraftNow(){
   clearTimeout(draftTimer);
-  const d = { target:state.target, structure:state.structure, step:state.step, chips:[...state.chips] };
+  const d = { target:state.target, structure:state.structure, step:state.step, chips:[...state.chips], answers:state.answers };
   DRAFT_FIELDS.forEach(id => d[id] = $(id).value);
   try { localStorage.setItem(DRAFT_KEY, JSON.stringify(d)); } catch(e){}
 }
@@ -1551,6 +1723,7 @@ function loadDraft(){
   if (Array.isArray(d.chips)) { state.chips = new Set(d.chips); renderChips(); }
   if (d.structure && STRUCTURES.some(s => s.id === d.structure)) state.structure = d.structure;
   if (d.step) state.step = d.step;
+  if (d.answers && typeof d.answers === 'object') state.answers = d.answers;
 }
 
 // 3. Auto-update: when you come back to the app after 10+ minutes away, it
@@ -1580,6 +1753,7 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
 
 // ===================== F. WIRING =====================
 DRAFT_FIELDS.forEach(id => $(id).addEventListener('input', scheduleRefresh));
+$('rough').addEventListener('input', () => { if (!$('rough').value.trim()) { state.forceFull = false; state.answers = {}; } });
 $('target').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { setTarget(b.dataset.t); refresh(); } });
 $('format').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
@@ -1749,6 +1923,18 @@ $('devClear').addEventListener('click', e => {
 });
 fillSelects();
 $('clearBtn').addEventListener('click', clearAll);
+$('qList').addEventListener('click', e => {
+  const b = e.target.closest('[data-a]'); if (!b) return;
+  const id = b.closest('[data-q]').dataset.q, a = b.dataset.a;
+  if (state.answers[id] === a) delete state.answers[id]; else state.answers[id] = a;   // tap again to undo
+  refresh();
+});
+$('asisCopy').addEventListener('click', () => { copyText(tidy($('rough').value)); learnFromCopy(); });
+$('asisEnhance').addEventListener('click', () => { state.forceFull = true; refresh(); });
+$('view-enhance').addEventListener('click', e => {
+  if (e.target.id === 'sizeFull') { state.forceFull = true; refresh(); }
+  if (e.target.id === 'sizeAuto') { state.forceFull = false; refresh(); }
+});
 
 // ---------- START ----------
 $('ver').textContent = APP_VERSION;

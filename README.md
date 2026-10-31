@@ -10,6 +10,8 @@ On iPhone: open in Safari, tap Share, then Add to Home Screen.
 - **Enhance:** type an idea the way you'd say it. Prompt Bible reads what kind of job it is,
   picks a fitting structure, adds the right role and rules, and fills blanks with educated guesses.
 - **Library:** 48 reusable prompt structures in 13 chapters (everyday questions, code, art).
+- **Auto size:** simple questions get "Good as is", short asks get a lean prompt, bigger jobs get full structure.
+- **Quick questions:** up to 3 tap-to-answer questions fill the gaps that matter most.
 - **Structured mode:** adds clear section markers so the AI knows where each part starts and ends.
 
 ## Privacy
