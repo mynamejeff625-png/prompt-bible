@@ -512,7 +512,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
    ===================================================================== */
 
 // Bump this every update so you can see which version is running.
-const APP_VERSION = 'v1.10';
+const APP_VERSION = 'v1.11';
 
 // ===================== A. DATA =====================
 
@@ -900,7 +900,7 @@ const TOPICS = [
     rules:['Use current information and say if something may have changed.'] },
   { label:'Local', target:'general', kw:/\b(near me|nearby|in my area|local)\b/i,
     rules:['If my location matters, ask me where I am instead of guessing.'] },
-  { label:'Multiplayer', target:'code', kw:/\b(multiplayer|online|co-?op|pvp|lobby|both players|opponent|matchmaking|rematch)\b/i,
+  { label:'Multiplayer', target:'code', kw:/\b(multiplayer|online|co-?op|pvp|lobby|matchmaking|rematch|netcode|host and guest)\b/i,
     rules:['Keep both players in sync: host and guest always see the same state.'],
     done:['Tested in two browser windows at once; both update without a refresh.'] },
   { label:'iPhone', appOnly:true, target:'any', kw:/\b(iphone|phone|mobile|touch|ios|safari|ipad|portrait)\b/i,
@@ -1048,11 +1048,146 @@ function activeQuestions(R, text){
   return fitsNow.filter(q => answered.includes(q) || open.includes(q));
 }
 
-// ===================== K. ORGANIZER (Step 2 of the engine plan) =====================
-// Placeholders for now, so the Scorecard can measure today's baseline.
-// Step 2 replaces these with real splitting and limit-finding.
-function splitRequirements(text){ return text.trim() ? [text.trim()] : []; }
-function extractMustNot(text){ return []; }
+// ===================== K. ORGANIZER (engine plan, Step 2) =====================
+// Long, dense prompts already contain what the AI needs; they just need ORGANIZING.
+// Everything here is plain rules: fast, offline, and predictable.
+
+// --- 1. Intent from how the request OPENS (plus a few phrases that are clear anywhere).
+// One stray word deep in a long message ("idea", "understand", "looks") no longer decides.
+const CORRECTION = /^\W*(this is (all )?good|that'?s good|looks good|nice|almost|close)\b[^.]*\b(but|however)\b|\bstill (unable|can'?t|cant|not|doesn'?t|isn'?t|broken|won'?t)\b/i;
+const EXPLORE = /\b(let'?s|lets) (explore|think|discuss|figure)\b|\bexplore (how|the|what|ways?|this|options)\b|\binvestigat\w*|\bchain of thought\b|\bmost logical (route|sequence|way)\b|\bfigure out\b/i;
+const STRONG = [
+  { id:'fix',     re: CORRECTION },
+  { id:'plan',    re: EXPLORE },
+  { id:'improve', re: /\bbyte[- ]?saving\b|\bsave (space|bytes)\b|\bre[-~]?size\b|\brescale\b|\bfit within (our )?budget\b|\btoo (high|slow|big|long|laggy|heavy)\b|\bfinal polish\b|\blaggy\b|\bstutter\w*|\bfps\b|\boptimi\w*|\bperformance\b/i },
+];
+const LEAD = [
+  { id:'learn',   re:/^(explain|why (does|do|is|did)|how (does|do) .* work|what (is|does|are)|teach me|walk me through)\b/i },
+  { id:'fix',     re:/^(fix|debug|the .* (doesn'?t|doesnt|isn'?t|isnt|won'?t|wont|can'?t|cant|keeps|stopped)|it (doesn'?t|isn'?t|won'?t|keeps))\b/i },
+  { id:'design',  re:/^(make|change|redesign|restyle|update) .*\b(ui|look\w*|colou?rs?|fonts?|tall|wide|bigger|smaller|spacing|layout|sleek\w*|cleaner)\b/i },
+  { id:'improve', re:/^(optimi\w*|clean ?up|polish|refactor|speed up|reduce|look at .*(sav|optimi|speed|clean))/i },
+  { id:'build',   re:/^(add|create|build|make|implement|incorporate|we will|we'?ll|we should|allow|enable|give|after (entering|you)|i'?d like to|id like to|i would like|i want to add|let'?s (get|add|make)|lets (get|add|make)|recommend .*\b(add|incorporate|include)\b|re-?vamp|if i'?m|if im|if i)\b/i },
+];
+function stripLead(t){ return t.replace(/^[\s\-*•^>#]+/, '').replace(/^(also|so|ok(ay)?|hey|and|but|then|now|alright|alr)\b[\s,]*/i, ''); }
+function leadIntent(text){
+  for (const s of STRONG) if (s.re.test(text)) return s.id;
+  const first = (splitSentences(stripLead(text))[0] || '').slice(0, 220);
+  for (const clause of first.split(/,\s*/).map(stripLead)) for (const l of LEAD) if (l.re.test(clause)) return l.id;
+  return null;
+}
+
+// --- 2. Splitting one message into numbered requirements
+const DIRECTIVE = /\b(should|must|needs? to|need|will|make|add|ensure|allow|let'?s|lets|i (would|'d) like|id like|i want|we want|incorporate|remove|replace|look at|complete|recommend|please|important|imperative|re-?vamp|explore|implement|create|build|fix|change)\b/i;
+const CONTINUES = /^(this|that|it|these|those|and so|so that|which)\b|\b(this|that) (idea|feature|plan|one|part)\b/i;
+const NEW_CLAUSE = /^(if i|if im|if i'm|i'?d like|i would like|id like|lets|let'?s|also|and also|make|add|we will|we should)\b/i;
+// sentences end at . ! ? or a line break, but never inside ( ) { } [ ]
+function splitSentences(text){
+  const out = []; let depth = 0, cur = '', openAt = 0;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i]; cur += ch;
+    if ('({['.includes(ch)) { if (!depth) openAt = i; depth++; }
+    else if (')}]'.includes(ch) && depth > 0) {
+      depth--;
+      if (!depth && /^\s+(we|i|you|lets|let's)\b/i.test(text.slice(i + 1, i + 12))) { out.push(cur.trim()); cur = ''; continue; }
+    }
+    if (depth && i - openAt > 180) depth = 0;   // someone forgot the closing bracket
+    else if (depth === 0 && (ch === '\n' || (/[.!?]/.test(ch) && /\s/.test(text[i + 1] || ' ')))) { if (cur.trim()) out.push(cur.trim()); cur = ''; }
+  }
+  if (cur.trim()) out.push(cur.trim());
+  return out;
+}
+function splitClauses(sent){
+  const out = []; let depth = 0, cur = '';
+  for (let i = 0; i < sent.length; i++) {
+    const ch = sent[i];
+    if ('({['.includes(ch)) depth++;
+    else if (')}]'.includes(ch) && depth > 0) depth--;
+    if (depth === 0 && ch === ',') { out.push(cur.trim()); cur = ''; continue; }
+    cur += ch;
+    if (depth === 0 && ch === ')' && /^\s+(lets|let's|we|i'?d|id)\b/i.test(sent.slice(i + 1, i + 10))) { out.push(cur.trim()); cur = ''; }
+  }
+  if (cur.trim()) out.push(cur.trim());
+  return out.filter(Boolean);
+}
+function tidyItem(t){
+  t = stripLead(t.trim()).replace(/\s+/g, ' ').replace(/[,;:\s]+$/, '');
+  if (!t) return '';
+  t = t.charAt(0).toUpperCase() + t.slice(1);
+  return /[.!?)]$/.test(t) ? t : t + '.';
+}
+function splitRequirements(text){
+  text = (text || '').trim();
+  if (!text) return [];
+  const items = [];
+  // a) list-style messages: each bullet is one item (a bullet with no ask joins the one before)
+  const bullets = text.split(/(?:^|\s+)[-*•](?=\s*[A-Za-z{(])/).map(x => x.trim()).filter(Boolean);
+  // "the 2nd arena + the new logo, resize both" = two things
+  if (bullets.length < 2 && /\s\+\s/.test(text) && text.length < 300) {
+    return text.split(/\s\+\s/).map(tidyItem).filter(Boolean);
+  }
+  if (bullets.length >= 2) {
+    bullets.forEach(b => { if (items.length && (!DIRECTIVE.test(b) || /^(for example|e\.g\.|example)\b/i.test(b))) items[items.length - 1] += ' ' + b; else items.push(b); });
+  } else {
+    // b) prose: a new item starts when an ask follows another ask
+    splitSentences(text).forEach(sent => {
+      const clauses = []; let cur = '';
+      splitClauses(sent).forEach(c => {
+        if (cur && DIRECTIVE.test(cur) && NEW_CLAUSE.test(stripLead(c))) { clauses.push(cur); cur = c; }
+        else cur = cur ? cur + ', ' + c : c;
+      });
+      if (cur) clauses.push(cur);
+      clauses.forEach((c, i) => {
+        const last = items[items.length - 1];
+        const startsNew = i > 0 || (last !== undefined && DIRECTIVE.test(last) && DIRECTIVE.test(c) && !CONTINUES.test(stripLead(c)));
+        if (last === undefined || startsNew) items.push(c); else items[items.length - 1] = last + ' ' + c;
+      });
+    });
+  }
+  return items.map(tidyItem).filter(Boolean);
+}
+
+// --- 3. "Don't touch" limits, pulled out into their own list
+const NEG = /\b(don'?t|dont|do not|never|avoid|refrain(?:ing)? from|refraning from|(?:we are|we're|were|i'?m|im) not (?:talking about|using|doing)|not touching)\s+([^.;(){}\n]{3,100})/gi;
+function extractMustNot(text){
+  const out = [];
+  for (const m of (text || '').matchAll(NEG)) {
+    let what = m[2].split(/\s+(?:as|because|bacause|becuase|since|so that|this way|when|if|unless)\b|,\s*(?:this|so|but|which)\b/i)[0].trim().replace(/[,\s]+$/, '');
+    if (what.length < 4 || /^(that|this|it|so|be)\b/i.test(what)) continue;
+    if (/talking about/i.test(m[1])) what = 'use ' + what.replace(/\s+usage$/i, '');
+    what = what.replace(/^using\s+/i, 'use ');
+    if (!out.some(o => o.toLowerCase() === what.toLowerCase())) out.push(what);
+  }
+  return out.slice(0, 5);
+}
+
+// --- 4. CAPS = what you stressed most
+const NOT_EMPHASIS = new Set(['UI','UX','PC','API','PNG','FX','NPC','NPCS','JSON','HTML','CSS','JS','AI','IOS','OK','USA','RPG','HUD','FPS','GPU','CPU','RAM','SFX','TSX','LLM','ZIP','PS4','PS5','URL','PDF','JJK','EMB1','TPAK','PGLB','DM','FAQ','ID','IDS','AND','THE']);
+const STRONG_WORDS = /\b(IMPERATIVE|IMPORTANT|MUST|NEVER|ONLY|NOT|ALWAYS|EXACTLY|NEED|CRITICAL|REQUIRED)\b/;
+function extractEmphasis(text){
+  const found = []; let prev = '';
+  splitSentences(text || '').forEach(sent => {
+    sent.split(/[,;(){}]|\s[-*•^](?=\S)/).forEach(cl => {
+      const caps = (cl.match(/\b[A-Z]{3,}\b/g) || []).filter(w => !NOT_EMPHASIS.has(w));
+      let c = stripLead(cl.trim());
+      if (!caps.length || c.length < 7 || /\bnot (talking|doing|using)\b/i.test(c)) return;   // limits are listed separately
+      if (/^(this|that|it)\b/i.test(c) && prev) { const p2 = prev.replace(/[.\s]+$/, ''); c = (p2.length > 100 ? p2.slice(-100).replace(/^\S*\s/, '') : p2) + ' (' + c + ')'; }
+      const rank = (STRONG_WORDS.test(cl) ? 10 : 0) + caps.length;
+      if (!found.some(f => f.c === c)) found.push({ c:c.slice(0, 150), rank, at:found.length });
+    });
+    prev = sent;
+  });
+  return found.sort((a, b) => b.rank - a.rank || a.at - b.at).slice(0, 3).sort((a, b) => a.at - b.at).map(f => f.c);
+}
+
+// --- 5. Exact numbers (cooldowns, hit counts, sizes) must survive word for word
+function extractNumbers(text){
+  const out = [];
+  for (const m of (text || '').matchAll(/\b(\d+(?:\.\d+)?)(\s?(?:sec(?:onds?)?|ms|px|%|hits?|frames?|bytes?|kb|mb|x|times|players?|characters?))?(?![a-z0-9])/gi)) {
+    const v = m[0].trim(); if (!out.includes(v)) out.push(v);
+  }
+  return out.slice(0, 8);
+}
+const VISION = /\b(eventually|long[- ]term|in the future|end goal|visionary goal|my vision|the vision)\b/i;
 
 // ===================== J. AUTO SIZE =====================
 // simple = "Good as is": a short, single, clear question in General mode
@@ -1208,6 +1343,9 @@ function guessIntent(text, target){
   nb.forEach(r => score[r.label] += 0.6 * r.p);
   const rule = list.find(i => i.id !== fallback && i.kw.test(text));
   if (rule) score[rule.id] += 0.4; else if (!nb.length) score[fallback] += 1;
+  // Step 2: for code, how the request OPENS counts most
+  const lead = list === INTENTS ? leadIntent(text) : null;
+  if (lead) score[lead] += 1.2;
   const ranked = Object.entries(score).map(([id, p]) => ({ id, p })).sort((a, b) => b.p - a.p);
   const z = ranked.reduce((a, r) => a + r.p, 0) || 1; ranked.forEach(r => r.p /= z);
   return { intent: list.find(i => i.id === ranked[0].id), conf: ranked[0].p, ranked, learned: nb.length > 0 };
@@ -1280,7 +1418,8 @@ function readIdea(rough, extra){
   g = g.replace(/[\s,]*(please|pls|thanks|thank you|thx)\W*$/i, '').replace(/[?!.\s]+$/, '');
   // 3. pull out the reason if you gave one ("so that...", "because...")
   let why = '';
-  const m = g.match(/^(.+?)\s*,?\s*\b(so that|because|in order to)\b\s+(.+)$/i);
+  g = g.replace(/^[\s\-*•^>]+/, '');
+  const m = g.length < 220 ? g.match(/^(.+?)\s*,?\s*\b(so that|because|in order to)\b\s+(.+)$/i) : null;
   if (m) { g = m[1]; why = m[3]; }
   const goal = g ? g.charAt(0).toUpperCase() + g.slice(1) + '.' : '';
   // intent now comes from the Educated Guess engine (learned model + keyword rules)
@@ -1289,7 +1428,12 @@ function readIdea(rough, extra){
   const all = rough + ' ' + extra;
   const changesApp = state.target !== 'code' || /^(build|fix|design|improve)$/.test(intent.id);
   const topics = TOPICS.filter(t => topicFits(t) && t.kw.test(all) && (!t.appOnly || changesApp));
-  return { goal, why, intent, topics, stepwise, conf: gi ? gi.conf : 1 };
+  const org = rough.trim() ? {
+    reqs: splitRequirements(rough), mustNot: extractMustNot(rough), emphasis: extractEmphasis(rough), numbers: extractNumbers(rough),
+    correction: CORRECTION.test(rough), explore: EXPLORE.test(rough),
+    vision: splitSentences(rough).filter(x => VISION.test(x) && x.length > 45 && x.length < 260)
+  } : { reqs:[], mustNot:[], emphasis:[], numbers:[], correction:false, explore:false, vision:[] };
+  return { goal, why, intent, topics, stepwise, org, conf: gi ? gi.conf : 1 };
 }
 
 // ===================== C. BUILDER =====================
@@ -1327,6 +1471,12 @@ function build(){
     title, role: roleOf(title), quote: art && roleOf(title) === 'task',
     lines: lines.map(l => {
       if (!l.includes('{task}')) return l;
+      // Step 2: several asks in one message -> a numbered list, your wording kept
+      if (R.org.reqs.length >= 2) {
+        const before = l.split('{task}')[0].trim();
+        have.goal = true;
+        return (before ? before + ' the numbered items below.' : 'Do each numbered item below.') + '\n' + R.org.reqs.map((r, i) => `${i + 1}. ${r}`).join('\n');
+      }
       // if the structure already says "Fix this bug:", drop the repeated verb from your goal
       const before = l.split('{task}')[0];
       const body = before.trim() ? goalText.replace(/^(fix|explain|plan|write|clean up|redo|create|give me|find|research|decide|learn about)\s+/i, '') : goalText;
@@ -1385,6 +1535,27 @@ function build(){
   if (gen && rough && GUESS.settings.guess && OUTPUT_GUESS[R.intent.id] && !state.answers.g_depth) { addLine('output', OUTPUT_GUESS[R.intent.id]); guesses++; }
   if (!guessOn && !art && !gen && /^(build|fix|design|improve)$/.test(R.intent.id)) addLine('rules', 'If anything is unclear, list your assumptions in 1 to 3 lines before you start.');
   picked.filter(c => !(c.skipFor || []).includes(R.intent.id)).forEach(c => addLine({ limits:'rules', output:'output', done:'done', detail:'rules' }[c.covers], c.line));
+  // Step 2 organizer: corrections, exploring, vision, numbers, limits, priorities
+  const O = R.org;
+  if (O.correction) {
+    addLine('context', 'This is a follow-up: your last change didn\'t fully work.');
+    const now = splitSentences(rough).find(x => /\bstill\b/i.test(x));
+    if (now) { const ti = S.findIndex(s => s.role === 'task'); S.splice(ti + 1, 0, { title:'WHAT HAPPENS NOW', role:'info', lines:['- ' + tidyItem(now)] }); }
+    addLine('done', 'What I describe works now, and everything that already worked still works.');
+  }
+  if (O.explore && !art) {
+    addLine('rules', 'Think through 2 to 3 possible approaches and compare them before recommending one.');
+    if (!gen) addLine('rules', 'Don\'t write code until I pick an approach.');
+    addLine('output', 'Your recommended route, step by step, with what to test at each step.');
+  }
+  O.vision.forEach(v => addLine('context', 'Long-term vision (keep it in mind; only build what I ask for now): ' + tidyItem(v)));
+  if (O.numbers.length && !gen && /^(build|fix|design|improve)$/.test(R.intent.id)) addLine('rules', 'Keep my numbers exactly as written (' + O.numbers.join(', ') + '); don\'t round or change them.');
+  if (O.mustNot.length || O.emphasis.length) {
+    const rs = ensure('rules');
+    O.mustNot.slice().reverse().forEach(m => { const l = '- Do NOT ' + m + '.'; if (!rs.lines.includes(l)) rs.lines.unshift(l); });
+    O.emphasis.slice().reverse().forEach(e => { const l = '- Top priority (I stressed this): ' + e; if (!rs.lines.includes(l)) rs.lines.unshift(l); });
+    have.limits = true;
+  }
   if (R.stepwise) addLine('output', R.intent.id === 'plan' ? 'Lay it out as numbered steps, each small enough to finish and test on its own.' : 'Break it into clear, numbered steps.');
 
   // 6. any section with a real (no-blank) line counts toward the checklist
@@ -1526,7 +1697,7 @@ function suggestions(){
   const pool = STRUCTURES.filter(fits), learned = {};
   guessStructures(raw, new Set(pool.map(s => s.id))).forEach(r => learned[r.label] = r.p);
   return pool.map(s => ({ s,
-      score: (s.ch === home ? 2 : 0) + (chapterOf(s).kw.test(text) ? 2 : 0) + (INTENT_STRUCT[last.R.intent.id] === s.id ? 4 : 0)
+      score: (s.ch === home ? 3 : 0) + (chapterOf(s).kw.test(text) ? 2 : 0) + (INTENT_STRUCT[last.R.intent.id] === s.id ? 4 : 0)
            + (s.t + ' ' + s.use).toLowerCase().split(/\W+/).filter(w => words.has(w)).length
            + 8 * (learned[s.id] || 0) }))
     .filter(x => x.score > 0).sort((a, b) => b.score - a.score).slice(0, 3).map(x => x.s);
@@ -1876,7 +2047,7 @@ function analyze(item){
     const r = build(); last = r;
     const prompt = renderPlain(r.S);
     return { intent:r.R.intent.id, size:r.size, structures:suggestions().map(s => s.id), prompt,
-             reqs:splitRequirements(item.text).length, mustNot:extractMustNot(item.text) };
+             reqs:r.R.org.reqs.length, mustNot:r.R.org.mustNot };
   } finally {
     Object.assign(state, keep); last = keep.last;
     DRAFT_FIELDS.forEach((id, i) => $(id).value = fields[i]);
