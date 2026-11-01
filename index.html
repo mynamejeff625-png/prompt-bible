@@ -284,6 +284,18 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
 .dev-import{display:flex;flex-direction:column;gap:8px}
 .dev-import textarea{min-height:80px;font-size:12px}
 .dev-next{opacity:.75}
+/* v1.12 sharing */
+.fb{display:flex;flex-direction:column;gap:8px;padding:14px 16px;border-radius:13px;border:1px solid rgba(140,200,232,.3);background:var(--accent-soft);animation:fade .35s var(--ease)}
+.fb b{font-size:14.5px}
+.fb p{margin:0;font-size:13px;color:var(--muted)}
+.fb-rate{background:rgba(0,0,0,.18);border-color:var(--line)}
+.fb-q{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13.5px}
+.fb-q span{margin-right:4px}
+.fb .chip[aria-pressed="true"]{color:var(--fg)}
+.foot{max-width:720px;margin:28px auto 0;text-align:center}
+.foot .linkbtn{color:var(--muted);font-size:12.5px}
+.pv-text{margin:0;font-size:14px}
+.pv-list{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
 .sc-total{display:flex;align-items:baseline;gap:10px}
 .sc-total b{font:500 34px var(--mono);font-variant-numeric:tabular-nums}
 .sc-total span{font-size:13px;color:var(--muted)}
@@ -404,6 +416,26 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
           <button class="btn" id="saveBtn">Save</button>
         </div>
       </div>
+      <!-- v1.12 opt-in sharing: asked once, after the first copy -->
+      <div class="fb" id="fbConsent" hidden>
+        <b>Help train Prompt Bible?</b>
+        <p>Share your prompts anonymously so the engine learns what people really mean. You can turn it off anytime in Privacy &amp; data.</p>
+        <div class="actions">
+          <button class="btn primary" id="fbYes">Share anonymously</button>
+          <button class="btn ghost" id="fbNo">No thanks</button>
+          <button class="linkbtn" id="fbWhat">What gets sent?</button>
+        </div>
+      </div>
+      <div class="fb fb-rate" id="fbRate" hidden>
+        <div class="fb-q"><span>Did it get your meaning?</span>
+          <button class="chip" id="rateYes">Yes</button><button class="chip" id="rateNo">Not quite</button></div>
+        <div class="chips" id="rateWhy" hidden>
+          <button class="chip" data-r="wrong-job">Wrong kind of job</button><button class="chip" data-r="wrong-structure">Wrong structure</button>
+          <button class="chip" data-r="missed">Missed something</button><button class="chip" data-r="wrong-rules">Added wrong rules</button>
+          <button class="chip" data-r="too-long">Too long</button><button class="chip" data-r="too-short">Too short</button>
+          <button class="btn" id="rateSend">Send</button>
+        </div>
+      </div>
     </div>
 
     <div class="stepnav">
@@ -425,7 +457,37 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
     </div>
   </section>
 </div>
+<p class="foot"><button class="linkbtn" id="privacyBtn">Privacy &amp; data</button></p>
 <div class="toast" id="toast"></div>
+
+<!-- ================= PRIVACY & DATA ================= -->
+<div class="dev" id="privacy" hidden role="dialog" aria-modal="true" aria-labelledby="pvTitle">
+  <div class="dev-sheet">
+    <div class="dev-head">
+      <div><span class="eyebrow">Privacy &amp; data</span><h2 id="pvTitle">Your prompts stay yours</h2></div>
+      <button class="btn ghost" id="pvClose">Close</button>
+    </div>
+    <section class="dev-sec">
+      <p class="pv-text">Everything you type, save and teach stays in this browser on this device. Nothing leaves it unless you turn on sharing below.</p>
+      <label class="tog"><input type="checkbox" id="pvShare"><span></span>Share prompts anonymously <em id="pvState">helps train the Educated Guess engine</em></label>
+    </section>
+    <section class="dev-sec">
+      <h3>What gets sent when sharing is on</h3>
+      <ul class="pv-list">
+        <li>The idea you typed, after copying a prompt (emails and phone numbers are removed first)</li>
+        <li>The mode (General, Code, Art), the structure, and the kind of job the engine read</li>
+        <li>Whether you edited the finished prompt, and your "Did it get your meaning?" answer</li>
+        <li>The app version and the date</li>
+      </ul>
+      <h3 style="margin-top:6px">Never sent</h3>
+      <ul class="pv-list">
+        <li>Your name, account, email, location or device details</li>
+        <li>Saved prompts, drafts, or anything you didn't copy</li>
+      </ul>
+      <p class="dev-note" id="pvQueue"></p>
+    </section>
+  </div>
+</div>
 
 <!-- ================= DEV MENU (hidden, PIN protected) ================= -->
 <div class="dev" id="dev" hidden role="dialog" aria-modal="true" aria-labelledby="devTitle">
@@ -512,7 +574,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
    ===================================================================== */
 
 // Bump this every update so you can see which version is running.
-const APP_VERSION = 'v1.11';
+const APP_VERSION = 'v1.12';
 
 // ===================== A. DATA =====================
 
@@ -1649,6 +1711,7 @@ function refresh(){
              : size === 'lean' ? renderLean(last.S)
              : state.format === 'structured' ? renderStructured(last.S, state.target) : renderPlain(last.S);
   $('out').value = text;
+  if (typeof lastGenerated !== 'undefined') lastGenerated = text;
   $('asis').hidden = size !== 'simple';
   $('checkBox').hidden = size === 'simple';
   $('format').classList.toggle('dim', size !== 'full');
@@ -1867,6 +1930,7 @@ function clearAll(){
   renderChips();
   $('more').open = false;
   $('saveBox').hidden = true; $('saveOpen').hidden = false;
+  $('fbRate').hidden = true; $('fbConsent').hidden = true;
   goStep(1);
   toast('Cleared. Ready for a new prompt');
 }
@@ -1983,7 +2047,7 @@ document.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && !$('view-enhance').hidden) { e.preventDefault(); goStep(state.step + 1); }
 });
 
-$('copyBtn').addEventListener('click', () => { copyText($('out').value); learnFromCopy(); });
+$('copyBtn').addEventListener('click', () => { copyText($('out').value); learnFromCopy(); afterCopy(); });
 $('saveOpen').addEventListener('click', () => { $('saveBox').hidden = false; $('saveOpen').hidden = true; $('saveTitle').focus(); });
 function doSave(){
   const text = $('out').value.trim(); if (!text) return;
@@ -2109,6 +2173,105 @@ function loadGold(json){
   renderGoldInfo(); toast(`Gold set loaded: ${d.items.length} prompts`);
 }
 
+// ===================== M. OPT-IN SHARING (training data) =====================
+// Nothing is sent unless the person chooses "Share anonymously".
+// Data goes to a Firestore database you own, through its plain web address
+// (no Firebase library to download). The database rules only allow ADDING
+// entries; nobody can read, change or delete them from the app.
+// Leave projectId empty and the whole feature stays hidden.
+const FEEDBACK = { projectId:'', apiKey:'' };
+const SHARE_KEY = 'promptbible.share', QUEUE_KEY = 'promptbible.fbqueue', SENT_KEY = 'promptbible.fbsent';
+const shareOn = () => !!FEEDBACK.projectId;
+let share = 'ask';                        // 'ask' | 'yes' | 'no'
+try { share = localStorage.getItem(SHARE_KEY) || 'ask'; } catch(e){}
+let lastGenerated = '', lastShareId = null;
+
+// remove emails, phone numbers and long digit runs before anything leaves the device
+function scrub(t){
+  return String(t || '')
+    .replace(/[\w.+-]+@[\w-]+\.[\w.]+/g, '[email]')
+    .replace(/(\+?\d[\d\s().-]{7,}\d)/g, '[number]')
+    .slice(0, 3500);
+}
+function toFields(o){
+  const f = {};
+  Object.entries(o).forEach(([k, v]) => {
+    if (v === null || v === undefined) return;
+    if (typeof v === 'boolean') f[k] = { booleanValue:v };
+    else if (typeof v === 'number') f[k] = { integerValue:String(Math.round(v)) };
+    else if (Array.isArray(v)) f[k] = { arrayValue:{ values:v.map(x => ({ stringValue:String(x) })) } };
+    else f[k] = { stringValue:String(v) };
+  });
+  return { fields:f };
+}
+function queue(){ try { return JSON.parse(localStorage.getItem(QUEUE_KEY)) || []; } catch(e){ return []; } }
+function setQueue(q){ try { localStorage.setItem(QUEUE_KEY, JSON.stringify(q.slice(-50))); } catch(e){} }
+function enqueue(rec){ const q = queue(); q.push(rec); setQueue(q); flushQueue(); }
+let flushing = false;
+async function flushQueue(){
+  if (!shareOn() || share !== 'yes' || flushing || (navigator.onLine === false)) return;
+  flushing = true;
+  try {
+    let q = queue();
+    while (q.length) {
+      const url = `https://firestore.googleapis.com/v1/projects/${FEEDBACK.projectId}/databases/(default)/documents/feedback?key=${FEEDBACK.apiKey}`;
+      const res = await fetch(url, { method:'POST', headers:{ 'Content-Type':'application/json' }, body:JSON.stringify(toFields(q[0])) });
+      if (!res.ok) break;                 // try again next time (offline, rules, etc.)
+      q.shift(); setQueue(q);
+      try { localStorage.setItem(SENT_KEY, String((+localStorage.getItem(SENT_KEY) || 0) + 1)); } catch(e){}
+    }
+  } catch(e){ /* offline or blocked: stays queued */ }
+  flushing = false;
+}
+function sharePrompt(){
+  if (!shareOn() || share !== 'yes' || !last) return;
+  const idea = $('rough').value.trim(); if (idea.length < 3) return;
+  lastShareId = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  enqueue({ kind:'prompt', ref:lastShareId, idea:scrub(idea), target:state.target, intent:last.R.intent.id,
+            structure:state.structure || 'default', size:last.size, reqs:last.R.org.reqs.length, guesses:last.guesses || 0,
+            answered:Object.keys(state.answers), edited:$('out').value.trim() !== lastGenerated.trim(), version:APP_VERSION,
+            ts:new Date().toISOString().slice(0, 10) });
+}
+function afterCopy(){
+  if (!shareOn()) return;
+  if (share === 'ask') { $('fbConsent').hidden = false; return; }
+  if (share === 'yes') { sharePrompt(); showRating(); }
+}
+function showRating(){
+  $('fbRate').hidden = false; $('rateWhy').hidden = true;
+  ['rateYes','rateNo'].forEach(id => $(id).setAttribute('aria-pressed', 'false'));
+  $('rateWhy').querySelectorAll('[data-r]').forEach(b => b.setAttribute('aria-pressed', 'false'));
+}
+function sendRating(good, reasons){
+  if (share === 'yes' && lastShareId) enqueue({ kind:'rating', ref:lastShareId, good, reasons:reasons || [], version:APP_VERSION, ts:new Date().toISOString().slice(0, 10) });
+  $('fbRate').hidden = true; toast('Thanks. That helps the engine learn');
+}
+function setShare(v){
+  share = v; try { localStorage.setItem(SHARE_KEY, v); } catch(e){}
+  $('fbConsent').hidden = true; renderPrivacy();
+  if (v === 'yes') { sharePrompt(); showRating(); }
+}
+function renderPrivacy(){
+  $('pvShare').checked = share === 'yes';
+  $('pvShare').disabled = !shareOn();
+  $('pvState').textContent = !shareOn() ? 'not available in this version yet' : share === 'yes' ? 'on: copied prompts are shared anonymously' : 'off: nothing leaves this device';
+  const q = queue().length; let sent = 0; try { sent = +localStorage.getItem(SENT_KEY) || 0; } catch(e){}
+  $('pvQueue').textContent = shareOn() && (q || sent) ? `Sent from this device: ${sent}${q ? ` · waiting to send: ${q}` : ''}` : '';
+}
+$('fbYes').addEventListener('click', () => setShare('yes'));
+$('fbNo').addEventListener('click', () => setShare('no'));
+$('fbWhat').addEventListener('click', () => { renderPrivacy(); $('privacy').hidden = false; });
+$('rateYes').addEventListener('click', () => sendRating(true));
+$('rateNo').addEventListener('click', () => { $('rateNo').setAttribute('aria-pressed', 'true'); $('rateWhy').hidden = false; });
+$('rateWhy').addEventListener('click', e => { const b = e.target.closest('[data-r]'); if (b) b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') !== 'true'); });
+$('rateSend').addEventListener('click', () => sendRating(false, [...$('rateWhy').querySelectorAll('[data-r][aria-pressed="true"]')].map(b => b.dataset.r)));
+$('privacyBtn').addEventListener('click', () => { renderPrivacy(); $('privacy').hidden = false; });
+$('pvClose').addEventListener('click', () => { $('privacy').hidden = true; });
+$('privacy').addEventListener('click', e => { if (e.target === $('privacy')) $('privacy').hidden = true; });
+$('pvShare').addEventListener('change', e => setShare(e.target.checked ? 'yes' : 'no'));
+window.addEventListener('online', flushQueue);
+flushQueue();
+
 // ===================== H. DEV MENU =====================
 // Opened by the gear (top left). The PIN only hides the menu from casual users;
 // it isn't real security, since anyone can read this file.
@@ -2167,7 +2330,7 @@ $('scFile').addEventListener('change', e => {
 $('scRun').addEventListener('click', runScorecard);
 $('devClose').addEventListener('click', closeDev);
 $('dev').addEventListener('click', e => { if (e.target === $('dev')) closeDev(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('dev').hidden) closeDev(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('dev').hidden) closeDev(); if (e.key === 'Escape' && !$('privacy').hidden) $('privacy').hidden = true; });
 $('devPin').addEventListener('input', () => {
   const v = $('devPin').value.replace(/\D/g, '');
   $('devPin').value = v;

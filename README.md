@@ -15,7 +15,7 @@ On iPhone: open in Safari, tap Share, then Add to Home Screen.
 - **Structured mode:** adds clear section markers so the AI knows where each part starts and ends.
 
 ## Privacy
-Everything you type and save stays on your own device. Nothing is sent anywhere.
+Everything you type and save stays on your own device. Nothing is sent anywhere unless you choose "Share anonymously" (see Privacy & data in the app). Shared entries contain only the idea you typed (emails and phone numbers removed), the mode and structure, and your optional rating.
 
 ## For developers
 - One self-contained file (`index.html`), no build step.
