@@ -307,6 +307,22 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
 .sc-miss .dev-row small{white-space:normal}
 .sc-hist{display:flex;flex-direction:column;gap:4px;font:12px var(--mono);color:var(--muted)}
 .sc-hist div{display:flex;justify-content:space-between;gap:10px;font-variant-numeric:tabular-nums}
+/* v1.15 owner inbox */
+.ib-form{display:flex;gap:8px;flex-wrap:wrap}
+.ib-form input{flex:1;min-width:150px}
+.ib-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.ib-list{display:flex;flex-direction:column;gap:10px;max-height:520px;overflow:auto}
+.ib-item{border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;background:rgba(0,0,0,.18)}
+.ib-item.done{opacity:.45}
+.ib-idea{font-size:14px;line-height:1.5;-webkit-user-select:text;user-select:text;word-break:break-word}
+.ib-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.ib-tag{font:500 10.5px var(--mono);letter-spacing:.05em;text-transform:uppercase;padding:3px 7px;border-radius:5px;background:rgba(255,255,255,.06);color:var(--muted)}
+.ib-tag.bad{background:rgba(228,138,138,.14);color:var(--bad)}
+.ib-tag.good{background:rgba(127,209,168,.14);color:var(--good)}
+.ib-tag.edit{background:rgba(227,192,122,.14);color:var(--warn)}
+.ib-fix{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+.ib-fix label{display:flex;flex-direction:column;gap:4px;flex:1;min-width:130px;font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ib-item .actions .btn{padding:7px 12px;font-size:13px}
 
 /* ---------- PHONE APP (v1.5) ---------- */
 /* When opened from the iPhone home screen, keep content clear of the notch and home bar */
@@ -553,6 +569,37 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
         <div id="scHistory"></div>
       </section>
 
+      <section class="dev-sec" id="inboxSec">
+        <h3>Owner inbox <small id="ibInfo"></small></h3>
+        <div id="ibSignIn">
+          <p class="dev-note">Sign in with your owner account to review what testers shared. Only this account can read the data.</p>
+          <div class="ib-form">
+            <input type="text" id="ibEmail" placeholder="Owner email" autocomplete="username" inputmode="email">
+            <input type="password" id="ibPass" placeholder="Password" autocomplete="current-password">
+            <button class="btn primary" id="ibLogin">Sign in</button>
+          </div>
+          <p class="dev-err" id="ibErr"></p>
+        </div>
+        <div id="ibBody" hidden>
+          <div class="dev-stats" id="ibStats"></div>
+          <div class="ib-bar">
+            <div class="chips" id="ibFilter">
+              <button class="chip" data-f="misses" aria-pressed="true">Misses</button>
+              <button class="chip" data-f="new" aria-pressed="false">New</button>
+              <button class="chip" data-f="all" aria-pressed="false">All</button>
+            </div>
+            <button class="btn" id="ibRefresh">Refresh</button>
+          </div>
+          <div id="ibList" class="ib-list"></div>
+          <div class="actions">
+            <button class="btn" id="ibGoldDl">Download gold set</button>
+            <button class="btn ghost" id="ibGoldCopy">Copy gold set</button>
+            <button class="btn ghost" id="ibLogout">Sign out</button>
+          </div>
+          <p class="dev-note">Approved entries join this device's gold set right away. Download it to replace gold-set.json in your Prompt Bible folder.</p>
+        </div>
+      </section>
+
       <section class="dev-sec dev-next">
         <h3>Next phase · Local AI teacher</h3>
         <p class="dev-note">Connect the bigger AI on your PC (LM Studio) to write and label training examples in bulk. The phone keeps using this small, fast model.</p>
@@ -577,7 +624,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
    ===================================================================== */
 
 // Bump this every update so you can see which version is running.
-const APP_VERSION = 'v1.14';
+const APP_VERSION = 'v1.15';
 
 // ===================== A. DATA =====================
 
@@ -2275,6 +2322,149 @@ $('pvShare').addEventListener('change', e => setShare(e.target.checked ? 'yes' :
 window.addEventListener('online', flushQueue);
 flushQueue();
 
+// ===================== N. OWNER INBOX =====================
+// You sign in with an owner account (Firebase email + password, through plain
+// web requests: no Firebase library). The database rules let ONLY that account
+// read. Testers' apps can still only add entries.
+const OWNER_KEY = 'promptbible.owner', REVIEWED_KEY = 'promptbible.reviewed';
+let owner = null;             // { email, idToken, refreshToken, expires }
+try { owner = JSON.parse(localStorage.getItem(OWNER_KEY)); } catch(e){}
+let reviewed = {};            // ref -> 'gold' | 'taught' | 'skipped'
+try { reviewed = JSON.parse(localStorage.getItem(REVIEWED_KEY)) || {}; } catch(e){}
+let inbox = [], ibFilter = 'misses';
+
+function saveOwner(){ try { owner ? localStorage.setItem(OWNER_KEY, JSON.stringify(owner)) : localStorage.removeItem(OWNER_KEY); } catch(e){} }
+function saveReviewed(){ try { localStorage.setItem(REVIEWED_KEY, JSON.stringify(reviewed)); } catch(e){} }
+async function ownerSignIn(email, password){
+  const r = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FEEDBACK.apiKey}`,
+    { method:'POST', headers:{ 'Content-Type':'application/json' }, body:JSON.stringify({ email, password, returnSecureToken:true }) });
+  const d = await r.json();
+  if (!r.ok) throw new Error(({ INVALID_LOGIN_CREDENTIALS:'Wrong email or password.', INVALID_PASSWORD:'Wrong email or password.', EMAIL_NOT_FOUND:'No owner account with that email.',
+    TOO_MANY_ATTEMPTS_TRY_LATER:'Too many tries. Wait a few minutes.', OPERATION_NOT_ALLOWED:'Email sign-in isn’t turned on in Firebase yet.' })[(d.error && d.error.message || '').split(' ')[0]] || 'Sign-in failed. Check your connection.');
+  owner = { email, idToken:d.idToken, refreshToken:d.refreshToken, expires:Date.now() + (+d.expiresIn - 60) * 1000 };
+  saveOwner();
+}
+async function ownerToken(){
+  if (!owner) throw new Error('Not signed in');
+  if (Date.now() < owner.expires) return owner.idToken;
+  const r = await fetch(`https://securetoken.googleapis.com/v1/token?key=${FEEDBACK.apiKey}`,
+    { method:'POST', headers:{ 'Content-Type':'application/x-www-form-urlencoded' }, body:'grant_type=refresh_token&refresh_token=' + encodeURIComponent(owner.refreshToken) });
+  const d = await r.json();
+  if (!r.ok) { owner = null; saveOwner(); throw new Error('Signed out. Please sign in again.'); }
+  owner.idToken = d.id_token; owner.refreshToken = d.refresh_token; owner.expires = Date.now() + (+d.expires_in - 60) * 1000; saveOwner();
+  return owner.idToken;
+}
+function fromFields(f){
+  const o = {};
+  Object.entries(f || {}).forEach(([k, v]) => {
+    if ('stringValue' in v) o[k] = v.stringValue;
+    else if ('integerValue' in v) o[k] = +v.integerValue;
+    else if ('booleanValue' in v) o[k] = v.booleanValue;
+    else if ('arrayValue' in v) o[k] = (v.arrayValue.values || []).map(x => x.stringValue);
+  });
+  return o;
+}
+async function fetchInbox(){
+  const token = await ownerToken();
+  const docs = []; let page = '';
+  for (let i = 0; i < 20; i++) {
+    const url = `https://firestore.googleapis.com/v1/projects/${FEEDBACK.projectId}/databases/(default)/documents/feedback?pageSize=300${page ? '&pageToken=' + encodeURIComponent(page) : ''}`;
+    const r = await fetch(url, { headers:{ Authorization:'Bearer ' + token } });
+    const d = await r.json();
+    if (!r.ok) throw new Error(r.status === 403 ? 'This account can’t read the data. Check the database rules use your owner ID.' : 'Couldn’t load entries.');
+    (d.documents || []).forEach(x => docs.push({ ...fromFields(x.fields), created:x.createTime }));
+    if (!d.nextPageToken) break; page = d.nextPageToken;
+  }
+  // join each shared prompt with its rating (same "ref")
+  const ratings = {}; docs.filter(x => x.kind === 'rating').forEach(x => ratings[x.ref] = x);
+  inbox = docs.filter(x => x.kind === 'prompt').map(x => ({ ...x, rating:ratings[x.ref] || null }))
+    .sort((a, b) => (b.created || '').localeCompare(a.created || ''));
+}
+const isMiss = x => (x.rating && x.rating.good === false) || x.edited;
+function renderInbox(){
+  const signedIn = !!owner;
+  $('ibSignIn').hidden = signedIn; $('ibBody').hidden = !signedIn;
+  $('ibInfo').textContent = signedIn ? owner.email : '';
+  if (!signedIn) return;
+  const rated = inbox.filter(x => x.rating), bad = rated.filter(x => !x.rating.good).length;
+  const fresh = inbox.filter(x => !reviewed[x.ref]).length;
+  $('ibStats').innerHTML = `<div><b>${inbox.length}</b><span>Shared</span></div><div><b>${rated.length ? Math.round((rated.length - bad) / rated.length * 100) + '%' : '–'}</b><span>Got it right</span></div><div><b>${fresh}</b><span>To review</span></div>`;
+  const list = inbox.filter(x => ibFilter === 'all' || (!reviewed[x.ref] && (ibFilter === 'new' || isMiss(x))));
+  const intentOpts = Object.entries(INTENT_NAMES).map(([k, v]) => `<option value="${k}">${v}</option>`).join('') + '<option value="create">Art · Create</option>';
+  const structOpts = '<option value="">(none)</option>' + STRUCTURES.map(s => `<option value="${s.id}">${s.id} ${esc(s.t)}</option>`).join('');
+  $('ibList').innerHTML = list.length ? list.slice(0, 200).map(x => {
+    const r = x.rating, done = reviewed[x.ref];
+    return `<div class="ib-item ${done ? 'done' : ''}" data-ref="${esc(x.ref)}">
+      <div class="ib-idea">${esc(x.idea || '')}</div>
+      <div class="ib-meta"><span class="ib-tag">${esc(x.target || '')}</span><span class="ib-tag">${esc(x.intent || '')}</span><span class="ib-tag">${esc(x.structure || '')}</span><span class="ib-tag">${esc(x.size || '')}</span>
+        ${r ? (r.good ? '<span class="ib-tag good">Got it</span>' : `<span class="ib-tag bad">Not quite${r.reasons && r.reasons.length ? ': ' + esc(r.reasons.join(', ')) : ''}</span>`) : ''}
+        ${x.edited ? '<span class="ib-tag edit">Edited</span>' : ''}${done ? `<span class="ib-tag">${done}</span>` : ''}</div>
+      ${done ? '' : `<div class="ib-fix"><label>Right intent<select data-k="intent">${intentOpts}</select></label><label>Right structure<select data-k="structure">${structOpts}</select></label></div>
+      <div class="actions"><button class="btn primary" data-act="gold">Add to gold set</button><button class="btn" data-act="teach">Teach</button><button class="btn ghost" data-act="skip">Skip</button></div>`}
+    </div>`;
+  }).join('') : `<p class="dev-note" style="padding:8px 0">${inbox.length ? 'Nothing left to review here. Try All.' : 'No shared prompts yet. They appear here as testers share them.'}</p>`;
+  // pre-select what the entry was read as (you change it if it was wrong)
+  $('ibList').querySelectorAll('.ib-item').forEach(el => {
+    const x = inbox.find(i => i.ref === el.dataset.ref); if (!x) return;
+    const si = el.querySelector('[data-k=intent]'), ss = el.querySelector('[data-k=structure]');
+    if (si) si.value = x.intent || ''; if (ss) ss.value = x.structure && x.structure !== 'default' ? x.structure : '';
+  });
+}
+async function loadInbox(){
+  $('ibList').innerHTML = '<p class="dev-note">Loading…</p>';
+  try { await fetchInbox(); renderInbox(); }
+  catch(e){ $('ibList').innerHTML = `<p class="dev-err">${esc(e.message)}</p>`; if (!owner) renderInbox(); }
+}
+function approve(ref, act, el){
+  const x = inbox.find(i => i.ref === ref); if (!x) return;
+  const intent = el.querySelector('[data-k=intent]').value, structure = el.querySelector('[data-k=structure]').value;
+  if (act === 'gold') {
+    if (!GOLD) GOLD = { app:'prompt-bible', kind:'gold-set', v:1, note:'PRIVATE. Contains real prompts. Never commit to the public repo.', items:[] };
+    GOLD.items = GOLD.items.filter(g => g.id !== 'u-' + ref);
+    GOLD.items.push({ id:'u-' + ref, src:'tester', target:x.target, text:x.idea, intent, ...(structure ? { structures:[structure] } : {}) });
+    try { localStorage.setItem(GOLD_KEY, JSON.stringify(GOLD)); } catch(e){}
+    renderGoldInfo(); toast(`Added to gold set (${GOLD.items.length})`);
+  }
+  if (act === 'teach' || act === 'gold') {
+    GUESS.examples = GUESS.examples.filter(e => !(e.src === 'teach' && e.text === x.idea));
+    GUESS.examples.unshift({ text:x.idea, intent: intent === 'create' ? null : intent, structure: structure || null, target:x.target, src:'teach', at:Date.now() });
+    trainModels(); saveModel();
+    if (act === 'teach') toast('Taught');
+  }
+  reviewed[ref] = act === 'gold' ? 'gold' : act === 'teach' ? 'taught' : 'skipped'; saveReviewed();
+  renderInbox();
+}
+function goldJSON(){ return JSON.stringify(GOLD || { kind:'gold-set', items:[] }, null, 1); }
+$('ibLogin').addEventListener('click', async () => {
+  $('ibErr').textContent = '';
+  const email = $('ibEmail').value.trim(), pass = $('ibPass').value;
+  if (!email || !pass) { $('ibErr').textContent = 'Enter your owner email and password.'; return; }
+  $('ibLogin').disabled = true;
+  try { await ownerSignIn(email, pass); $('ibPass').value = ''; renderInbox(); loadInbox(); }
+  catch(e){ $('ibErr').textContent = e.message; }
+  $('ibLogin').disabled = false;
+});
+$('ibPass').addEventListener('keydown', e => { if (e.key === 'Enter') $('ibLogin').click(); });
+$('ibRefresh').addEventListener('click', loadInbox);
+$('ibLogout').addEventListener('click', () => { owner = null; saveOwner(); inbox = []; renderInbox(); toast('Signed out'); });
+$('ibFilter').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  ibFilter = b.dataset.f; $('ibFilter').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); renderInbox();
+});
+$('ibList').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const el = b.closest('.ib-item'); approve(el.dataset.ref, b.dataset.act, el);
+});
+$('ibGoldCopy').addEventListener('click', () => copyText(goldJSON()));
+$('ibGoldDl').addEventListener('click', () => {
+  try {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([goldJSON()], { type:'application/json' }));
+    a.download = 'gold-set.json'; document.body.appendChild(a); a.click(); a.remove();
+    toast('Downloading gold-set.json');
+  } catch(e){ copyText(goldJSON()); }
+});
+
 // ===================== H. DEV MENU =====================
 // Opened by the gear (top left). The PIN only hides the menu from casual users;
 // it isn't real security, since anyone can read this file.
@@ -2323,6 +2513,7 @@ function renderDev(){
     : `<p class="dev-note" style="padding:12px 0">No examples yet. Teach one above, or copy prompts with "Learn from my choices" on.</p>`;
   renderDevTest();
   renderGoldInfo(); renderScoreHistory();
+  $('inboxSec').hidden = !shareOn(); if (shareOn()) { renderInbox(); if (owner && !inbox.length) loadInbox(); }
 }
 
 $('gearBtn').addEventListener('click', openDev);
