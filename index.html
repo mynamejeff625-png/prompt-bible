@@ -148,6 +148,20 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
 .chip[aria-pressed="true"]{color:var(--fg);border-color:rgba(140,200,232,.55);background:var(--accent-soft)}
 
 .built{margin:0;font-size:13px;color:var(--muted)}
+.welcome{display:flex;flex-direction:column;gap:8px;padding:16px;border-radius:13px;background:var(--accent-soft);border:1px solid rgba(140,200,232,.3);animation:rise .35s var(--ease)}
+.welcome b{font:600 16px var(--display);letter-spacing:.02em}
+.welcome p{margin:0;font-size:13.5px;color:var(--muted)}
+.ba-toggle{align-self:flex-start;font-size:13px}
+.ba{display:flex;flex-direction:column;gap:12px;animation:rise .35s var(--ease)}
+.ba-before p{margin:6px 0 0;padding:10px 12px;border-radius:10px;background:rgba(0,0,0,.22);border:1px dashed var(--line);font-size:13.5px;color:var(--muted);word-break:break-word}
+.ba ul{margin:6px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:5px}
+.ba li{font-size:13.5px;display:flex;gap:8px}
+.ba li::before{content:"+";color:var(--good);font-weight:700}
+.ba .optlabel{margin:0}
+.openin{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;font-size:13px;color:var(--muted)}
+.openin a{font-size:13.5px;text-decoration:none}
+.openin em{font-style:normal;font-size:12px;opacity:.75}
+.entry .ex{grid-column:2/4;font-size:12.5px;color:var(--muted);font-style:italic}
 .prefs{display:flex;flex-direction:column;gap:10px;padding-top:14px;border-top:1px solid var(--line)}
 .optlabel em{font-style:normal;text-transform:none;letter-spacing:0;font-family:var(--body);margin-left:6px;opacity:.8}
 /* v1.9: auto-size + quick questions */
@@ -380,6 +394,11 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
     </ol>
 
     <div class="card" data-panel="1">
+      <div class="welcome" id="welcome" hidden>
+        <b>Type it messy. Get a prompt AI understands.</b>
+        <p>Prompt Bible reads what you mean, fills the gaps, and shapes it so ChatGPT, Claude or Gemini get it right the first time. Free, private, no account.</p>
+        <div class="actions"><button class="btn" id="tryEx">Try an example</button><button class="btn ghost" id="welcomeOk">Got it</button></div>
+      </div>
       <div class="ph">
         <div><h2>What do you need?</h2><p>Say it the way you'd say it out loud.</p></div>
         <div class="switch" id="target">
@@ -431,11 +450,24 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
         </div>
       </div>
       <div class="check" id="checkBox"><div class="segs" id="segs"></div><p class="missing" id="missing"></p></div>
+      <button class="linkbtn ba-toggle" id="baBtn" aria-expanded="false">Show what changed</button>
+      <div class="ba" id="ba" hidden>
+        <div class="ba-before"><span class="optlabel">Before · your words</span><p id="baBefore"></p></div>
+        <div><span class="optlabel">What Prompt Bible did</span><ul id="baList"></ul></div>
+        <span class="optlabel">After</span>
+      </div>
       <textarea id="out" spellcheck="false"></textarea>
       <div class="actions">
         <button class="btn primary" id="copyBtn">Copy prompt</button>
         <button class="btn ghost" id="saveOpen">Save…</button>
         <button class="btn ghost" id="clearBtn" title="Clear this prompt and start a new one">Clear</button>
+      </div>
+      <div class="openin" id="openIn">
+        <span>Open in</span>
+        <a class="linkbtn" id="openGpt" href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT</a>
+        <a class="linkbtn" id="openClaude" href="https://claude.ai/new" target="_blank" rel="noopener">Claude</a>
+        <a class="linkbtn" id="openGemini" href="https://gemini.google.com/app" target="_blank" rel="noopener">Gemini</a>
+        <em>copies it too</em>
         <div class="savebox" id="saveBox" hidden>
           <input type="text" id="saveTitle" placeholder="Name this prompt">
           <button class="btn" id="saveBtn">Save</button>
@@ -630,7 +662,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
    ===================================================================== */
 
 // Bump this every update so you can see which version is running.
-const APP_VERSION = 'v1.17';
+const APP_VERSION = 'v1.18';
 
 // ===================== A. DATA =====================
 
@@ -1628,7 +1660,7 @@ function build(){
       }
       // if the structure already says "Fix this bug:", drop the repeated verb from your goal
       const before = l.split('{task}')[0];
-      const body = before.trim() ? goalText.replace(/^(fix|explain|plan|write|clean up|redo|create|give me|find|research|decide|learn about)\s+/i, '') : goalText;
+      const body = before.trim() ? goalText.replace(/^(fix|explain|plan|write|clean up|redo|create|give me|find me|find|research|decide|learn about|help me find)\s+/i, '') : goalText;
       // guess mode: an idea that only describes a problem gets the action it implies
       if (!before.trim() && guessOn && rough && !have.goal && GOAL_PREFIX[R.intent.id]) {
         have.goal = 'guess'; guesses++;
@@ -1803,6 +1835,7 @@ function refresh(){
   $('checkBox').hidden = size === 'simple';
   $('format').classList.toggle('dim', size !== 'full');
   renderQuestions();
+  if (typeof renderBA === 'function' && baOpen) renderBA();
 
   // checklist strip + the one next thing to do
   const gaps = CHECKS.filter(c => !last.have[c.id]);
@@ -1831,7 +1864,7 @@ function refresh(){
   if ($('more').querySelector('em').textContent === '0 added') $('more').querySelector('em').textContent = 'optional';
   if (state.step === 2) renderOpts();
   if (typeof saveDraft === 'function') saveDraft();
-  if (state.step === 1 && $('nextBtn')) $('nextBtn').textContent = 'Next: ' + STEP_NAMES[(size === 'simple' || size === 'lean') && !state.structure ? LAST_STEP : 2] + ' →';
+  if (state.step === 1 && $('nextBtn')) $('nextBtn').textContent = 'Next: ' + STEP_NAMES[rough && (size === 'simple' || size === 'lean') && !state.structure ? LAST_STEP : 2] + ' →';
 }
 
 // --- Structure picker (step 2) ---
@@ -1890,7 +1923,7 @@ function goStep(n){
   $('railFill').style.width = ((state.step - 1) / (LAST_STEP - 1) * 100) + '%';
   $('backBtn').dataset.hide = state.step === 1;
   $('nextBtn').dataset.hide = state.step === LAST_STEP;
-  if (state.step < LAST_STEP) $('nextBtn').textContent = 'Next: ' + STEP_NAMES[state.step === 1 && last && (last.size === 'simple' || last.size === 'lean') && !state.structure ? LAST_STEP : state.step + 1] + ' →';
+  if (state.step < LAST_STEP) $('nextBtn').textContent = 'Next: ' + STEP_NAMES[state.step === 1 && last && $('rough').value.trim() && (last.size === 'simple' || last.size === 'lean') && !state.structure ? LAST_STEP : state.step + 1] + ' →';
   refresh();
   placeMarkers();
   if (state.step === 1) $('rough').focus({ preventScroll:true });
@@ -1929,9 +1962,9 @@ function renderLibrary(){
       const open = state.open === s.id;
       return `<div class="entry"><button data-open="${s.id}" aria-expanded="${open}">
         <span class="vn">${s.id}</span><strong>${esc(s.t)}</strong><span class="pill ${c.target}">${c.target}</span>
-        <span class="use">${esc(s.use)}</span></button>
-        ${open ? `<div class="detail"><pre>${esc(previewOf(s))}</pre>
-          <p class="note">Your idea, details, tips and preferences merge in when you use it.</p>
+        <span class="use">${esc(s.use)}</span>${SAMPLES[s.id] ? `<span class="ex">e.g. “${esc(SAMPLES[s.id])}”</span>` : ''}</button>
+        ${open ? `<div class="detail"><pre>${esc(exampleOf(s))}</pre>
+          <p class="note">Example above. Your own idea, details and preferences merge in the same way when you use it.</p>
           <div class="actions"><button class="btn primary" data-use="${s.id}">Use this structure</button>
           <button class="btn" data-copyblank="${s.id}">Copy blank</button></div></div>` : ''}</div>`;
     }).join('');
@@ -2020,6 +2053,7 @@ function clearAll(){
   $('more').open = false;
   $('saveBox').hidden = true; $('saveOpen').hidden = false;
   $('fbRate').hidden = true; $('fbConsent').hidden = true;
+  baOpen = false; renderBA();
   goStep(1);
   toast('Cleared. Ready for a new prompt');
 }
@@ -2108,6 +2142,7 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
 
 // ===================== F. WIRING =====================
 DRAFT_FIELDS.forEach(id => $(id).addEventListener('input', scheduleRefresh));
+$('rough').addEventListener('input', () => { if (!welcomed && $('rough').value.trim().length > 3) closeWelcome(); });
 $('rough').addEventListener('input', () => { if (!$('rough').value.trim()) { state.forceFull = false; state.answers = {}; } });
 $('target').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { setTarget(b.dataset.t); refresh(); } });
 $('format').addEventListener('click', e => {
@@ -2132,7 +2167,7 @@ $('view-enhance').addEventListener('click', e => { if (e.target.id === 'changeSt
 $('stepper').addEventListener('click', e => { const b = e.target.closest('button'); if (b) goStep(+b.dataset.step); });
 function nextStep(){
   // simple or short asks skip the Structure step; "Fine-tune" on the prompt brings it back
-  if (state.step === 1 && last && (last.size === 'simple' || last.size === 'lean') && !state.structure) { state.skipped = true; return goStep(LAST_STEP); }
+  if (state.step === 1 && last && $('rough').value.trim() && (last.size === 'simple' || last.size === 'lean') && !state.structure) { state.skipped = true; return goStep(LAST_STEP); }
   if (state.step === 1) state.skipped = false;
   goStep(state.step + 1);
 }
@@ -2515,6 +2550,93 @@ $('ibGoldDl').addEventListener('click', () => {
   } catch(e){ copyText(goldJSON()); }
 });
 
+// ===================== P. SHOWING THE VALUE (polish #1, #3, #8, #10) =====================
+// #1 Before / after: what Prompt Bible actually did to your words
+function changesMade(){
+  if (!last) return [];
+  const R = last.R, O = R.org, c = [];
+  if (last.size === 'simple') return ['Nothing. It was already clear, so it’s good as is.'];
+  c.push(`Read it as a "${R.intent.label}" job and gave the AI the right role`);
+  if (O.reqs.length >= 2) c.push(`Split it into ${O.reqs.length} numbered items, in your words`);
+  if (O.mustNot.length) c.push(`Pulled out ${O.mustNot.length} "do not" limit${O.mustNot.length > 1 ? 's' : ''}`);
+  if (O.emphasis.length) c.push('Put what you stressed first');
+  if (O.numbers.length && /^(build|fix|design|improve)$/.test(R.intent.id)) c.push('Locked your numbers so they stay exact');
+  const usedTips = R.topics.filter(t => !(t.label === 'Learning' && state.answers.g_level));
+  if (usedTips.length) c.push(`Added tips for ${usedTips.map(t => t.label).join(', ')}`);
+  const ans = Object.keys(state.answers).length; if (ans) c.push(`Added your ${ans} quick answer${ans > 1 ? 's' : ''}`);
+  if (last.guesses) c.push(`Filled in ${last.guesses} missing detail${last.guesses > 1 ? 's' : ''} (marked so the AI can check them)`);
+  if (last.T.id) c.push(`Used the "${last.T.t}" structure`);
+  if (last.size === 'lean') c.push('Kept it short, since quick asks work best that way');
+  else if (state.format === 'structured') c.push('Added section tags so the AI sees where each part starts');
+  return c;
+}
+let baOpen = false;
+function renderBA(){
+  $('baBtn').textContent = baOpen ? 'Hide what changed' : 'Show what changed';
+  $('baBtn').setAttribute('aria-expanded', baOpen);
+  $('ba').hidden = !baOpen;
+  if (!baOpen) return;
+  $('baBefore').textContent = $('rough').value.trim() || '(empty)';
+  $('baList').innerHTML = changesMade().map(x => `<li>${esc(x)}</li>`).join('');
+}
+$('baBtn').addEventListener('click', () => { baOpen = !baOpen; renderBA(); });
+
+// #10 Open in ChatGPT / Claude / Gemini (copies too; Gemini has no fill-in link, so you paste)
+function openLinks(){
+  const t = $('out').value, q = encodeURIComponent(t), ok = q.length < 7000;
+  $('openGpt').href = ok ? 'https://chatgpt.com/?q=' + q : 'https://chatgpt.com/';
+  $('openClaude').href = ok ? 'https://claude.ai/new?q=' + q : 'https://claude.ai/new';
+}
+['openGpt','openClaude','openGemini'].forEach(id => $(id).addEventListener('click', () => { openLinks(); copyText($('out').value); learnFromCopy(); afterCopy(); }));
+
+// #3 First run: one-line welcome + a guided example
+const WELCOME_KEY = 'promptbible.welcomed';
+let welcomed = false; try { welcomed = localStorage.getItem(WELCOME_KEY) === '1'; } catch(e){}
+function closeWelcome(){ welcomed = true; try { localStorage.setItem(WELCOME_KEY, '1'); } catch(e){} $('welcome').hidden = true; }
+$('welcomeOk').addEventListener('click', closeWelcome);
+$('tryEx').addEventListener('click', () => {
+  closeWelcome();
+  if (state.target !== 'general') { setTarget('general'); }
+  $('rough').value = 'i want to learn spanish from a free website or app';
+  state.answers = { g_level:'Beginner' }; refresh();
+  const calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const go = () => { goStep(LAST_STEP); baOpen = true; renderBA(); toast('Here’s what it did with a messy idea'); };
+  if (calm) return go();
+  setTimeout(() => goStep(2), 900);          // a quick look at the structure it picked
+  setTimeout(go, 2600);
+});
+
+// #8 Library: a real example of what each structure produces
+const SAMPLES = {
+  '1.1':'add a daily reward chest to the main menu','1.2':'add a settings screen with volume and controls','1.3':'add a double jump with a short cooldown',
+  '1.4':'quick test of a rhythm-based attack idea','1.5':'save the players coins and level between sessions',
+  '2.1':'the pause button freezes the game instead of pausing','2.2':'getting "undefined is not a function" when the shop opens','2.3':'buttons work on pc but not on iphone',
+  '2.4':'jumping broke after the last update','3.1':'the level lags on my phone','3.2':'clean up the enemy code, its messy','3.3':'split game.js into smaller files',
+  '3.4':'make hits feel punchier','4.1':'redesign the main menu to look sleeker','4.2':'make the inventory usable on a phone','4.3':'make all the buttons and colors match',
+  '4.4':'turn the long settings page into steps','5.1':'plan a co-op mode for my game','5.2':'should i use local storage or a database for saves',
+  '5.3':'set up the files for a new card game','6.1':'explain what this collision code does','6.2':'build a timer and teach me how it works',
+  '6.3':'why did moving the script tag fix my bug','7.1':'continue from yesterdays handoff','7.2':'write a handoff for todays session','7.3':'checklist to sign off the new dash',
+  '8.1':'a fox ninja hero for a platformer','8.2':'6 frame walk cycle for a small robot','8.3':'happy, angry and hurt faces for my hero',
+  '9.1':'a rainy rooftop background at night','9.2':'a sewer tileset with floor, walls and corners','9.3':'potions, keys and coins for a dungeon',
+  '10.1':'icons for play, settings, shop and quit','10.2':'title logo for a game called Neon Drift','10.3':'cover art for my itch.io page',
+  '11.1':'a style guide from my existing sprites','11.2':'redo the boss sprite so it matches the others',
+  '12.1':'store page text for my fighting game','12.2':'patch notes for the latest update','12.3':'release checklist for my itch.io launch',
+  '13.1':'find me a free app to learn guitar','13.2':'help me learn to cook basic meals','13.3':'what are the benefits of creatine',
+  '13.4':'text my landlord that the heater is broken','13.5':'should i buy a ps5 or a gaming pc','13.6':'plan a 3 day trip to chicago',
+  '13.7':'how many ounces in a cup','13.8':'names for a coffee truck',
+};
+function exampleOf(s){
+  const keep = { target:state.target, structure:state.structure, answers:state.answers, forceFull:state.forceFull, chips:state.chips, last };
+  const fields = DRAFT_FIELDS.map(id => $(id).value);
+  try {
+    const ct = chapterOf(s).target; state.target = ct === 'any' ? 'code' : ct;
+    state.structure = s.id; state.answers = {}; state.forceFull = true; state.chips = new Set(DEFAULT_CHIPS[state.target]);
+    DRAFT_FIELDS.forEach(id => $(id).value = ''); $('rough').value = SAMPLES[s.id] || s.use;
+    const r = build();
+    return state.format === 'structured' ? renderStructured(r.S, state.target) : renderPlain(r.S);
+  } finally { Object.assign(state, keep); last = keep.last; DRAFT_FIELDS.forEach((id, i) => $(id).value = fields[i]); }
+}
+
 // ===================== H. DEV MENU =====================
 // Opened by the gear (top left). The PIN only hides the menu from casual users;
 // it isn't real security, since anyone can read this file.
@@ -2647,6 +2769,7 @@ $('format').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed
 renderChips();
 loadDraft();
 updateFieldLabels();
+if (!welcomed && !$('rough').value.trim()) $('welcome').hidden = false;
 goStep(state.step || 1);
 (document.fonts ? document.fonts.ready : Promise.resolve()).then(placeMarkers);
 // resize fires dozens of times per second while dragging; handle once per frame
