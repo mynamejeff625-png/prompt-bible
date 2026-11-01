@@ -284,6 +284,14 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
 .dev-import{display:flex;flex-direction:column;gap:8px}
 .dev-import textarea{min-height:80px;font-size:12px}
 .dev-next{opacity:.75}
+.sc-total{display:flex;align-items:baseline;gap:10px}
+.sc-total b{font:500 34px var(--mono);font-variant-numeric:tabular-nums}
+.sc-total span{font-size:13px;color:var(--muted)}
+.sc-miss summary{cursor:pointer;font-size:13.5px;color:var(--muted);padding:6px 0}
+.sc-miss .dev-row{grid-template-columns:minmax(0,1fr)}
+.sc-miss .dev-row small{white-space:normal}
+.sc-hist{display:flex;flex-direction:column;gap:4px;font:12px var(--mono);color:var(--muted)}
+.sc-hist div{display:flex;justify-content:space-between;gap:10px;font-variant-numeric:tabular-nums}
 
 /* ---------- PHONE APP (v1.5) ---------- */
 /* When opened from the iPhone home screen, keep content clear of the notch and home bar */
@@ -467,6 +475,19 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
         <p class="dev-note">Your examples live on this device. Copy the model on one device and import it on the other to share what it learned.</p>
       </section>
 
+      <section class="dev-sec">
+        <h3>Scorecard <small id="scGoldInfo"></small></h3>
+        <p class="dev-note">Runs the engine over your gold set (ideal answers you wrote) and scores it. Every engine upgrade has to beat the last score.</p>
+        <div class="actions">
+          <label class="btn" for="scFile" style="display:inline-flex;align-items:center">Load gold set…</label>
+          <input type="file" id="scFile" accept=".json,application/json" hidden>
+          <button class="btn primary" id="scRun">Run scorecard</button>
+        </div>
+        <div id="scResult" class="dev-result" style="grid-template-columns:1fr"></div>
+        <details class="sc-miss" id="scMissBox" hidden><summary>Misses <small id="scMissCount"></small></summary><div id="scMiss" class="dev-list"></div></details>
+        <div id="scHistory"></div>
+      </section>
+
       <section class="dev-sec dev-next">
         <h3>Next phase · Local AI teacher</h3>
         <p class="dev-note">Connect the bigger AI on your PC (LM Studio) to write and label training examples in bulk. The phone keeps using this small, fast model.</p>
@@ -491,7 +512,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
    ===================================================================== */
 
 // Bump this every update so you can see which version is running.
-const APP_VERSION = 'v1.9';
+const APP_VERSION = 'v1.10';
 
 // ===================== A. DATA =====================
 
@@ -507,8 +528,8 @@ const CHIPS = {
   ],
   code: [
     { id:'learn',  label:'Explain like I\'m learning', covers:'output', line:'Explain each change in plain words; I\'m a beginner coder.' },
-    { id:'full',   label:'Full files, no snippets',   covers:'output', line:'Give me complete, ready-to-use files, not partial snippets.' },
-    { id:'scope',  label:'Don\'t touch other features', covers:'limits', line:'Change only what this task needs. Don\'t touch other features.' },
+    { id:'full',   label:'Full files, no snippets',   covers:'output', skipFor:['plan','learn'], line:'Give me complete, ready-to-use files, not partial snippets.' },
+    { id:'scope',  label:'Don\'t touch other features', covers:'limits', skipFor:['plan','learn'], line:'Change only what this task needs. Don\'t touch other features.' },
     { id:'ask',    label:'Ask before big changes',    covers:'limits', line:'If the change is large or risky, stop and ask me first.' },
     { id:'modular',label:'Keep it modular',           covers:'limits', line:'Keep the code modular so new features can plug in later.' },
     { id:'handoff',label:'End with a handoff note',   covers:'done',   line:'Finish with a short handoff note: what changed, what\'s next, what to test.' },
@@ -882,10 +903,10 @@ const TOPICS = [
   { label:'Multiplayer', target:'code', kw:/\b(multiplayer|online|co-?op|pvp|lobby|both players|opponent|matchmaking|rematch)\b/i,
     rules:['Keep both players in sync: host and guest always see the same state.'],
     done:['Tested in two browser windows at once; both update without a refresh.'] },
-  { label:'iPhone', target:'any', kw:/\b(iphone|phone|mobile|touch|ios|safari|ipad|portrait)\b/i,
+  { label:'iPhone', appOnly:true, target:'any', kw:/\b(iphone|phone|mobile|touch|ios|safari|ipad|portrait)\b/i,
     rules:['Touch-first: tap targets at least 44px, nothing that needs hover.'],
     done:['Works on iPhone Safari in portrait.'] },
-  { label:'Interface', target:'code', kw:/\b(button|menu|screen|ui|ux|layout|panel|hud|popup|modal|tabs?|library|page)\b/i,
+  { label:'Interface', appOnly:true, target:'code', kw:/\b(button|menu|screen|ui|ux|layout|panel|hud|popup|modal|tabs?|library|page)\b/i,
     rules:['Match the existing look; transitions smooth, never abrupt.'],
     done:['Every new control has a clear hover and pressed state and works with mouse and touch.'] },
   { label:'Save data', target:'code', kw:/\b(save|load|persist|progress|localstorage|remember|storage)\b/i,
@@ -894,20 +915,20 @@ const TOPICS = [
   { label:'Performance', target:'code', kw:/\b(slow|lag|fps|stutter|freeze|optimi[sz]e|performance|heavy|memory)\b/i,
     rules:['Measure before and after; never trade away visuals for speed without asking.'],
     done:['Runs smoothly (around 60 fps) on the slowest target device.'] },
-  { label:'Motion', target:'any', kw:/\b(animat\w*|transitions?|tween|smooth|fade|slide|juice|polish)\b/i,
+  { label:'Motion', appOnly:true, target:'any', kw:/\b(animat\w*|transitions?|tween|smooth|fade|slide|juice|polish)\b/i,
     rules:['Respect reduced-motion settings; motion supports the action, never blocks it.'],
     done:['Motion is smooth and nothing jumps or flickers.'] },
-  { label:'Audio', target:'code', kw:/\b(sound|audio|music|sfx)\b/i,
+  { label:'Audio', appOnly:true, target:'code', kw:/\b(sound|audio|music|sfx)\b/i,
     rules:['Start audio only after the first tap or click (browsers block it before that).'],
     done:['Sound plays on PC and iPhone and can be muted.'] },
-  { label:'Controls', target:'code', kw:/\b(controls?|keyboard|joystick|swipe|input|keys|gamepad)\b/i,
+  { label:'Controls', appOnly:true, target:'code', kw:/\b(controls?|keyboard|joystick|swipe|keys|gamepad|controller)\b/i,
     rules:['Keyboard on PC and touch on iPhone give the same result.'] },
   { label:'Gizmo/Pocket', target:'any', kw:/\b(gizmo|pocket|png[- ]?pack\w*)\b/i,
     context:['Runs as a Gizmo/Pocket build on iPhone (PNG-packed).'],
     rules:['Keep the build fully self-contained: no external files or network calls.'] },
   { label:'Firebase', target:'code', kw:/\b(firebase|firestore|database|server)\b/i,
     rules:['Stay on the free tier: keep reads and writes to the minimum needed.'] },
-  { label:'Gameplay', target:'code', kw:/\b(attack|damage|enem(y|ies)|combo|health|hp|boss|spawn|weapon|jump|dash)\b/i,
+  { label:'Gameplay', appOnly:true, target:'code', kw:/\b(attack|damage|enem(y|ies)|combo|health|hp|boss|spawn|weapon|jump|dash)\b/i,
     rules:['Put every tunable number (damage, speed, timing) in one config block.'],
     done:['A quick playtest feels right, and numbers retune in one place.'] },
   { label:'Sprites', target:'art', kw:/\b(sprites?|frames?|walk|run|idle|animation|cycle)\b/i,
@@ -1026,6 +1047,12 @@ function activeQuestions(R, text){
   // keep the original order so nothing jumps around when you tap an answer
   return fitsNow.filter(q => answered.includes(q) || open.includes(q));
 }
+
+// ===================== K. ORGANIZER (Step 2 of the engine plan) =====================
+// Placeholders for now, so the Scorecard can measure today's baseline.
+// Step 2 replaces these with real splitting and limit-finding.
+function splitRequirements(text){ return text.trim() ? [text.trim()] : []; }
+function extractMustNot(text){ return []; }
 
 // ===================== J. AUTO SIZE =====================
 // simple = "Good as is": a short, single, clear question in General mode
@@ -1243,6 +1270,8 @@ trainModels();
 // Reads your rough idea and works out: a clean goal sentence, the reason
 // behind it, the intent (what kind of job), and the topics it touches.
 function readIdea(rough, extra){
+  const stepwise = /\bstep[- ]by[- ]step\b/i.test(rough);
+  rough = rough.replace(/,?\s*\b(make sure|ensure|please)?\s*(it'?s|its|it is)?\s*step[- ]by[- ]step\b\.?/ig, ' ').replace(/\s+/g, ' ');
   let g = rough.trim().replace(/\s+/g, ' ');
   // 1. strip chatty openers: "hey can you please...", "i want to...", "we need to..."
   const opener = /^(hey|hi|ok(ay)?|so|um+|also|please|pls|can you|could you|would you|i want you to|i'?d like you to|i need you to|i want to|i'?d like to|i need to|we need to|we should|we want to|let'?s|lets|help me( to)?|i want)\b[\s,]*/i;
@@ -1258,8 +1287,9 @@ function readIdea(rough, extra){
   const gi = state.target === 'art' ? null : guessIntent(rough);
   const intent = state.target === 'art' ? ART_INTENT : gi.intent;
   const all = rough + ' ' + extra;
-  const topics = TOPICS.filter(t => topicFits(t) && t.kw.test(all));
-  return { goal, why, intent, topics, conf: gi ? gi.conf : 1 };
+  const changesApp = state.target !== 'code' || /^(build|fix|design|improve)$/.test(intent.id);
+  const topics = TOPICS.filter(t => topicFits(t) && t.kw.test(all) && (!t.appOnly || changesApp));
+  return { goal, why, intent, topics, stepwise, conf: gi ? gi.conf : 1 };
 }
 
 // ===================== C. BUILDER =====================
@@ -1354,7 +1384,8 @@ function build(){
   // General: always say what SHAPE of answer fits this kind of job (house rules only set the style)
   if (gen && rough && GUESS.settings.guess && OUTPUT_GUESS[R.intent.id] && !state.answers.g_depth) { addLine('output', OUTPUT_GUESS[R.intent.id]); guesses++; }
   if (!guessOn && !art && !gen && /^(build|fix|design|improve)$/.test(R.intent.id)) addLine('rules', 'If anything is unclear, list your assumptions in 1 to 3 lines before you start.');
-  picked.forEach(c => addLine({ limits:'rules', output:'output', done:'done', detail:'rules' }[c.covers], c.line));
+  picked.filter(c => !(c.skipFor || []).includes(R.intent.id)).forEach(c => addLine({ limits:'rules', output:'output', done:'done', detail:'rules' }[c.covers], c.line));
+  if (R.stepwise) addLine('output', R.intent.id === 'plan' ? 'Lay it out as numbered steps, each small enough to finish and test on its own.' : 'Break it into clear, numbered steps.');
 
   // 6. any section with a real (no-blank) line counts toward the checklist
   S.forEach(s => { const k = ROLE_TO_CHECK[s.role]; if (k && s.lines.some(l => !l.includes('['))) have[k] = true; });
@@ -1489,7 +1520,7 @@ const INTENT_STRUCT = { recommend:'13.1', study:'13.2', research:'13.3', write:'
 const STOP = new Set(['that','this','with','from','your','into','make','what','when','then','them','they','have','just','each','every','start','finish','after','before']);
 // v1.7: plus up to +8 from the learned model (it gets better as it learns your choices)
 function suggestions(){
-  const raw = $('rough').value + ' ' + $('ctxRefs').value, text = raw.toLowerCase();
+  const raw = ($('rough').value + ' ' + $('ctxRefs').value).replace(/\bstep[- ]by[- ]step\b/ig, ' '), text = raw.toLowerCase();
   const words = new Set(text.split(/\W+/).filter(w => w.length > 3 && !STOP.has(w)));
   const home = INTENT_CHAPTER[last.R.intent.id];
   const pool = STRUCTURES.filter(fits), learned = {};
@@ -1819,6 +1850,94 @@ $('entries').addEventListener('click', e => {
   }
 });
 
+// ===================== L. SCORECARD =====================
+// The measuring stick for the engine. The gold set is PRIVATE (your real
+// prompts); it's loaded from a file into this device and never shipped in the app.
+const GOLD_KEY = 'promptbible.gold', SC_HIST_KEY = 'promptbible.scorehistory';
+let GOLD = null;
+try { GOLD = JSON.parse(localStorage.getItem(GOLD_KEY)); } catch(e){}
+const METRICS = [
+  { id:'intent', name:'Intent read right' },
+  { id:'size',   name:'Right size (Good as is / lean / full)' },
+  { id:'struct', name:'Right structure in top 3' },
+  { id:'split',  name:'Multi-asks split correctly' },
+  { id:'must',   name:'"Don\'t touch" limits caught' },
+  { id:'clean',  name:'No wrong rules added' },
+];
+// Run the real engine on one gold item without touching what's on screen
+function analyze(item){
+  const keep = { target:state.target, structure:state.structure, answers:state.answers, forceFull:state.forceFull, chips:state.chips, last };
+  const fields = DRAFT_FIELDS.map(id => $(id).value);
+  try {
+    state.target = item.target; state.structure = null; state.answers = {}; state.forceFull = false;
+    state.chips = new Set(DEFAULT_CHIPS[item.target]);
+    DRAFT_FIELDS.forEach(id => $(id).value = '');
+    $('rough').value = item.text;
+    const r = build(); last = r;
+    const prompt = renderPlain(r.S);
+    return { intent:r.R.intent.id, size:r.size, structures:suggestions().map(s => s.id), prompt,
+             reqs:splitRequirements(item.text).length, mustNot:extractMustNot(item.text) };
+  } finally {
+    Object.assign(state, keep); last = keep.last;
+    DRAFT_FIELDS.forEach((id, i) => $(id).value = fields[i]);
+  }
+}
+function scoreGold(){
+  const tally = {}; METRICS.forEach(m => tally[m.id] = { ok:0, n:0 });
+  const misses = [];
+  GOLD.items.forEach(it => {
+    const a = analyze(it);
+    const check = (id, ok, detail) => { tally[id].n++; if (ok) tally[id].ok++; else misses.push({ it, metric:id, detail }); };
+    check('intent', a.intent === it.intent, `expected ${it.intent}, got ${a.intent}`);
+    if (it.size) check('size', a.size === it.size, `expected ${it.size}, got ${a.size}`);
+    if (it.structures) check('struct', a.structures.some(x => it.structures.includes(x)), `expected ${it.structures.join('/')}, got ${a.structures.join(', ') || 'none'}`);
+    if (it.requirements > 1) {
+      const n = it.requirements, ok = n <= 3 ? a.reqs === n : Math.abs(a.reqs - n) <= 1;
+      check('split', ok, `expected ${n} requirements, got ${a.reqs}`);
+    }
+    if (it.mustNot) {
+      const got = a.mustNot.join(' ').toLowerCase();
+      check('must', it.mustNot.every(m => got.includes(m.toLowerCase())), `should catch: ${it.mustNot.join(', ')}`);
+    }
+    const bad = (it.forbid || []).filter(f => a.prompt.toLowerCase().includes(f.toLowerCase()));
+    check('clean', !bad.length, `added: ${bad.join(', ')}`);
+  });
+  const per = METRICS.map(m => ({ ...m, ...tally[m.id], p: tally[m.id].n ? tally[m.id].ok / tally[m.id].n : null }));
+  const scored = per.filter(m => m.p !== null);
+  const total = scored.reduce((a, m) => a + m.p, 0) / (scored.length || 1);
+  return { per, total, misses };
+}
+function renderScoreHistory(){
+  let h = []; try { h = JSON.parse(localStorage.getItem(SC_HIST_KEY)) || []; } catch(e){}
+  $('scHistory').innerHTML = h.length ? `<div class="sc-hist"><h4 style="margin:6px 0 2px;font:500 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase">History</h4>` +
+    h.slice(-6).reverse().map(r => `<div><span>${r.date} · ${r.version}</span><span>${Math.round(r.total * 100)}%</span></div>`).join('') + `</div>` : '';
+}
+function renderGoldInfo(){
+  $('scGoldInfo').textContent = GOLD ? `${GOLD.items.length} prompts loaded` : 'no gold set loaded';
+  $('scRun').disabled = !GOLD;
+}
+function runScorecard(){
+  if (!GOLD) return toast('Load a gold set first');
+  const r = scoreGold();
+  $('scResult').innerHTML = `<div class="sc-total"><b>${Math.round(r.total * 100)}%</b><span>overall · ${GOLD.items.length} prompts</span></div>` +
+    r.per.map(m => m.p === null ? '' : `<div class="bar"><span>${esc(m.name)} <small style="color:var(--muted)">${m.ok}/${m.n}</small></span><b>${Math.round(m.p * 100)}%</b><i style="--w:${Math.round(m.p * 100)}%"></i></div>`).join('');
+  $('scMissBox').hidden = !r.misses.length;
+  $('scMissCount').textContent = `(${r.misses.length})`;
+  $('scMiss').innerHTML = r.misses.map(m => `<div class="dev-row"><span>${esc(m.it.id)} · ${esc(m.it.text.slice(0, 70))}${m.it.text.length > 70 ? '…' : ''}</span>
+    <small>${esc(METRICS.find(x => x.id === m.metric).name)}: ${esc(m.detail)}</small></div>`).join('');
+  let h = []; try { h = JSON.parse(localStorage.getItem(SC_HIST_KEY)) || []; } catch(e){}
+  const now = new Date(), pad = n => String(n).padStart(2, '0');
+  h.push({ date:`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`, version:APP_VERSION, total:r.total, per:r.per.map(m => [m.id, m.p]) });
+  try { localStorage.setItem(SC_HIST_KEY, JSON.stringify(h.slice(-50))); } catch(e){}
+  renderScoreHistory();
+}
+function loadGold(json){
+  let d; try { d = JSON.parse(json); } catch(e){}
+  if (!d || d.kind !== 'gold-set' || !Array.isArray(d.items)) return toast('That isn’t a gold set file');
+  GOLD = d; try { localStorage.setItem(GOLD_KEY, JSON.stringify(d)); } catch(e){}
+  renderGoldInfo(); toast(`Gold set loaded: ${d.items.length} prompts`);
+}
+
 // ===================== H. DEV MENU =====================
 // Opened by the gear (top left). The PIN only hides the menu from casual users;
 // it isn't real security, since anyone can read this file.
@@ -1866,9 +1985,15 @@ function renderDev(){
      <button data-del="${i}" aria-label="Remove example">×</button></div>`).join('')
     : `<p class="dev-note" style="padding:12px 0">No examples yet. Teach one above, or copy prompts with "Learn from my choices" on.</p>`;
   renderDevTest();
+  renderGoldInfo(); renderScoreHistory();
 }
 
 $('gearBtn').addEventListener('click', openDev);
+$('scFile').addEventListener('change', e => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  const rd = new FileReader(); rd.onload = () => loadGold(String(rd.result)); rd.readAsText(f); e.target.value = '';
+});
+$('scRun').addEventListener('click', runScorecard);
 $('devClose').addEventListener('click', closeDev);
 $('dev').addEventListener('click', e => { if (e.target === $('dev')) closeDev(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('dev').hidden) closeDev(); });
@@ -1907,6 +2032,7 @@ $('devExport').addEventListener('click', () => copyText(JSON.stringify({ app:'pr
 $('devImportOpen').addEventListener('click', () => { $('devImportBox').hidden = false; $('devImport').focus(); });
 $('devImportBtn').addEventListener('click', () => {
   let d; try { d = JSON.parse($('devImport').value); } catch(e){}
+  if (d && d.kind === 'gold-set') { loadGold($('devImport').value); $('devImport').value = ''; $('devImportBox').hidden = true; return; }
   if (!d || !Array.isArray(d.examples)) return toast('That isn’t a Prompt Bible model');
   const key = e => e.src + '|' + e.text;
   const seen = new Set(GUESS.examples.map(key));
