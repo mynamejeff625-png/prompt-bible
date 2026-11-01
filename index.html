@@ -574,7 +574,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
    ===================================================================== */
 
 // Bump this every update so you can see which version is running.
-const APP_VERSION = 'v1.12';
+const APP_VERSION = 'v1.13';
 
 // ===================== A. DATA =====================
 
@@ -2179,7 +2179,7 @@ function loadGold(json){
 // (no Firebase library to download). The database rules only allow ADDING
 // entries; nobody can read, change or delete them from the app.
 // Leave projectId empty and the whole feature stays hidden.
-const FEEDBACK = { projectId:'', apiKey:'' };
+const FEEDBACK = { projectId:'prompt-bible-data', apiKey:'AIzaSyAxygbyk3xmsSdGVIMW11P7HJCjs1GaXCE' };
 const SHARE_KEY = 'promptbible.share', QUEUE_KEY = 'promptbible.fbqueue', SENT_KEY = 'promptbible.fbsent';
 const shareOn = () => !!FEEDBACK.projectId;
 let share = 'ask';                        // 'ask' | 'yes' | 'no'
