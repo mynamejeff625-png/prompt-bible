@@ -72,8 +72,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
 /* ---------- STEPPER ---------- */
-.stepper{list-style:none;margin:10px 0 22px;padding:0;display:grid;grid-template-columns:repeat(4,1fr);position:relative}
-.stepper .rail{position:absolute;top:13px;left:12.5%;right:12.5%;height:1px;background:var(--line)}
+.stepper{list-style:none;margin:10px 0 22px;padding:0;display:grid;grid-template-columns:repeat(3,1fr);position:relative}
+.stepper .rail{position:absolute;top:13px;left:16.66%;right:16.66%;height:1px;background:var(--line)}
 .stepper .fill{position:absolute;inset:0 auto 0 0;width:0;background:var(--accent);transition:width .45s var(--ease)}
 .stepper button{position:relative;z-index:1;width:100%;display:flex;flex-direction:column;align-items:center;gap:7px;background:none;border:0;cursor:pointer;
   color:var(--muted);font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;transition:color .3s var(--ease)}
@@ -148,6 +148,8 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
 .chip[aria-pressed="true"]{color:var(--fg);border-color:rgba(140,200,232,.55);background:var(--accent-soft)}
 
 .built{margin:0;font-size:13px;color:var(--muted)}
+.prefs{display:flex;flex-direction:column;gap:10px;padding-top:14px;border-top:1px solid var(--line)}
+.optlabel em{font-style:normal;text-transform:none;letter-spacing:0;font-family:var(--body);margin-left:6px;opacity:.8}
 /* v1.9: auto-size + quick questions */
 .asis{margin:0;font-size:13.5px;color:var(--good);display:flex;flex-wrap:wrap;gap:4px 6px;align-items:baseline;animation:fade .35s var(--ease)}
 .asis b{font-weight:600}
@@ -180,6 +182,10 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
 .btn:hover{border-color:var(--accent)}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .btn.primary:hover{filter:brightness(1.08)}
+.btn.done{background:var(--good);border-color:var(--good);color:var(--accent-ink)}
+.btn{transition:all .25s var(--ease),background-color .3s var(--ease)}
+.fb,.qs,.asis,.more-fields{animation:rise .35s var(--ease)}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .btn.ghost{background:none;border-color:transparent;color:var(--muted)}
 .btn.ghost:hover{color:var(--fg)}
 .btn.danger.armed{background:var(--bad);color:var(--accent-ink);border-color:var(--bad)}
@@ -370,8 +376,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
       <span class="rail"><span class="fill" id="railFill"></span></span>
       <li><button data-step="1"><i>1</i>Idea</button></li>
       <li><button data-step="2"><i>2</i>Structure</button></li>
-      <li><button data-step="3"><i>3</i>Rules</button></li>
-      <li><button data-step="4"><i>4</i>Prompt</button></li>
+      <li><button data-step="3"><i>3</i>Prompt</button></li>
     </ol>
 
     <div class="card" data-panel="1">
@@ -410,14 +415,13 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
       <div class="reading" id="reading"></div>
       <div class="opts" id="opts"></div>
       <button class="linkbtn" id="browseBtn">Browse the whole Library</button>
+      <div class="prefs">
+        <div class="optlabel">Your preferences <em>tap what applies</em></div>
+        <div class="chips" id="chips"></div>
+      </div>
     </div>
 
     <div class="card" data-panel="3" hidden>
-      <div class="ph"><div><h2>House rules</h2><p>Tap what applies. They merge into the structure.</p></div></div>
-      <div class="chips" id="chips"></div>
-    </div>
-
-    <div class="card" data-panel="4" hidden>
       <div class="ph">
         <div><h2>Your prompt</h2><p class="built" id="built"></p></div>
         <div class="switch" id="format" title="With tags adds section markers AI reads well. Your words don't change.">
@@ -626,7 +630,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
    ===================================================================== */
 
 // Bump this every update so you can see which version is running.
-const APP_VERSION = 'v1.16';
+const APP_VERSION = 'v1.17';
 
 // ===================== A. DATA =====================
 
@@ -1817,7 +1821,7 @@ function refresh(){
   if (size === 'simple') {
     $('built').innerHTML = `<span class="status-good"><b>✓ Good as is.</b> Clear and simple, so nothing was added.</span> <button class="linkbtn" id="sizeFull">Enhance anyway</button>`;
   } else if (size === 'lean') {
-    $('built').innerHTML = `<b>Short version</b> · best for quick asks` + (last.guesses ? ` · ${last.guesses} filled in for you` : '')
+    $('built').innerHTML = `<b>Short version</b> · best for quick asks` + (state.skipped ? ` · <button class="linkbtn" id="fineTune">Fine-tune</button>` : '') + (last.guesses ? ` · ${last.guesses} filled in for you` : '')
       + ` · <button class="linkbtn" id="sizeFull">Show full version</button>`;
   } else $('built').innerHTML = (state.forceFull ? `<button class="linkbtn" id="sizeAuto">Back to auto size</button> · ` : '') + `Structure: <b>${T.id ? T.id + ' ' + esc(T.t) : 'Standard'}</b>`
     + (last.upgrades ? ` · ${last.upgrades} tip${last.upgrades>1?'s':''} added` : '')
@@ -1827,6 +1831,7 @@ function refresh(){
   if ($('more').querySelector('em').textContent === '0 added') $('more').querySelector('em').textContent = 'optional';
   if (state.step === 2) renderOpts();
   if (typeof saveDraft === 'function') saveDraft();
+  if (state.step === 1 && $('nextBtn')) $('nextBtn').textContent = 'Next: ' + STEP_NAMES[(size === 'simple' || size === 'lean') && !state.structure ? LAST_STEP : 2] + ' →';
 }
 
 // --- Structure picker (step 2) ---
@@ -1867,10 +1872,11 @@ function renderOpts(){
 }
 
 // --- Step flow ---
-const STEP_NAMES = ['', 'Idea', 'Structure', 'Rules', 'Prompt'];
+const STEP_NAMES = ['', 'Idea', 'Structure', 'Prompt'];
+const LAST_STEP = 3;
 function goStep(n){
   const dir = n >= state.step ? 'in-next' : 'in-prev';
-  state.step = Math.max(1, Math.min(4, n));
+  state.step = Math.max(1, Math.min(LAST_STEP, n));
   document.querySelectorAll('[data-panel]').forEach(p => {
     const on = +p.dataset.panel === state.step;
     p.hidden = !on;
@@ -1881,10 +1887,10 @@ function goStep(n){
     li.classList.toggle('current', i + 1 === state.step);
     li.classList.toggle('done', i + 1 < state.step);
   });
-  $('railFill').style.width = ((state.step - 1) / 3 * 100) + '%';
+  $('railFill').style.width = ((state.step - 1) / (LAST_STEP - 1) * 100) + '%';
   $('backBtn').dataset.hide = state.step === 1;
-  $('nextBtn').dataset.hide = state.step === 4;
-  if (state.step < 4) $('nextBtn').textContent = 'Next: ' + STEP_NAMES[state.step + 1] + ' →';
+  $('nextBtn').dataset.hide = state.step === LAST_STEP;
+  if (state.step < LAST_STEP) $('nextBtn').textContent = 'Next: ' + STEP_NAMES[state.step === 1 && last && (last.size === 'simple' || last.size === 'lean') && !state.structure ? LAST_STEP : state.step + 1] + ' →';
   refresh();
   placeMarkers();
   if (state.step === 1) $('rough').focus({ preventScroll:true });
@@ -2033,7 +2039,7 @@ function useStructure(id){
   if (t !== 'any' && t !== state.target) setTarget(t);
   state.structure = id;
   showTab('enhance');
-  goStep($('rough').value.trim() ? 4 : 1);
+  goStep($('rough').value.trim() ? LAST_STEP : 1);
   toast('Using ' + s.id + ' ' + s.t);
 }
 
@@ -2071,7 +2077,7 @@ function loadDraft(){
   DRAFT_FIELDS.forEach(id => { if (typeof d[id] === 'string') $(id).value = d[id]; });
   if (Array.isArray(d.chips)) { state.chips = new Set(d.chips); renderChips(); }
   if (d.structure && STRUCTURES.some(s => s.id === d.structure)) state.structure = d.structure;
-  if (d.step) state.step = d.step;
+  if (d.step) state.step = Math.min(d.step, 3);   // older versions had 4 steps
   if (d.answers && typeof d.answers === 'object') state.answers = d.answers;
 }
 
@@ -2121,17 +2127,27 @@ $('opts').addEventListener('click', e => {
   state.structure = b.dataset.id || null; refresh(); renderOpts();
 });
 $('browseBtn').addEventListener('click', () => { state.ch = 'all'; showTab('library'); });
-$('view-enhance').addEventListener('click', e => { if (e.target.id === 'changeStruct') goStep(2); });
+$('view-enhance').addEventListener('click', e => { if (e.target.id === 'changeStruct' || e.target.id === 'fineTune') { state.skipped = false; goStep(2); } });
 
 $('stepper').addEventListener('click', e => { const b = e.target.closest('button'); if (b) goStep(+b.dataset.step); });
-$('nextBtn').addEventListener('click', () => goStep(state.step + 1));
+function nextStep(){
+  // simple or short asks skip the Structure step; "Fine-tune" on the prompt brings it back
+  if (state.step === 1 && last && (last.size === 'simple' || last.size === 'lean') && !state.structure) { state.skipped = true; return goStep(LAST_STEP); }
+  if (state.step === 1) state.skipped = false;
+  goStep(state.step + 1);
+}
+$('nextBtn').addEventListener('click', nextStep);
 $('backBtn').addEventListener('click', () => goStep(state.step - 1));
 document.addEventListener('keydown', e => { if (e.key === 'Tab' || e.ctrlKey || e.metaKey) document.body.classList.add('kb'); });
 document.addEventListener('keydown', e => {
-  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && !$('view-enhance').hidden) { e.preventDefault(); goStep(state.step + 1); }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && !$('view-enhance').hidden) { e.preventDefault(); nextStep(); }
 });
 
-$('copyBtn').addEventListener('click', () => { copyText($('out').value); learnFromCopy(); afterCopy(); });
+$('copyBtn').addEventListener('click', () => {
+  copyText($('out').value); learnFromCopy(); afterCopy();
+  const b = $('copyBtn'); b.classList.add('done'); b.textContent = 'Copied ✓';
+  clearTimeout(b._t); b._t = setTimeout(() => { b.classList.remove('done'); b.textContent = 'Copy prompt'; }, 1600);
+});
 $('saveOpen').addEventListener('click', () => { $('saveBox').hidden = false; $('saveOpen').hidden = true; $('saveTitle').focus(); });
 function doSave(){
   const text = $('out').value.trim(); if (!text) return;
@@ -2162,7 +2178,7 @@ $('entries').addEventListener('click', e => {
   if (d.copyblank) return copyText(previewOf(STRUCTURES.find(s => s.id === d.copyblank)));
   const p = state.library.find(x => x.id === (d.copy || d.edit || d.del)); if (!p) return;
   if (d.copy) copyText(p.text);
-  if (d.edit) { showTab('enhance'); goStep(4); $('out').value = p.text; toast('Loaded into editor'); }
+  if (d.edit) { showTab('enhance'); goStep(LAST_STEP); $('out').value = p.text; toast('Loaded into editor'); }
   if (d.del) {
     if (!b.classList.contains('armed')) { b.classList.add('armed'); b.textContent = 'Tap again to delete'; setTimeout(() => { b.classList.remove('armed'); b.textContent = 'Delete'; }, 3000); return; }
     state.library = state.library.filter(x => x.id !== p.id); state.open = null; saveLibrary(); renderLibrary(); toast('Deleted');
