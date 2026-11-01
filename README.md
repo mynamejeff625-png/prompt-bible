@@ -45,7 +45,7 @@ Simple questions stay simple: if your prompt is already clear, it tells you it's
 
 Everything you type and save stays in your browser, on your device. There's no account and no tracking.
 
-Sharing is **off** unless you choose **Share anonymously**. If you do, only the idea you typed (with emails and phone numbers removed), the mode and structure, and your optional "Did it get your meaning?" answer are sent, to help train the engine. You can turn it off anytime under **Privacy & data** in the app.
+Sharing is **off** unless you choose **Share anonymously**. If you do, only the idea you typed (with emails and phone numbers removed), how the app read it (mode, kind of job, structure), whether you edited the result, and your optional "Did it get your meaning?" answer are sent, to help train the engine. No name, account or device details. You can turn it off anytime under **Privacy & data** in the app.
 
 ## How it's built
 
