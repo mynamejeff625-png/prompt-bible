@@ -2125,7 +2125,6 @@ function loadDraft(){
   if (d.target && d.target !== state.target) setTarget(d.target);
   // v1.6: older versions saved the example text as a draft; don't bring it back
   if (d.rough === 'add a rematch button after a multiplayer match ends') d.rough = '';
-  if (d.project === 'Element Bound' && !d.rough) d.project = '';
   DRAFT_FIELDS.forEach(id => { if (typeof d[id] === 'string') $(id).value = d[id]; });
   if (Array.isArray(d.chips)) { state.chips = new Set(d.chips); renderChips(); }
   if (d.structure && STRUCTURES.some(s => s.id === d.structure)) state.structure = d.structure;
