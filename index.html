@@ -94,6 +94,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .ph p{margin:5px 0 0;color:var(--muted);font-size:13.5px}
 .stepnav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px}
 .hint{font:11px var(--mono);color:var(--muted);letter-spacing:.06em}
+.hint{visibility:hidden}
+body.kb .hint{visibility:visible}
 @media (hover:none){.hint{display:none}}
 
 input[type=text],textarea{font:inherit;color:var(--fg);background:rgba(0,0,0,.22);border:1px solid var(--line);border-radius:11px;padding:11px 13px;box-sizing:border-box;width:100%;transition:border-color .25s var(--ease)}
@@ -418,10 +420,10 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
     <div class="card" data-panel="4" hidden>
       <div class="ph">
         <div><h2>Your prompt</h2><p class="built" id="built"></p></div>
-        <div class="switch" id="format" title="Structured adds section markers the agent reads. Your words don't change.">
+        <div class="switch" id="format" title="With tags adds section markers AI reads well. Your words don't change.">
           <span class="knob" id="knob2"></span>
-          <button data-f="plain" aria-pressed="false">Plain</button>
-          <button data-f="structured" aria-pressed="true">Structured</button>
+          <button data-f="plain" aria-pressed="false">Plain text</button>
+          <button data-f="structured" aria-pressed="true">With tags</button>
         </div>
       </div>
       <div class="check" id="checkBox"><div class="segs" id="segs"></div><p class="missing" id="missing"></p></div>
@@ -440,7 +442,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
         <b>Help train Prompt Bible?</b>
         <p>Share your prompts anonymously so the engine learns what people really mean. You can turn it off anytime in Privacy &amp; data.</p>
         <div class="actions">
-          <button class="btn primary" id="fbYes">Share anonymously</button>
+          <button class="btn" id="fbYes">Share anonymously</button>
           <button class="btn ghost" id="fbNo">No thanks</button>
           <button class="linkbtn" id="fbWhat">What gets sent?</button>
         </div>
@@ -624,7 +626,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
    ===================================================================== */
 
 // Bump this every update so you can see which version is running.
-const APP_VERSION = 'v1.15';
+const APP_VERSION = 'v1.16';
 
 // ===================== A. DATA =====================
 
@@ -942,11 +944,11 @@ const STRUCTURES = [
     'FORMAT':['- 8 to 10 ideas, one line each.','- Mark your top 3.'] }},
 ];
 
-// The "Default enhancer" is just the simplest structure.
+// The "Standard" structure is the simplest one.
 const DEFAULTS = {
-  general: { id:null, t:'Default enhancer', use:'A clean all-purpose shape for any question.', s:{ 'GOAL':['{task}'], 'PREFERENCES':[], 'FORMAT':[], 'A GOOD ANSWER':[] } },
-  code: { id:null, t:'Default enhancer', use:'A clean all-purpose shape for any request.', s:{ 'TASK':['{task}'], 'RULES':[], 'OUTPUT':[], 'DONE WHEN':[] } },
-  art:  { id:null, t:'Default enhancer', use:'A clean all-purpose shape for any asset.',   s:{ 'WHAT TO MAKE':['{task}'], 'STYLE':[], 'OUTPUT':[], 'CHECK':[] } },
+  general: { id:null, t:'Standard', use:'A clean all-purpose shape for any question.', s:{ 'GOAL':['{task}'], 'PREFERENCES':[], 'FORMAT':[], 'A GOOD ANSWER':[] } },
+  code: { id:null, t:'Standard', use:'A clean all-purpose shape for any request.', s:{ 'TASK':['{task}'], 'RULES':[], 'OUTPUT':[], 'DONE WHEN':[] } },
+  art:  { id:null, t:'Standard', use:'A clean all-purpose shape for any asset.',   s:{ 'WHAT TO MAKE':['{task}'], 'STYLE':[], 'OUTPUT':[], 'CHECK':[] } },
 };
 
 // What a section is FOR, judged from its name.
@@ -1300,6 +1302,37 @@ function extractNumbers(text){
   return out.slice(0, 8);
 }
 const VISION = /\b(eventually|long[- ]term|in the future|end goal|visionary goal|my vision|the vision)\b/i;
+
+// ===================== O. CLEAN-UP PASS (polish #2) =====================
+// Runs on every finished prompt: removes lines that say the same thing twice,
+// and settles clashes (the more specific line wins).
+const CLASHES = [
+  { keep:/\bone line each\b|\b8 to 10\b/i,                drop:/numbered steps/i },
+  { keep:/\bin depth\b|\bdetailed\b|\bgo in depth\b/i,   drop:/keep it short/i },
+  { keep:/price doesn'?t matter/i,                        drop:/\bfree options\b/i },
+  { keep:/low-cost options are fine/i,                    drop:/^- free options only/i },
+  { keep:/^- free options only/i,                         drop:/free options first/i },
+  { keep:/length: (medium|detailed)/i,                    drop:/keep it short/i },
+];
+function cleanUp(S){
+  const all = () => S.flatMap(sec => sec.lines.map(l => ({ sec, l })));
+  // 1. clashes: if a "keep" line exists anywhere, remove matching "drop" lines
+  CLASHES.forEach(c => {
+    if (all().some(x => c.keep.test(x.l))) S.forEach(sec => sec.lines = sec.lines.filter(l => c.keep.test(l) || !c.drop.test(l)));
+  });
+  // 2. repeats: a bullet whose words are (almost) all inside a longer bullet goes
+  const bullets = all().filter(x => /^- /.test(x.l) && !/\(infer\)|\[/.test(x.l));
+  const words = l => new Set(tokens(l));
+  bullets.forEach(a => {
+    const wa = words(a.l); if (wa.size < 2) return;
+    const dup = bullets.some(b => b !== a && b.l.length >= a.l.length && !b.gone && (() => {
+      const wb = words(b.l); let n = 0; wa.forEach(w => { if (wb.has(w)) n++; });
+      return n / wa.size >= 0.8 && (b.l.length > a.l.length || b.l !== a.l || b.sec !== a.sec);
+    })());
+    if (dup) { a.gone = true; a.sec.lines = a.sec.lines.filter(l => l !== a.l); }
+  });
+  return S.filter(sec => sec.lines.length || sec.inline);
+}
 
 // ===================== J. AUTO SIZE =====================
 // simple = "Good as is": a short, single, clear question in General mode
@@ -1720,7 +1753,7 @@ function build(){
     S.splice(at < 0 ? S.length : at, 0, { title:'ASSUMPTIONS', role:'info', lines });
   }
 
-  return { S, have, R, T, upgrades: R.topics.length, guesses, qs, size: sizeOf(R, rough, ctxCount) };
+  return { S: cleanUp(S), have, R, T, upgrades: R.topics.length, guesses, qs, size: sizeOf(R, rough, ctxCount) };
 }
 
 // ===================== D. RENDER =====================
@@ -1771,24 +1804,24 @@ function refresh(){
   const gaps = CHECKS.filter(c => !last.have[c.id]);
   const blanks = (text.match(/\[[^\]\n]+\]/g) || []).length;
   $('segs').innerHTML = CHECKS.map(c =>
-    `<div class="seg ${last.have[c.id]==='guess'?'guess':last.have[c.id]?'ok':''}" title="${c.name}: ${last.have[c.id]==='guess'?'filled by educated guess':c.hint}"><i></i><span>${c.name}</span></div>`).join('');
+    `<div class="seg ${last.have[c.id]==='guess'?'guess':last.have[c.id]?'ok':''}" title="${c.name}: ${last.have[c.id]==='guess'?'filled in for you':c.hint}"><i></i><span>${c.name}</span></div>`).join('');
   const m = $('missing');
   const guessed = CHECKS.filter(c => last.have[c.id] === 'guess').length;
   m.classList.toggle('all', !gaps.length);
   m.innerHTML = gaps.length
     ? `<b>${6-gaps.length}/6</b> · Next: ${gaps[0].name.toLowerCase()} — ${gaps[0].hint}`
     : blanks ? `<b>6/6</b> · ${blanks} [blank${blanks>1?'s':''}] left to fill, then copy.`
-    : guessed ? `<b>6/6</b> · ${guessed} filled by educated guess (blue). Edit anything, then copy.` : `<b>6/6</b> · Ready to send.`;
+    : guessed ? `<b>6/6</b> · ${guessed} filled in for you (blue). Edit anything, then copy.` : `<b>6/6</b> · Ready to send.`;
 
   const T = last.T;
   if (size === 'simple') {
     $('built').innerHTML = `<span class="status-good"><b>✓ Good as is.</b> Clear and simple, so nothing was added.</span> <button class="linkbtn" id="sizeFull">Enhance anyway</button>`;
   } else if (size === 'lean') {
-    $('built').innerHTML = `<b>Lean prompt</b> · short asks work best in plain words` + (last.guesses ? ` · ${last.guesses} guess${last.guesses>1?'es':''}` : '')
-      + ` · <button class="linkbtn" id="sizeFull">Use full structure</button>`;
-  } else $('built').innerHTML = (state.forceFull ? `<button class="linkbtn" id="sizeAuto">Auto size</button> · ` : '') + `Built on <b>${T.id ? T.id + ' ' + esc(T.t) : 'Default enhancer'}</b>`
-    + (last.upgrades ? ` · ${last.upgrades} topic upgrade${last.upgrades>1?'s':''}` : '')
-    + (last.guesses ? ` · ${last.guesses} guess${last.guesses>1?'es':''}` : '')
+    $('built').innerHTML = `<b>Short version</b> · best for quick asks` + (last.guesses ? ` · ${last.guesses} filled in for you` : '')
+      + ` · <button class="linkbtn" id="sizeFull">Show full version</button>`;
+  } else $('built').innerHTML = (state.forceFull ? `<button class="linkbtn" id="sizeAuto">Back to auto size</button> · ` : '') + `Structure: <b>${T.id ? T.id + ' ' + esc(T.t) : 'Standard'}</b>`
+    + (last.upgrades ? ` · ${last.upgrades} tip${last.upgrades>1?'s':''} added` : '')
+    + (last.guesses ? ` · ${last.guesses} filled in for you` : '')
     + ` · <button class="linkbtn" id="changeStruct">Change</button>`;
   $('more').querySelector('em').textContent = [$('ctxHave'),$('ctxTried'),$('ctxRefs')].filter(i=>i.value.trim()).length + ' added';
   if ($('more').querySelector('em').textContent === '0 added') $('more').querySelector('em').textContent = 'optional';
@@ -1892,7 +1925,7 @@ function renderLibrary(){
         <span class="vn">${s.id}</span><strong>${esc(s.t)}</strong><span class="pill ${c.target}">${c.target}</span>
         <span class="use">${esc(s.use)}</span></button>
         ${open ? `<div class="detail"><pre>${esc(previewOf(s))}</pre>
-          <p class="note">Your idea, context, topic upgrades and rules merge in when you use it.</p>
+          <p class="note">Your idea, details, tips and preferences merge in when you use it.</p>
           <div class="actions"><button class="btn primary" data-use="${s.id}">Use this structure</button>
           <button class="btn" data-copyblank="${s.id}">Copy blank</button></div></div>` : ''}</div>`;
     }).join('');
@@ -2093,6 +2126,7 @@ $('view-enhance').addEventListener('click', e => { if (e.target.id === 'changeSt
 $('stepper').addEventListener('click', e => { const b = e.target.closest('button'); if (b) goStep(+b.dataset.step); });
 $('nextBtn').addEventListener('click', () => goStep(state.step + 1));
 $('backBtn').addEventListener('click', () => goStep(state.step - 1));
+document.addEventListener('keydown', e => { if (e.key === 'Tab' || e.ctrlKey || e.metaKey) document.body.classList.add('kb'); });
 document.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && !$('view-enhance').hidden) { e.preventDefault(); goStep(state.step + 1); }
 });
