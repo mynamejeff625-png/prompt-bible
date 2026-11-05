@@ -671,14 +671,14 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
    ===================================================================== */
 
 // Bump this every update so you can see which version is running.
-const APP_VERSION = 'v1.19';
+const APP_VERSION = 'v1.20';
 
 // ===================== A. DATA =====================
 
 // House-rule chips. "covers" = which checklist ingredient it fills.
 const CHIPS = {
   general: [
-    { id:'simple',   label:'Keep it simple',    covers:'output', line:'Use plain words and keep it short; no jargon.' },
+    { id:'simple',   label:'Keep it simple',    covers:'output', line:'Use plain words; no jargon.' },
     { id:'steps',    label:'Step by step',      covers:'output', line:'Break it into clear, numbered steps.' },
     { id:'beginner', label:'I\'m a beginner',   covers:'detail', line:'Assume I\'m a complete beginner.' },
     { id:'free',     label:'Free options only', covers:'limits', line:'Only suggest free options, or clearly mark anything that costs money.' },
@@ -695,7 +695,7 @@ const CHIPS = {
     { id:'handoff',label:'End with a handoff note',   covers:'done',   line:'Finish with a short handoff note: what changed, what\'s next, what to test.' },
   ],
   art: [
-    { id:'png',    label:'Transparent PNG',        covers:'output', line:'Deliver a PNG with a transparent background.' },
+    { id:'png',    label:'Transparent PNG',        covers:'output', line:'If you can make images, deliver a PNG with a transparent background.' },
     { id:'match',  label:'Match existing style',   covers:'limits', line:'Match the style, line weight and palette of my existing assets exactly.' },
     { id:'noai',   label:'Not AI-looking',         covers:'limits', line:'Avoid the glossy AI look: no airbrushed shine, no random detail, no warped hands or text.' },
     { id:'retro',  label:'Half pixel / half real', covers:'detail', line:'Style: 1980s retro, half pixel art and half realism.' },
@@ -704,7 +704,7 @@ const CHIPS = {
 };
 
 // The six ingredients of a good prompt.
-const DEFAULT_CHIPS = { general:['simple','steps'], code:['full','scope'], art:['png','match','noai'] };
+const DEFAULT_CHIPS = { general:[], code:['full','scope'], art:['noai'] };
 const CHECKS = [
   { id:'goal',    name:'Goal',      hint:'say what to build, fix or change.',
     test:t=>/\b(make|add|build|create|fix|change|remove|turn|improve|optimi[sz]e|refactor|draw|design|generate|update|replace|move|explain|plan|write|redo|overhaul|find|recommend|learn|research|decide|choose|compare|organi[sz]e|schedule|draft|summari[sz]e)\b/i.test(t) },
@@ -744,7 +744,7 @@ const STRUCTURES = [
   // ---- 1 Build
   { id:'1.1', ch:1, t:'New feature', use:'Add one feature from start to finish.', s:{
     'TASK':['{task}'],
-    'HOW IT SHOULD WORK':['- Trigger: [what starts it]','- Result: [what the player sees or gets]','- Edge cases: [what happens if it goes wrong]'],
+    'HOW IT SHOULD WORK':['- Trigger: [what starts it]','- Result: [what the user sees or gets]','- Edge cases: [what happens if it goes wrong]'],
     'RULES':['- Build it as its own module so it can be removed or extended later.'],
     'OUTPUT':['- List the files you changed and why, then the complete files.'],
     'DONE WHEN':[] }},
@@ -1022,7 +1022,7 @@ const INTENTS = [
   { id:'design',  label:'Design',  kw:/\b(redesign\w*|restyle\w*|layout|look\w*|ui|ux|styl\w*|sleek\w*|interface|prettier|ugly|modern|cleaner|aesthetic|colou?rs?|fonts?)\b/i,
     role:'Act as a UI/UX designer who also writes clean front-end code.' },
   { id:'build',   label:'Build',   kw:/./,
-    role:'Act as a senior game developer who builds features cleanly and modularly.' },
+    role:'Act as a senior developer who builds features cleanly and fits them into existing code.' },
 ];
 // General mode (any AI chatbot): everyday jobs. First match wins. "rule" = the
 // one line that keeps the AI doing the RIGHT kind of job (e.g. recommend, not build).
@@ -1044,7 +1044,7 @@ const G_INTENTS = [
   { id:'ask', label:'Ask', kw:/./,
     role:'Act as a helpful expert who answers directly and clearly.', rule:'Answer directly first, then add detail only if it helps.' },
 ];
-const ART_INTENT = { id:'create', label:'Create', role:'Act as a professional game artist with a consistent, hand-crafted style.' };
+const ART_INTENT = { id:'create', label:'Create', role:'Act as a professional designer and illustrator.' };
 
 // TOPICS: when your idea mentions one, the expert lines it implies get added.
 // This is the "knowledge" part: what a pro would remember to say.
@@ -1055,7 +1055,7 @@ const TOPICS = [
   { label:'Learning', target:'general', kw:/\b(learn\w*|study\w*|courses?|lessons?|languages?|spanish|french|japanese|german|skills?|practice)\b/i,
     rules:['Cover how to start as a beginner and how to keep progressing at an intermediate level.'] },
   { label:'Phone', target:'general', kw:/\b(iphone|ios|phone|mobile|android)\b/i,
-    rules:['It has to work on my phone; say whether each option supports iPhone.'] },
+    rules:['It has to work on my phone.'] },
   { label:'Up to date', target:'general', kw:/\b(latest|current|newest|today|right now|recent|this year)\b/i,
     rules:['Use current information and say if something may have changed.'] },
   { label:'Local', target:'general', kw:/\b(near me|nearby|in my area|local)\b/i,
@@ -1073,8 +1073,8 @@ const TOPICS = [
     rules:['Handle a missing or old save without crashing.'],
     done:['Close and reopen: everything is where it was left.'] },
   { label:'Performance', target:'code', kw:/\b(slow|lag|fps|stutter|freeze|optimi[sz]e|performance|heavy|memory)\b/i,
-    rules:['Measure before and after; never trade away visuals for speed without asking.'],
-    done:['Runs smoothly (around 60 fps) on the slowest target device.'] },
+    rules:['Find what is actually slow before changing anything; keep the results exactly the same.'],
+    done:['It is clearly faster and gives the same results as before.'] },
   { label:'Motion', appOnly:true, target:'any', kw:/\b(animat\w*|transitions?|tween|smooth|fade|slide|juice|polish)\b/i,
     rules:['Respect reduced-motion settings; motion supports the action, never blocks it.'],
     done:['Motion is smooth and nothing jumps or flickers.'] },
@@ -1086,8 +1086,8 @@ const TOPICS = [
   { label:'Gizmo/Pocket', target:'any', kw:/\b(gizmo|pocket|png[- ]?pack\w*)\b/i,
     context:['Runs as a Gizmo/Pocket build on iPhone (PNG-packed).'],
     rules:['Keep the build fully self-contained: no external files or network calls.'] },
-  { label:'Firebase', target:'code', kw:/\b(firebase|firestore|database|server)\b/i,
-    rules:['Stay on the free tier: keep reads and writes to the minimum needed.'] },
+  { label:'Firebase', target:'code', kw:/\b(firebase|firestore)\b/i,
+    rules:['Keep reads and writes to the minimum needed so it stays on the free tier.'] },
   { label:'Gameplay', appOnly:true, target:'code', kw:/\b(attack|damage|enem(y|ies)|combo|health|hp|boss|spawn|weapon|jump|dash)\b/i,
     rules:['Put every tunable number (damage, speed, timing) in one config block.'],
     done:['A quick playtest feels right, and numbers retune in one place.'] },
@@ -1101,7 +1101,7 @@ const TOPICS = [
   { label:'Character', target:'art', kw:/\b(character|hero|enemy|boss|portrait|pose|face)\b/i,
     rules:['Strong silhouette that reads at small size.'] },
   { label:'Environment', target:'art', kw:/\b(background|environment|scene|level|tiles?|tileset|sewer|city|room)\b/i,
-    rules:['Keep gameplay areas readable; save fine detail for the edges.'] },
+    rules:['Keep the main subject clear; save fine detail for the edges.'] },
 ];
 
 // ===================== STATE + SAVING =====================
@@ -1219,6 +1219,7 @@ const EXPLORE = /\b(let'?s|lets) (explore|think|discuss|figure)\b|\bexplore (how
 const STRONG = [
   { id:'fix',     re: CORRECTION },
   { id:'plan',    re: EXPLORE },
+  { id:'fix',     re: /\b[A-Za-z]*(Error|Exception)\b|\btraceback\b|\berror (on|at|in) line\b/ },
   { id:'improve', re: /\bbyte[- ]?saving\b|\bsave (space|bytes)\b|\bre[-~]?size\b|\brescale\b|\bfit within (our )?budget\b|\btoo (high|slow|big|long|laggy|heavy)\b|\bfinal polish\b|\blaggy\b|\bstutter\w*|\bfps\b|\boptimi\w*|\bperformance\b/i },
 ];
 const LEAD = [
@@ -1229,6 +1230,14 @@ const LEAD = [
   { id:'build',   re:/^(add|create|build|make|implement|incorporate|we will|we'?ll|we should|allow|enable|give|after (entering|you)|i'?d like to|id like to|i would like|i want to add|let'?s (get|add|make)|lets (get|add|make)|recommend .*\b(add|incorporate|include)\b|re-?vamp|if i'?m|if im|if i)\b/i },
 ];
 function stripLead(t){ return t.replace(/^[\s\-*•^>#]+/, '').replace(/^(also|so|ok(ay)?|hey|and|but|then|now|alright|alr)\b[\s,]*/i, ''); }
+// Everyday asks: how the request is phrased says what job it is (checked before the keyword list)
+const G_LEAD = [
+  { id:'write',      re:/^(help me |can you |pls |please )?(write|draft|reply|respond|rewrite|reword|proofread)\b|\b(reply|respond|response) to\b|\bmake (my|this) .{0,40}\b(sound|read) (better|more|less|professional|nicer)\b|\bmake my (resume|cv|essay|email|bio|cover letter|message|post|caption)\b/i },
+  { id:'brainstorm', re:/\bwhat (should|can|could) i (get|buy|give|make|cook|name|call)\b|\b(gift|present) (ideas?|for)\b|\bideas? for\b|\bnames? for\b/i },
+  { id:'decide',     re:/\bshould i\b.*\bor\b|\bwhich (one )?(makes sense|is better|should i)\b|\bworth it\b|\bis it worth\b/i },
+  { id:'research',   re:/^(is|are|does|do|can) .{1,60}\b(safe|healthy|bad for|good for|dangerous|effective|true|real|legit|work)\b|^(whats|what is|what's) the (actual |real )?difference\b/i },
+];
+function gLeadIntent(text){ const t = stripLead(text.trim()); for (const l of G_LEAD) if (l.re.test(t)) return l.id; return null; }
 function leadIntent(text){
   for (const s of STRONG) if (s.re.test(text)) return s.id;
   const first = (splitSentences(stripLead(text))[0] || '').slice(0, 220);
@@ -1541,7 +1550,7 @@ function guessIntent(text, target){
   const rule = list.find(i => i.id !== fallback && i.kw.test(text));
   if (rule) score[rule.id] += 0.4; else if (!nb.length) score[fallback] += 1;
   // Step 2: for code, how the request OPENS counts most
-  const lead = list === INTENTS ? leadIntent(text) : null;
+  const lead = list === INTENTS ? leadIntent(text) : gLeadIntent(text);
   if (lead) score[lead] += 1.2;
   const ranked = Object.entries(score).map(([id, p]) => ({ id, p })).sort((a, b) => b.p - a.p);
   const z = ranked.reduce((a, r) => a + r.p, 0) || 1; ranked.forEach(r => r.p /= z);
@@ -1566,17 +1575,17 @@ const WHY_GUESS = {
   build:'So it works smoothly as part of the existing project.', fix:'So it works reliably again without breaking anything else.',
   improve:'So it runs and reads better while behaving exactly the same.', design:'So it looks consistent and is easier to use.',
   plan:'So I can build it in small steps and test each one.', learn:'So I understand it well enough to change it myself.',
-  create:'So it fits the existing look and reads clearly in play.' };
+  create:'So it looks right for where it will be used.' };
 const OUTPUT_GUESS = {
-  recommend:'3 to 5 real options (free ones first), each with what it is best for. Then your top pick and how to get started with it.',
-  study:'A simple learning path: where to start, what to practice, and how to know I am improving.',
+  recommend:'3 to 5 real options, each with what it is best for and a rough price. Then your top pick and why.',
+  study:'Explain the key ideas clearly with an example first. Then what to practice or do next.',
   research:'A short summary first, then the key points, with sources where possible.', write:'The finished text, ready to copy, plus one shorter alternative.',
-  decide:'The options side by side with pros and cons, then your recommendation and why.', organize:'A clear step-by-step plan or checklist.',
+  decide:'The options side by side with pros and cons, then your recommendation and why.', organize:'A complete plan I can follow as is, with the specifics filled in (days, times, amounts).',
   brainstorm:'8 to 10 varied ideas, one line each, with your top 3 marked.', ask:'A direct answer in 1 to 3 sentences, then any helpful detail.',
   build:'Complete updated files, plus a short list of what changed.', fix:'The cause in one or two lines, then the complete fixed files.',
   improve:'Each change with a one-line reason, then the complete files.', design:'Complete updated files, plus a short before/after summary.',
   plan:'A numbered plan with a goal and a test for each step. No code yet.', learn:'A plain-words explanation with one small example.',
-  create:'One clean image sized for where it is used; transparent background for sprites and icons.' };
+  create:'The finished image, sized for where it is used. If you can\'t make images, give a detailed, ready-to-paste prompt for an image tool instead (subject, style, colors, layout, background).' };
 const DONE_GUESS = {
   recommend:'I can choose an option and start using it today.', study:'I know exactly what to do first.', research:'I understand it well enough to explain it.',
   write:'I can send it as is.', decide:'I can make the decision with confidence.', organize:'I can start following the plan right away.',
@@ -1585,7 +1594,7 @@ const DONE_GUESS = {
   improve:'It works the same or better, with no change in behavior.', design:'Every control still works and the new look is consistent.',
   plan:'I can start step 1 right away.', learn:'I can explain it back in my own words.' };
 const GOAL_PREFIX = { fix:'Fix this: ', improve:'Improve this: ', design:'Redesign this: ', plan:'Help me plan this: ', learn:'Explain this: ', build:'Build this: ' };
-const LIMIT_GUESS = { general:'Keep it practical and easy to understand; no jargon.', code:'Keep everything that already works unchanged.', art:'Stay consistent with the existing art style; add nothing unrelated.' };
+const LIMIT_GUESS = { general:'Keep it practical and easy to understand; no jargon.', code:'Keep everything that already works unchanged.', art:'Keep it simple and on purpose; add nothing unrelated.' };
 
 // Called when you copy a prompt: remember which structure you chose for this idea
 function learnFromCopy(){
@@ -1636,6 +1645,37 @@ function readIdea(rough, extra){
 
 // ===================== C. BUILDER =====================
 // Merges: your idea + the chosen structure + context + topic lines + chips.
+// Missing material: the request points at something the AI can't see (my code, this function,
+// my resume, this photo) and nothing was pasted. Without this, the AI invents it.
+function hasMaterial(text){
+  return text.length > 400 || (text.match(/\n/g) || []).length >= 3 || /[{};]\s*$|[{};]\s*\n|=>|\bdef \w+\(|\bfunction\s*\w*\s*\(|<\/?[a-z]+[ >]|"[^"]{60,}"/m.test(text);
+}
+function missingMaterial(text, target, intent){
+  if (!text || hasMaterial(text)) return null;
+  const t = text.toLowerCase();
+  if (target === 'code') {
+    const thing = (t.match(/\b(?:this|my|the|our)\s+(?:\w+\s)?(function|code|script|file|component|page|site|website|portfolio|app|login|form|query|class|method|loop|css|html|game|program|bot)\b/) || [])[1];
+    if (!thing && !/^(fix|clean ?up|refactor|improve|optimi\w*) (it|this)\b/.test(t)) return null;
+    if (/^(fix|improve|design)$/.test(intent)) return {
+      rules:['You can\'t see my code yet. Don\'t invent it or rewrite it from scratch.'],
+      output: intent === 'fix'
+        ? 'The most likely causes, most likely first, each with how to check it and how to fix it. Then tell me exactly which code or error message to paste so you can confirm.'
+        : 'What to change and why, most important first, with short examples. Then ask me to paste the code so you can apply it.' };
+    if (intent === 'build') return { rules:['You can\'t see my code. Write drop-in code for a typical setup and say exactly where each part goes.'],
+      output:'The code to add, split by file, with where each part goes and how to test it. Then a short list of what to tell you if my setup is different.' };
+    return null;
+  }
+  if (target === 'general') {
+    const doc = (t.match(/\b(?:my|this|the)\s+(resume|cv|essay|paper|cover letter|email|draft|bio|story|poem|letter|speech|post|report|assignment|homework)\b/) || [])[1];
+    if (!doc || !/^(write|study|research|ask)$/.test(intent)) return null;
+    return { rules:['I haven\'t pasted my ' + doc + ' yet. Don\'t make up facts about me.'],
+      output:'A strong example version I can adapt right now, with [brackets] where my own details go. Then ask me to paste my ' + doc + ' for a version tailored to it.' };
+  }
+  if (target === 'art' && /\b(this|my|the) (image|photo|picture|pic|drawing|logo|design|art|artwork|sketch|icon)\b|^(redo|edit|fix|change|improve|update) (this|it)\b/.test(t))
+    return { rules:['I\'m attaching the image. If you can\'t see it, ask me for it in one line instead of guessing what it looks like.'] };
+  return null;
+}
+
 function build(){
   const art = state.target === 'art', gen = state.target === 'general';
   const rough = $('rough').value.trim();
@@ -1643,7 +1683,8 @@ function build(){
   const ctx = { have:$('ctxHave').value.trim(), tried:$('ctxTried').value.trim(), refs:$('ctxRefs').value.trim() };
   const ctxCount = [ctx.have, ctx.tried, ctx.refs].filter(Boolean).length;
   const R = readIdea(rough, [ctx.have, ctx.tried, ctx.refs].join(' '));
-  const picked = CHIPS[state.target].filter(c => state.chips.has(c.id));
+  const M = missingMaterial(rough, state.target, R.intent.id);
+  const picked = CHIPS[state.target].filter(c => state.chips.has(c.id) && !(M && c.id === 'full'));
   const T = currentStructure();
 
   // 1. which ingredients did YOU already give?
@@ -1705,7 +1746,7 @@ function build(){
   if (task) {
     if (R.why) task.lines.push('Why: ' + R.why.charAt(0).toUpperCase() + R.why.slice(1) + '.');
     else if (guessOn && rough) { task.lines.push((art ? 'Purpose (assumed): ' : 'Why (assumed): ') + WHY_GUESS[R.intent.id]); guesses++; }
-    else task.lines.push(art ? 'Purpose: [where it appears and what it should make the player feel]' : 'Why: [what this lets the player or you do]');
+    else task.lines.push(art ? 'Purpose: [where it will be used and the feeling it should give]' : 'Why: [what this lets you or your users do]');
     // missing specifics: guess mode hands them to the agent as assumptions instead of a blank
     if (!have.detail) {
       if (guessOn && rough) { have.detail = 'guess'; guesses++; }
@@ -1729,9 +1770,10 @@ function build(){
     (t.rules || []).forEach(l => addLine('rules', l)); (t.done || []).forEach(l => addLine('done', l));
   });
   // General: always say what SHAPE of answer fits this kind of job (house rules only set the style)
-  if (gen && rough && GUESS.settings.guess && OUTPUT_GUESS[R.intent.id] && !state.answers.g_depth) { addLine('output', OUTPUT_GUESS[R.intent.id]); guesses++; }
-  if (!guessOn && !art && !gen && /^(build|fix|design|improve)$/.test(R.intent.id)) addLine('rules', 'If anything is unclear, list your assumptions in 1 to 3 lines before you start.');
+  if (gen && rough && GUESS.settings.guess && OUTPUT_GUESS[R.intent.id] && !state.answers.g_depth && !(M && M.output)) { addLine('output', OUTPUT_GUESS[R.intent.id]); guesses++; }
+  if (!guessOn && !art && !gen && /^(build|fix|design|improve)$/.test(R.intent.id)) addLine('rules', 'If anything is unclear, list your assumptions in 1 to 3 lines at the top, then do the whole task.');
   picked.filter(c => !(c.skipFor || []).includes(R.intent.id)).forEach(c => addLine({ limits:'rules', output:'output', done:'done', detail:'rules', context:'context' }[c.covers], c.line));
+  if (M) { M.rules.forEach(l => addLine('rules', l)); if (M.output) { addLine('output', M.output); have.output = true; } }
   // Step 2 organizer: corrections, exploring, vision, numbers, limits, priorities
   const O = R.org;
   if (O.correction) {
@@ -1797,12 +1839,12 @@ function build(){
   if (fill && (inferred || have.detail === 'guess' || S.some(s => s.lines.some(l => /\(assumed\)/.test(l))))) {
     const lines = gen
       ? ['- If a detail isn\'t given, assume what suits a typical person in my situation.',
-         '- Say what you assumed in one line at the start, so I can correct it.']
+         '- Say what you assumed in one line at the start, then give the full answer.']
       : art
       ? ['- Anything marked (infer) or (assumed), or any detail not given: choose what fits the style best.',
-         '- Note your choices in one line before the image so I can correct them.']
+         '- Note your choices in one line, then deliver the full result.']
       : ['- Anything marked (infer) or (assumed), or any detail not given (numbers, names, sizes): pick what fits the task best.',
-         '- Before you start, list those choices in 1 to 3 lines so I can correct them.'];
+         '- List those choices in 1 to 3 lines at the top, then do the whole task. Don\'t stop to wait for my answer.'];
     const at = S.findIndex(s => s.role === 'output');
     S.splice(at < 0 ? S.length : at, 0, { title:'ASSUMPTIONS', role:'info', lines });
   }
