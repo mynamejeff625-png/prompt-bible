@@ -1684,6 +1684,24 @@ function missingMaterial(text, target, intent){
   return null;
 }
 
+// Accuracy guard: small models invent products, numbers and functions. One short line per job,
+// aimed at the mistake that job tends to make. (window.PB_ACCURACY = false turns it off for tests.)
+const ACCURACY = {
+  recommend:'Only name products, apps or models you are sure really exist; if unsure, say what to look for instead. Prices are rough and may have changed.',
+  research:'Separate what is well established from what is still debated, and never present a guess or a made-up study or statistic as fact.',
+  ask:'If you are not sure, say so instead of guessing.',
+  study:'Get definitions, numbers and rules exactly right; say when something varies.',
+  decide:'Show the math for any cost, time or amount, and check it.',
+  organize:'Check that totals (costs, times, amounts) add up.',
+  build:'Use only real functions and libraries, and make sure the code runs as written: no placeholders or made-up APIs.',
+  fix:'Base causes on how the language really behaves; don\'t guess at code you can\'t see.',
+  improve:'Only suggest changes that really help in this language; check each one is real and correct.',
+  design:'Use only real CSS and HTML features; make sure the code works as written.',
+  plan:'Only name real tools and services, and say if one costs money.',
+  learn:'Keep it simple but correct: no simplification that becomes wrong.',
+  create:'Use the real size or ratio for where it will be used.'
+};
+
 function build(){
   const art = state.target === 'art', gen = state.target === 'general';
   const rough = $('rough').value.trim();
@@ -1782,6 +1800,7 @@ function build(){
   if (!guessOn && !art && !gen && /^(build|fix|design|improve)$/.test(R.intent.id)) addLine('rules', 'If anything is unclear, list your assumptions in 1 to 3 lines at the top, then do the whole task.');
   picked.filter(c => !(c.skipFor || []).includes(R.intent.id)).forEach(c => addLine({ limits:'rules', output:'output', done:'done', detail:'rules', context:'context' }[c.covers], c.line));
   if (M) { M.rules.forEach(l => addLine('rules', l)); if (M.output) { addLine('output', M.output); have.output = true; } }
+  if (window.PB_ACCURACY !== false && rough && ACCURACY[R.intent.id]) addLine('rules', ACCURACY[R.intent.id]);
   // Step 2 organizer: corrections, exploring, vision, numbers, limits, priorities
   const O = R.org;
   if (O.correction) {
