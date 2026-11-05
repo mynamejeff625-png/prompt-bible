@@ -671,7 +671,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
    ===================================================================== */
 
 // Bump this every update so you can see which version is running.
-const APP_VERSION = 'v1.21';
+const APP_VERSION = 'v1.22';
 
 // ===================== A. DATA =====================
 
@@ -1200,7 +1200,7 @@ const QUESTIONS = [
 const MAX_QUESTIONS = 3;
 // answered questions stay visible; then the most useful open ones, 3 at most
 function activeQuestions(R, text){
-  if (!text.trim()) return [];
+  if (!text.trim() || R.neutral) return [];
   const fitsNow = QUESTIONS.filter(q => q.target === state.target && q.when(R, text));
   const answered = fitsNow.filter(q => state.answers[q.id]);
   const open = fitsNow.filter(q => !state.answers[q.id]).slice(0, Math.max(0, MAX_QUESTIONS - answered.length));
@@ -1331,6 +1331,14 @@ function extractMustNot(text){
   for (const m of (text || '').matchAll(NEG)) {
     let what = m[2].split(/\s+(?:as|because|bacause|becuase|since|so that|this way|when|if|unless)\b|,\s*(?:this|so|but|which)\b/i)[0].trim().replace(/[,\s]+$/, '');
     if (what.length < 4 || /^(that|this|it|so|be)\b/i.test(what)) continue;
+    // "i dont have any code" describes you, it's not a rule; "i dont want to sound rude" is a rule
+    if (/\b(i|we|they|he|she|my \w+)\s*$/i.test(text.slice(Math.max(0, m.index - 14), m.index)) && !/^(never|avoid)/i.test(m[1])) {
+      if (/^want to\s+/i.test(what)) what = what.replace(/^want to\s+/i, '');
+      else if (/^want\s+/i.test(what)) what = 'include ' + what.replace(/^want\s+/i, '');
+      else if (/^like\s+/i.test(what)) what = 'use ' + what.replace(/^like\s+/i, '');
+      else continue;
+    }
+    else if (/^want to\s+/i.test(what)) what = what.replace(/^want to\s+/i, '');
     if (/talking about/i.test(m[1])) what = 'use ' + what.replace(/\s+usage$/i, '');
     what = what.replace(/^using\s+/i, 'use ');
     if (!out.some(o => o.toLowerCase() === what.toLowerCase())) out.push(what);
@@ -1557,7 +1565,9 @@ function guessIntent(text, target){
   if (lead) score[lead] += 1.2;
   const ranked = Object.entries(score).map(([id, p]) => ({ id, p })).sort((a, b) => b.p - a.p);
   const z = ranked.reduce((a, r) => a + r.p, 0) || 1; ranked.forEach(r => r.p /= z);
-  return { intent: list.find(i => i.id === ranked[0].id), conf: ranked[0].p, ranked, learned: nb.length > 0 };
+  // nothing matched at all (no learned words, no keyword, no opening words): the pick is a default, not a read
+  const signal = !!rule || nb.length > 0 || !!lead;
+  return { intent: list.find(i => i.id === ranked[0].id), conf: signal ? ranked[0].p : 0, ranked, learned: nb.length > 0 };
 }
 function guessStructures(text, allowed){ return nbPredict(GUESS.structM, text, allowed); }
 
@@ -1666,13 +1676,14 @@ function missingMaterial(text, target, intent){
         : intent === 'design'
         ? 'A concrete starting point I can use right away: layout, colors and fonts, plus drop-in CSS (and HTML if needed) for a typical page, with where each part goes. Then what to paste if you want to match my exact code.'
         : 'What to change and why, most important first, with short examples. Then ask me to paste the code so you can apply it.' };
+    if (intent === 'neutral') return { rules:['You can\'t see my code yet. If you need it, ask me for the exact part to paste; don\'t invent it.'] };
     if (intent === 'build') return { rules:['You can\'t see my code. Write drop-in code for a typical setup and say exactly where each part goes.'],
       output:'The code to add, split by file, with where each part goes and how to test it. Then a short list of what to tell you if my setup is different.' };
     return null;
   }
   if (target === 'general') {
     const doc = (t.match(/\b(?:my|this|the)\s+(resume|cv|essay|paper|cover letter|email|draft|bio|story|poem|letter|speech|post|report|assignment|homework)\b/) || [])[1];
-    if (!doc || !/^(write|study|research|ask)$/.test(intent)) return null;
+    if (!doc || !/^(write|study|research|ask|neutral)$/.test(intent)) return null;
     return { rules:['I haven\'t pasted my ' + doc + ' yet. Don\'t make up facts about me.'],
       output:'First the specific changes that would help most for my goal, each with a quick before/after example. Then a short example version with [brackets] for my details. Then ask me to paste my ' + doc + ' to tailor it.' };
   }
@@ -1684,23 +1695,36 @@ function missingMaterial(text, target, intent){
   return null;
 }
 
-// Accuracy guard: small models invent products, numbers and functions. One short line per job,
-// aimed at the mistake that job tends to make. (window.PB_ACCURACY = false turns it off for tests.)
-const ACCURACY = {
-  recommend:'Only name products, apps or models you are sure really exist; if unsure, say what to look for instead. Prices are rough and may have changed.',
-  research:'Separate what is well established from what is still debated, and never present a guess or a made-up study or statistic as fact.',
-  ask:'If you are not sure, say so instead of guessing.',
-  study:'Get definitions, numbers and rules exactly right; say when something varies.',
-  decide:'Show the math for any cost, time or amount, and check it.',
-  organize:'Check that totals (costs, times, amounts) add up.',
-  build:'Use only real functions and libraries, and make sure the code runs as written: no placeholders or made-up APIs.',
-  fix:'Base causes on how the language really behaves; don\'t guess at code you can\'t see.',
-  improve:'Only suggest changes that really help in this language; check each one is real and correct.',
-  design:'Use only real CSS and HTML features; make sure the code works as written.',
-  plan:'Only name real tools and services, and say if one costs money.',
-  learn:'Keep it simple but correct: no simplification that becomes wrong.',
-  create:'Use the real size or ratio for where it will be used.'
+// Not sure what kind of job this is? A wrong guess costs far more than no guess (eval round 3:
+// right reads beat typing 62%, misreads 13%). So below this confidence, build a NEUTRAL prompt:
+// your words cleaned up, your own limits and priorities, and one plain "do what I asked" line.
+const SURE = 0.6;
+const NEUTRAL_OUT = {
+  general:'Answer exactly what I asked, directly and completely. If something important is missing, assume what fits a typical person in my situation and say so in one line.',
+  code:'Do exactly what I asked. If it needs code, give complete, working code and say where it goes. If something important is missing, assume what fits best and say so in one line.'
 };
+function buildNeutral(R, rough, ctx, ctxCount){
+  const gen = state.target === 'general';
+  const S = [], add = (role, title, line) => { let sec = S.find(s => s.role === role); if (!sec) S.push(sec = { title, role, lines:[] }); if (!sec.lines.includes(line)) sec.lines.push(line); };
+  const O = R.org;
+  S.push({ title: gen ? 'REQUEST' : 'TASK', role:'task', lines: O.reqs.length >= 2 ? ['Do each numbered item below.\n' + O.reqs.map((r, i) => `${i + 1}. ${r}`).join('\n')] : [R.goal] });
+  if (R.why) S[0].lines.push('Why: ' + R.why.charAt(0).toUpperCase() + R.why.slice(1) + '.');
+  if (ctx.have)  add('context', 'CONTEXT', '- ' + (gen ? 'What I already know or have: ' : 'Already working: ') + ctx.have);
+  if (ctx.tried) add('context', 'CONTEXT', '- Tried so far / went wrong: ' + ctx.tried);
+  if (ctx.refs)  add('context', 'CONTEXT', '- ' + (gen ? 'References: ' : 'Files or screens involved: ') + ctx.refs);
+  if (O.correction) add('context', 'CONTEXT', '- This is a follow-up: your last change didn\'t fully work.');
+  O.emphasis.forEach(e => add('rules', 'RULES', '- Top priority (I stressed this): ' + e));
+  O.mustNot.forEach(m => add('rules', 'RULES', '- Do NOT ' + m + '.'));
+  O.keep.forEach(k => add('rules', 'RULES', '- ' + k.replace(/\.$/, '') + '.'));
+  const M = missingMaterial(rough, state.target, 'neutral');
+  if (M) M.rules.forEach(l => add('rules', 'RULES', '- ' + l));
+  if (R.stepwise) add('output', 'OUTPUT', '- Break it into clear, numbered steps.');
+  add('output', 'OUTPUT', '- ' + NEUTRAL_OUT[gen ? 'general' : 'code']);
+  const words = rough.split(/\s+/).filter(Boolean).length;
+  const simple = gen && words <= 12 && !ctxCount && !R.topics.length && !S.some(s => s.role === 'rules' || s.role === 'context') && SIMPLE_START.test(rough.trim());
+  const have = { goal:true, context:true, limits:true, output:true, done:true, detail:true };
+  return { S: cleanUp(S), have, R, T: currentStructure(), upgrades:0, guesses:0, qs:[], size: simple ? 'simple' : 'lean', neutral:true };
+}
 
 function build(){
   const art = state.target === 'art', gen = state.target === 'general';
@@ -1709,6 +1733,8 @@ function build(){
   const ctx = { have:$('ctxHave').value.trim(), tried:$('ctxTried').value.trim(), refs:$('ctxRefs').value.trim() };
   const ctxCount = [ctx.have, ctx.tried, ctx.refs].filter(Boolean).length;
   const R = readIdea(rough, [ctx.have, ctx.tried, ctx.refs].join(' '));
+  R.neutral = !!rough && !art && !state.structure && !state.forceFull && !Object.keys(state.answers).length && R.conf < SURE;
+  if (R.neutral) return buildNeutral(R, rough, ctx, ctxCount);
   const M = missingMaterial(rough, state.target, R.intent.id);
   const picked = CHIPS[state.target].filter(c => state.chips.has(c.id) && !(M && c.id === 'full'));
   const T = currentStructure();
@@ -1800,7 +1826,6 @@ function build(){
   if (!guessOn && !art && !gen && /^(build|fix|design|improve)$/.test(R.intent.id)) addLine('rules', 'If anything is unclear, list your assumptions in 1 to 3 lines at the top, then do the whole task.');
   picked.filter(c => !(c.skipFor || []).includes(R.intent.id)).forEach(c => addLine({ limits:'rules', output:'output', done:'done', detail:'rules', context:'context' }[c.covers], c.line));
   if (M) { M.rules.forEach(l => addLine('rules', l)); if (M.output) { addLine('output', M.output); have.output = true; } }
-  if (window.PB_ACCURACY !== false && rough && ACCURACY[R.intent.id]) addLine('rules', ACCURACY[R.intent.id]);
   // Step 2 organizer: corrections, exploring, vision, numbers, limits, priorities
   const O = R.org;
   if (O.correction) {
@@ -1983,7 +2008,8 @@ function optCard(s, flag){
 }
 function renderOpts(){
   const R = last.R, sug = suggestions();
-  $('reading').innerHTML = `Read as <span class="tagx intent">${R.intent.label}</span>` + R.topics.map(t => `<span class="tagx">${t.label}</span>`).join('');
+  $('reading').innerHTML = R.neutral ? `Read as <span class="tagx intent">General request</span> <span class="tagx">not sure of the type, so no template</span>`
+    : `Read as <span class="tagx intent">${R.intent.label}</span>` + R.topics.map(t => `<span class="tagx">${t.label}</span>`).join('');
   let html = optCard(DEFAULTS[state.target]);
   const cur = STRUCTURES.find(s => s.id === state.structure);
   if (cur && !sug.includes(cur)) html += `<div class="optlabel">Selected</div>` + optCard(cur);
