@@ -671,7 +671,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
    ===================================================================== */
 
 // Bump this every update so you can see which version is running.
-const APP_VERSION = 'v1.20';
+const APP_VERSION = 'v1.21';
 
 // ===================== A. DATA =====================
 
@@ -1067,7 +1067,7 @@ const TOPICS = [
     rules:['Touch-first: tap targets at least 44px, nothing that needs hover.'],
     done:['Works on iPhone Safari in portrait.'] },
   { label:'Interface', appOnly:true, target:'code', kw:/\b(button|menu|screen|ui|ux|layout|panel|hud|popup|modal|tabs?|library|page)\b/i,
-    rules:['Match the existing look; transitions smooth, never abrupt.'],
+    rules:['Keep controls consistent; transitions smooth, never abrupt.'],
     done:['Every new control has a clear hover and pressed state and works with mouse and touch.'] },
   { label:'Save data', target:'code', kw:/\b(save|load|persist|progress|localstorage|remember|storage)\b/i,
     rules:['Handle a missing or old save without crashing.'],
@@ -1219,7 +1219,9 @@ const EXPLORE = /\b(let'?s|lets) (explore|think|discuss|figure)\b|\bexplore (how
 const STRONG = [
   { id:'fix',     re: CORRECTION },
   { id:'plan',    re: EXPLORE },
-  { id:'fix',     re: /\b[A-Za-z]*(Error|Exception)\b|\btraceback\b|\berror (on|at|in) line\b/ },
+  { id:'fix',     re: /\b[A-Za-z]*(Error|Exception)\b|\btraceback\b|\berror (on|at|in) line\b|\b(returns?|returning|gives?|giving|prints?|printing) (back )?(undefined|null|nan|none|nothing|0|the wrong)\b|\bkeeps (crashing|breaking|freezing|failing)\b/i },
+  { id:'plan',    re: /\bwhere (do|should|would) i (even )?(start|begin)\b|\bhow (do|should) i (even )?(get started|start|begin)\b|\broadmap\b|^plan (out )?/i },
+  { id:'learn',   re: /\b(what'?s|whats|what is) the diff(erence)?\b|\bdifference between\b|\bin (simple|plain) (words|terms|english)\b|\blike i'?m (5|five|new|a beginner)\b/i },
   { id:'improve', re: /\bbyte[- ]?saving\b|\bsave (space|bytes)\b|\bre[-~]?size\b|\brescale\b|\bfit within (our )?budget\b|\btoo (high|slow|big|long|laggy|heavy)\b|\bfinal polish\b|\blaggy\b|\bstutter\w*|\bfps\b|\boptimi\w*|\bperformance\b/i },
 ];
 const LEAD = [
@@ -1235,6 +1237,7 @@ const G_LEAD = [
   { id:'write',      re:/^(help me |can you |pls |please )?(write|draft|reply|respond|rewrite|reword|proofread)\b|\b(reply|respond|response) to\b|\bmake (my|this) .{0,40}\b(sound|read) (better|more|less|professional|nicer)\b|\bmake my (resume|cv|essay|email|bio|cover letter|message|post|caption)\b/i },
   { id:'brainstorm', re:/\bwhat (should|can|could) i (get|buy|give|make|cook|name|call)\b|\b(gift|present) (ideas?|for)\b|\bideas? for\b|\bnames? for\b/i },
   { id:'decide',     re:/\bshould i\b.*\bor\b|\bwhich (one )?(makes sense|is better|should i)\b|\bworth it\b|\bis it worth\b/i },
+  { id:'ask',        re:/^(what'?s|whats|what is|who is|who was|when is|when was|where is|how many|how much|how long|how far|how old|how hot)\b(?!.*\b(explain|learn|understand|like i'?m|why|good|best|recommend|worth|better|should)\b)(?=(\s+\S+){1,11}\s*$)/i },
   { id:'research',   re:/^(is|are|does|do|can) .{1,60}\b(safe|healthy|bad for|good for|dangerous|effective|true|real|legit|work)\b|^(whats|what is|what's) the (actual |real )?difference\b/i },
 ];
 function gLeadIntent(text){ const t = stripLead(text.trim()); for (const l of G_LEAD) if (l.re.test(t)) return l.id; return null; }
@@ -1574,7 +1577,7 @@ const WHY_GUESS = {
   brainstorm:'So I have good options to choose from.', ask:'So I get a clear, quick answer.',
   build:'So it works smoothly as part of the existing project.', fix:'So it works reliably again without breaking anything else.',
   improve:'So it runs and reads better while behaving exactly the same.', design:'So it looks consistent and is easier to use.',
-  plan:'So I can build it in small steps and test each one.', learn:'So I understand it well enough to change it myself.',
+  plan:'So I can build it in small steps and test each one.', learn:'So I understand it clearly.',
   create:'So it looks right for where it will be used.' };
 const OUTPUT_GUESS = {
   recommend:'3 to 5 real options, each with what it is best for and a rough price. Then your top pick and why.',
@@ -1584,15 +1587,15 @@ const OUTPUT_GUESS = {
   brainstorm:'8 to 10 varied ideas, one line each, with your top 3 marked.', ask:'A direct answer in 1 to 3 sentences, then any helpful detail.',
   build:'Complete updated files, plus a short list of what changed.', fix:'The cause in one or two lines, then the complete fixed files.',
   improve:'Each change with a one-line reason, then the complete files.', design:'Complete updated files, plus a short before/after summary.',
-  plan:'A numbered plan with a goal and a test for each step. No code yet.', learn:'A plain-words explanation with one small example.',
-  create:'The finished image, sized for where it is used. If you can\'t make images, give a detailed, ready-to-paste prompt for an image tool instead (subject, style, colors, layout, background).' };
+  plan:'The full plan from start to finish: the features, the tools to use (including simpler no-code options if they fit), and numbered build steps, each with a goal and a quick test. Code only where it helps show a step.', learn:'A plain-words explanation with an everyday comparison and a small real example. Then when to use it and the most common mistake to avoid.',
+  create:'The finished image, sized for where it is used. If you can\'t make images: 2 or 3 concrete concepts (colors, fonts or style, layout, what makes each fit where it will be used), then a detailed, ready-to-paste image-tool prompt for the best one.' };
 const DONE_GUESS = {
   recommend:'I can choose an option and start using it today.', study:'I know exactly what to do first.', research:'I understand it well enough to explain it.',
   write:'I can send it as is.', decide:'I can make the decision with confidence.', organize:'I can start following the plan right away.',
   brainstorm:'At least one idea I want to try.', ask:'My question is fully answered.',
   build:'The feature works start to finish and nothing else changed.', fix:'The problem no longer happens and everything else still works.',
   improve:'It works the same or better, with no change in behavior.', design:'Every control still works and the new look is consistent.',
-  plan:'I can start step 1 right away.', learn:'I can explain it back in my own words.' };
+  plan:'The plan covers everything from first setup to a working first version.', learn:'It is clear without needing to look anything else up.' };
 const GOAL_PREFIX = { fix:'Fix this: ', improve:'Improve this: ', design:'Redesign this: ', plan:'Help me plan this: ', learn:'Explain this: ', build:'Build this: ' };
 const LIMIT_GUESS = { general:'Keep it practical and easy to understand; no jargon.', code:'Keep everything that already works unchanged.', art:'Keep it simple and on purpose; add nothing unrelated.' };
 
@@ -1657,9 +1660,11 @@ function missingMaterial(text, target, intent){
     const thing = (t.match(/\b(?:this|my|the|our)\s+(?:\w+\s)?(function|code|script|file|component|page|site|website|portfolio|app|login|form|query|class|method|loop|css|html|game|program|bot)\b/) || [])[1];
     if (!thing && !/^(fix|clean ?up|refactor|improve|optimi\w*) (it|this)\b/.test(t)) return null;
     if (/^(fix|improve|design)$/.test(intent)) return {
-      rules:['You can\'t see my code yet. Don\'t invent it or rewrite it from scratch.'],
+      rules:[intent === 'design' ? 'You can\'t see my code yet. Don\'t wait for it; give code for a typical setup.' : 'You can\'t see my code yet. Don\'t invent it or rewrite it from scratch.'],
       output: intent === 'fix'
         ? 'The most likely causes, most likely first, each with how to check it and how to fix it. Then tell me exactly which code or error message to paste so you can confirm.'
+        : intent === 'design'
+        ? 'A concrete starting point I can use right away: layout, colors and fonts, plus drop-in CSS (and HTML if needed) for a typical page, with where each part goes. Then what to paste if you want to match my exact code.'
         : 'What to change and why, most important first, with short examples. Then ask me to paste the code so you can apply it.' };
     if (intent === 'build') return { rules:['You can\'t see my code. Write drop-in code for a typical setup and say exactly where each part goes.'],
       output:'The code to add, split by file, with where each part goes and how to test it. Then a short list of what to tell you if my setup is different.' };
@@ -1669,8 +1674,11 @@ function missingMaterial(text, target, intent){
     const doc = (t.match(/\b(?:my|this|the)\s+(resume|cv|essay|paper|cover letter|email|draft|bio|story|poem|letter|speech|post|report|assignment|homework)\b/) || [])[1];
     if (!doc || !/^(write|study|research|ask)$/.test(intent)) return null;
     return { rules:['I haven\'t pasted my ' + doc + ' yet. Don\'t make up facts about me.'],
-      output:'A strong example version I can adapt right now, with [brackets] where my own details go. Then ask me to paste my ' + doc + ' for a version tailored to it.' };
+      output:'First the specific changes that would help most for my goal, each with a quick before/after example. Then a short example version with [brackets] for my details. Then ask me to paste my ' + doc + ' to tailor it.' };
   }
+  if (target === 'art' && /\b(remove|erase|edit|retouch|crop|brighten|blur|replace|swap)\b.*\b(photo|picture|pic|image|background|sky)\b/.test(t))
+    return { rules:['If you can\'t edit images, say so in one line, then give step-by-step instructions to do it in a free tool (name the tool).'],
+      output:'The edited image. If you can\'t edit images: the exact steps in a free tool, one numbered step per change.' };
   if (target === 'art' && /\b(this|my|the) (image|photo|picture|pic|drawing|logo|design|art|artwork|sketch|icon)\b|^(redo|edit|fix|change|improve|update) (this|it)\b/.test(t))
     return { rules:['I\'m attaching the image. If you can\'t see it, ask me for it in one line instead of guessing what it looks like.'] };
   return null;
@@ -1691,7 +1699,7 @@ function build(){
   const have = {};
   CHECKS.forEach(c => have[c.id] = c.test(rough));
   if (project || ctxCount || R.topics.length) have.context = true;
-  picked.forEach(c => have[c.covers] = true);
+  picked.filter(c => !(c.skipFor || []).includes(R.intent.id)).forEach(c => have[c.covers] = true);
 
   // 2. copy the structure's sections, dropping your clean goal into {task}
   const goalText = R.goal || '[describe what you want]';
@@ -1807,7 +1815,8 @@ function build(){
   //    Guess mode off: leave a clear [blank] for you to fill.
   const id = R.intent.id, fill = guessOn && !!rough;
   if (!have.limits) {
-    if (fill) { addLine('rules', LIMIT_GUESS[state.target]); have.limits = 'guess'; guesses++; }
+    if (fill && state.target === 'code' && /^(learn|plan)$/.test(id)) have.limits = 'n/a';
+    else if (fill) { addLine('rules', LIMIT_GUESS[state.target]); have.limits = 'guess'; guesses++; }
     else addLine('rules', art ? '[What should it avoid looking like?]' : gen ? '[Anything to avoid or must have?]' : '[What must NOT change?]');
   }
   if (!have.output) {
