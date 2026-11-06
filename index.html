@@ -678,7 +678,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
    ===================================================================== */
 
 // Bump this every update so you can see which version is running.
-const APP_VERSION = 'v1.23';
+const APP_VERSION = 'v1.23.1';
 
 // ===================== A. DATA =====================
 
@@ -1464,10 +1464,10 @@ const CLASHES = [
   { keep:/length: (medium|detailed)/i,                    drop:/keep it short/i },
 ];
 function cleanUp(S){
-  const all = () => S.flatMap(sec => sec.lines.map(l => ({ sec, l })));
+  const all = () => S.filter(sec => sec.role !== 'material').flatMap(sec => sec.lines.map(l => ({ sec, l })));
   // 1. clashes: if a "keep" line exists anywhere, remove matching "drop" lines
   CLASHES.forEach(c => {
-    if (all().some(x => c.keep.test(x.l))) S.forEach(sec => sec.lines = sec.lines.filter(l => c.keep.test(l) || !c.drop.test(l)));
+    if (all().some(x => c.keep.test(x.l))) S.forEach(sec => { if (sec.role !== 'material') sec.lines = sec.lines.filter(l => c.keep.test(l) || !c.drop.test(l)); });
   });
   // 2. repeats: a bullet whose words are (almost) all inside a longer bullet goes
   const bullets = all().filter(x => /^- /.test(x.l) && !/\(infer\)|\[/.test(x.l));
@@ -2008,6 +2008,7 @@ function build(){
   //    except things only YOU can supply (pasting an error, code, a handoff note)
   let inferred = 0;
   if (fill) S.forEach(s => {
+    if (s.role === 'material') return;   // pasted text stays exactly as pasted (code uses [brackets])
     s.lines = s.lines.map(l => {
       if (!/\[[^\]]*\]/.test(l) || /paste/i.test(l)) return l;
       const out = l.replace(/\[[^\]]*\]/g, '(infer)');
