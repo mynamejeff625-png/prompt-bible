@@ -179,6 +179,9 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
 .asis .tick{font-weight:700}
 .asis .linkbtn{font-size:13px}
 .qs{display:flex;flex-direction:column;gap:12px;padding:14px 16px;border-radius:13px;background:rgba(0,0,0,.18);border:1px solid var(--line);animation:fade .35s var(--ease)}
+.paste{display:flex;flex-direction:column;gap:8px;animation:fade .35s var(--ease)}
+.paste label{font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.paste textarea{min-height:84px}
 .qs-head{font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
 .qs-head em{font-style:normal;color:var(--muted);letter-spacing:.04em;text-transform:none;font-family:var(--body);font-size:12px;margin-left:6px}
 .q{display:flex;flex-direction:column;gap:7px}
@@ -421,6 +424,10 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
       <textarea id="rough" placeholder="e.g. add a pause menu with resume and quit buttons"></textarea>
       <p class="asis" id="asis" hidden><span class="tick">✓</span> <b>Good as is.</b> This is already clear, so send it like this.
         <button class="linkbtn" id="asisCopy">Copy it</button> · <button class="linkbtn" id="asisEnhance">Enhance anyway</button></p>
+      <div class="paste" id="pasteBox" hidden>
+        <label for="material" id="pasteLbl">Paste it here</label>
+        <textarea id="material" rows="4" placeholder="optional · without it, the AI is told not to make it up"></textarea>
+      </div>
       <div class="qs" id="qs" hidden>
         <div class="qs-head">Quick questions <em>optional · tap to answer, skip to let it guess</em></div>
         <div id="qList"></div>
@@ -671,7 +678,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
    ===================================================================== */
 
 // Bump this every update so you can see which version is running.
-const APP_VERSION = 'v1.22';
+const APP_VERSION = 'v1.23';
 
 // ===================== A. DATA =====================
 
@@ -734,6 +741,7 @@ const CHAPTERS = [
   { n:10, name:'Interface art', target:'art',  kw:/\b(icons?|logo|title|cover|banner|thumbnail|badge)\b/i },
   { n:11, name:'Consistency',   target:'art',  kw:/\b(match|consistent|style guide|redo|same style)\b/i },
   { n:12, name:'Ship',          target:'code', kw:/\b(itch|release|publish|patch|store|launch|description)\b/i },
+  { n:14, name:'Situations',    target:'general', kw:/\b(customer|job|apply|application|resume|cv|raise|time off|bill|charge|refund|landlord|complain\w*|lease|contract|document|budget|afford|test|exam|quiz|conversation|talk to|compare|vs|symptom|doctor|pain)\b/i },
   { n:13, name:'Everyday',      target:'general', kw:/\b(apps?|websites?|learn\w*|write|email|decide|ideas?|recommend\w*|best|plan|schedule|research|question)\b/i },
 ];
 
@@ -754,12 +762,12 @@ const STRUCTURES = [
     'RULES':['- Reuse the existing colors, fonts and buttons.'],
     'OUTPUT':['- Complete files.'],
     'DONE WHEN':['- I can open the screen, use every control and get back.'] }},
-  { id:'1.3', ch:1, t:'Game mechanic', use:'Add a gameplay rule with numbers you can tune.', s:{
+  { id:'1.3', game:true, ch:1, t:'Game mechanic', use:'Add a gameplay rule with numbers you can tune.', s:{
     'TASK':['{task}'],
     'TUNING':['- Put every number (speed, damage, timing) in one config block at the top.','- Starting values: [list them, or "your pick"]'],
     'RULES':['- Don\'t change existing controls or balance.'],
     'DONE WHEN':['- I feel the mechanic in a quick playtest and can retune it in one place.'] }},
-  { id:'1.4', ch:1, t:'Quick prototype', use:'A throwaway test to see if an idea is fun.', s:{
+  { id:'1.4', game:true, ch:1, t:'Quick prototype', use:'A throwaway test to see if an idea is fun.', s:{
     'TASK':['Build a rough, standalone prototype to test this idea: {task}'],
     'KEEP IT SMALL':['- One file, placeholder shapes instead of art.','- Skip menus, saving and polish.'],
     'OUTPUT':['- One file I can open directly in a browser.'],
@@ -809,7 +817,7 @@ const STRUCTURES = [
     'PLAN FIRST':['- Propose the module list (name + one-line job) and wait for my go.'],
     'RULES':['- One job per file.','- No behavior change.'],
     'DONE WHEN':['- Same app, smaller files, each with one clear job.'] }},
-  { id:'3.4', ch:3, t:'Polish the feel', use:'Add smoothness, feedback and juice.', s:{
+  { id:'3.4', game:true, ch:3, t:'Polish the feel', use:'Add smoothness, feedback and juice.', s:{
     'TASK':['{task}'],
     'FEEL':['- Mood: [calm / punchy / snappy]','- Moments to polish: [..]'],
     'RULES':['- Subtle and smooth, nothing abrupt.'],
@@ -836,10 +844,10 @@ const STRUCTURES = [
     'RULES':['- Only one step visible at a time, with Back and Next.','- Show progress so I always know where I am.'],
     'DONE WHEN':['- I can finish the flow without reading instructions.'] }},
   // ---- 5 Plan
-  { id:'5.1', ch:5, t:'Phase plan', use:'Break a big idea into small playtestable phases.', s:{
+  { id:'5.1', ch:5, t:'Phase plan', use:'Break a big idea into small phases you can test.', s:{
     'TASK':['Help me plan: {task}'],
-    'OUTPUT':['- 3 to 6 phases, each small enough to finish and playtest.','- For each: goal, what I\'ll test, what it unlocks next.'],
-    'RULES':['- No code yet.','- Phase 1 is the smallest playable version.'],
+    'OUTPUT':['- 3 to 6 phases, each small enough to finish and test.','- For each: goal, what I\'ll test, what it unlocks next.'],
+    'RULES':['- No code yet.','- Phase 1 is the smallest version that works.'],
     'DONE WHEN':['- I can start Phase 1 today.'] }},
   { id:'5.2', ch:5, t:'Compare options', use:'Pick between two or three approaches.', s:{
     'TASK':['Help me decide: {task}'],
@@ -872,38 +880,38 @@ const STRUCTURES = [
     'TASK':['Write a handoff note for this session. {task}'],
     'OUTPUT':['- What we finished.','- Decisions we made.','- Open problems.','- The single next step.','- Files changed.'],
     'RULES':['- Written so a fresh session can continue without asking me anything.'] }},
-  { id:'7.3', ch:7, t:'Sign-off checklist', use:'Get a playtest list before approving a feature.', s:{
-    'TASK':['Give me a playtest checklist for: {task}'],
+  { id:'7.3', ch:7, t:'Sign-off checklist', use:'Get a test list before approving a feature.', s:{
+    'TASK':['Give me a test checklist for: {task}'],
     'OUTPUT':['- 5 to 10 checks I can tick off by hand.','- Include one edge case and one phone check.'],
     'DONE WHEN':['- I can sign off this feature in under 10 minutes.'] }},
   // ---- 8 Characters
-  { id:'8.1', ch:8, t:'Character concept', use:'Design a new character on one turnaround sheet.', s:{
+  { id:'8.1', game:true, ch:8, t:'Character concept', use:'Design a new character on one turnaround sheet.', s:{
     'WHAT TO MAKE':['{task}'],
     'DETAILS':['- Personality in 3 words: [..]','- Silhouette: [..]','- Colors: [..]'],
     'OUTPUT':['- Front, side and back views on one sheet, neutral pose.'],
     'CHECK':['- Readable as a silhouette at small size.'] }},
-  { id:'8.2', ch:8, t:'Animation frames', use:'A sprite sheet for one action.', s:{
+  { id:'8.2', game:true, ch:8, t:'Animation frames', use:'A sprite sheet for one action.', s:{
     'WHAT TO MAKE':['{task}'],
     'FRAMES':['- Action: [walk / attack / idle]','- Frame count: [..]','- Frame size: [..]'],
     'OUTPUT':['- One sheet, frames left to right, equal size, transparent background.'],
     'CHECK':[] }},
-  { id:'8.3', ch:8, t:'Expression set', use:'One face, several emotions, same framing.', s:{
+  { id:'8.3', game:true, ch:8, t:'Expression set', use:'One face, several emotions, same framing.', s:{
     'WHAT TO MAKE':['{task}'],
     'EXPRESSIONS':['- [neutral, happy, angry, hurt, ...]'],
     'OUTPUT':['- Same framing and lighting for every face, in one row.'],
     'CHECK':['- Only the face changes between images.'] }},
   // ---- 9 World
-  { id:'9.1', ch:9, t:'Background scene', use:'A backdrop that gameplay sits on top of.', s:{
+  { id:'9.1', game:true, ch:9, t:'Background scene', use:'A backdrop that gameplay sits on top of.', s:{
     'WHAT TO MAKE':['{task}'],
     'SCENE':['- Mood and time of day: [..]','- Layers: [far / mid / near]'],
     'OUTPUT':['- [size], wide format, middle kept clear for gameplay.'],
     'CHECK':['- Characters stay readable on top of it.'] }},
-  { id:'9.2', ch:9, t:'Tileset', use:'Repeating tiles for building levels.', s:{
+  { id:'9.2', game:true, ch:9, t:'Tileset', use:'Repeating tiles for building levels.', s:{
     'WHAT TO MAKE':['{task}'],
     'TILES':['- Tile size: [..]','- Pieces: floor, wall, corners, edges, [..]'],
     'OUTPUT':['- One grid sheet, no gaps, tiles that repeat seamlessly.'],
     'CHECK':['- No visible seams when tiles sit side by side.'] }},
-  { id:'9.3', ch:9, t:'Props and items', use:'A matching set of objects for one world.', s:{
+  { id:'9.3', game:true, ch:9, t:'Props and items', use:'A matching set of objects for one world.', s:{
     'WHAT TO MAKE':['{task}'],
     'ITEMS':['- [list them]'],
     'OUTPUT':['- Same angle, scale and lighting, transparent PNG, one per cell.'],
@@ -914,12 +922,12 @@ const STRUCTURES = [
     'ICONS':['- [list the icons]','- Size: [..]'],
     'OUTPUT':['- One grid, same stroke weight and padding, transparent background.'],
     'CHECK':['- Each icon is clear at its smallest size.'] }},
-  { id:'10.2', ch:10, t:'Logo or title card', use:'A game logo or title treatment.', s:{
+  { id:'10.2', ch:10, t:'Logo or title card', use:'A logo or title for a brand, project or game.', s:{
     'WHAT TO MAKE':['{task}'],
     'DETAILS':['- Name exactly as written: "[..]"','- Feel: [..]'],
     'OUTPUT':['- Transparent PNG plus a version on a dark background.'],
     'CHECK':['- Every letter is spelled correctly and readable.'] }},
-  { id:'10.3', ch:10, t:'Store cover art', use:'A cover image for your itch.io page.', s:{
+  { id:'10.3', game:true, ch:10, t:'Store cover art', use:'A cover image for your itch.io page.', s:{
     'WHAT TO MAKE':['{task}'],
     'DETAILS':['- Size: [e.g. 630 x 500 for itch.io]','- Focus: [main character / key moment]'],
     'OUTPUT':['- Leave space for the title. No fake UI or text.'],
@@ -935,56 +943,124 @@ const STRUCTURES = [
     'STYLE':['- Keep pose and composition; change only what\'s off.'],
     'CHECK':['- It sits next to the others without standing out.'] }},
   // ---- 12 Ship
-  { id:'12.1', ch:12, t:'Store page text', use:'Write the description for an itch.io page.', s:{
+  { id:'12.1', game:true, ch:12, t:'Store page text', use:'Write the description for an itch.io page.', s:{
     'TASK':['Write store page text for: {task}'],
     'FACTS':['- Genre and hook: [..]','- Controls: [..]','- Platform: [..]'],
     'OUTPUT':['- A one-line hook, a short paragraph, a feature list, controls.'],
     'RULES':['- Plain, confident, no hype words.'] }},
-  { id:'12.2', ch:12, t:'Patch notes', use:'Turn a list of changes into clean update notes.', s:{
+  { id:'12.2', game:true, ch:12, t:'Patch notes', use:'Turn a list of changes into clean update notes.', s:{
     'TASK':['Write patch notes: {task}'],
     'CHANGES':['[paste the list of changes]'],
     'OUTPUT':['- Grouped as New, Changed, Fixed. One short line each.'] }},
-  { id:'12.3', ch:12, t:'Release checklist', use:'Everything to check before you publish.', s:{
+  { id:'12.3', game:true, ch:12, t:'Release checklist', use:'Everything to check before you publish.', s:{
     'TASK':['Give me a release checklist for: {task}'],
     'OUTPUT':['- Build, test, upload and page steps as checkboxes.','- Include a phone test and a fresh-browser test.'],
     'DONE WHEN':['- I can release without forgetting a step.'] }},
   // ---- 13 Everyday (General: any AI chatbot)
-  { id:'13.1', ch:13, t:'Find the right tool', use:'Get real apps, sites or products recommended, not built.', s:{
+  // ---- 14 Situations (real life, named by the situation)
+  { id:'14.1', intent:'write', ch:14, t:'Reply to an upset customer', use:'Calm, fair reply that fixes things without groveling.', s:{
+    'GOAL':['Write a reply to this customer: {task}'],
+    'DETAILS':['- What they said: [paste it]','- What I can offer: [refund / replacement / discount / nothing]'],
+    'PREFERENCES':['- Thank them, own what went wrong, say what happens next. No excuses, no blame.'],
+    'FORMAT':['- The reply, ready to post or send, under 120 words.'],
+    'A GOOD ANSWER':['- It sounds like a real person and ends with a clear next step.'] }},
+  { id:'14.2', intent:'write', ch:14, t:'Apply for a job', use:'A cover letter or application answers that fit the job.', s:{
+    'GOAL':['Help me apply: {task}'],
+    'DETAILS':['- The job post: [paste it]','- My experience: [paste resume or list it]'],
+    'PREFERENCES':['- Use only facts I gave you. Match my real experience to what the post asks for.'],
+    'FORMAT':['- The letter or answers, ready to send, then 3 things to double-check.'],
+    'A GOOD ANSWER':['- Every claim is true and points to something in the job post.'] }},
+  { id:'14.3', intent:'write', ch:14, t:'Fix up my resume', use:'Stronger bullets and layout for the job you want.', s:{
+    'GOAL':['Improve my resume: {task}'],
+    'DETAILS':['- My resume: [paste it]','- Job I\'m aiming for: [..]'],
+    'PREFERENCES':['- Don\'t invent experience or numbers. Ask if a number would help.'],
+    'FORMAT':['- The top 5 changes, each with a before and after.','- Then the improved version.'],
+    'A GOOD ANSWER':['- Each bullet starts with an action and shows a result.'] }},
+  { id:'14.4', intent:'write', ch:14, t:'Ask for a raise or time off', use:'A short, confident ask your boss can say yes to.', s:{
+    'GOAL':['Help me ask: {task}'],
+    'DETAILS':['- What I want: [..]','- Why it\'s fair: [results, time there, coverage plan]'],
+    'FORMAT':['- A message I can send, and 3 lines to say if they push back.'],
+    'A GOOD ANSWER':['- Polite, specific, and easy to say yes to.'] }},
+  { id:'14.5', intent:'write', ch:14, t:'Dispute a bill or charge', use:'A clear request to fix a wrong charge.', s:{
+    'GOAL':['Help me dispute this: {task}'],
+    'DETAILS':['- Company and account or order number: [..]','- What\'s wrong and the amount: [..]','- What I want: [refund / correction]'],
+    'PREFERENCES':['- Firm and factual. Don\'t state laws or deadlines unless you are sure they apply where I live.'],
+    'FORMAT':['- A message or letter ready to send, then what to do if they say no.'],
+    'A GOOD ANSWER':['- It lists the facts, the amount and the fix I want in one read.'] }},
+  { id:'14.6', intent:'write', ch:14, t:'Complain formally', use:'A written complaint to a landlord, school or company.', s:{
+    'GOAL':['Write a formal complaint: {task}'],
+    'DETAILS':['- To: [..]','- What happened and when: [..]','- What I want done, and by when: [..]'],
+    'FORMAT':['- A letter ready to send, with a short timeline of events.'],
+    'A GOOD ANSWER':['- Calm, specific, and ends with a clear request and date.'] }},
+  { id:'14.7', intent:'study', ch:14, t:'Understand a document', use:'A lease, contract or letter in plain words.', s:{
+    'GOAL':['Explain this document: {task}'],
+    'DETAILS':['- The document or the part I mean: [paste it]'],
+    'PREFERENCES':['- Plain words. Say clearly that this isn\'t legal advice when it matters.'],
+    'FORMAT':['- What it says in 5 bullets, then anything that could cost me money or limit me, then questions to ask.'],
+    'A GOOD ANSWER':['- I know what I\'m agreeing to and what to ask about.'] }},
+  { id:'14.8', intent:'decide', ch:14, t:'Can I afford it?', use:'A budget or cost check with the math shown.', s:{
+    'GOAL':['Help me work out: {task}'],
+    'DETAILS':['- Income per month: [..]','- Fixed costs: [..]','- The cost I\'m checking: [..]'],
+    'FORMAT':['- The math step by step, then a yes/no/maybe and one way to make it work.'],
+    'A GOOD ANSWER':['- Every number adds up and I can check it myself.'] }},
+  { id:'14.9', intent:'study', ch:14, t:'Study for a test', use:'Key points, then quiz me.', s:{
+    'GOAL':['Help me study: {task}'],
+    'DETAILS':['- Test date and format: [..]','- Topics or notes: [paste or list]'],
+    'FORMAT':['- The key points in short bullets.','- Then 5 practice questions, answers at the end.'],
+    'A GOOD ANSWER':['- I can tell what I know and what to review.'] }},
+  { id:'14.10', intent:'write', ch:14, t:'Hard conversation', use:'What to say, and how to handle the replies.', s:{
+    'GOAL':['Help me talk to someone about: {task}'],
+    'DETAILS':['- Who: [..]','- What I want to happen: [..]'],
+    'FORMAT':['- An opening line, 3 key points, and what to say to the 2 most likely reactions.'],
+    'A GOOD ANSWER':['- Honest, kind, and sounds like me.'] }},
+  { id:'14.11', intent:'decide', ch:14, t:'Compare two products', use:'Side by side on what matters to you, then a pick.', s:{
+    'GOAL':['Compare: {task}'],
+    'DETAILS':['- What I\'ll use it for: [..]','- Budget: [..]'],
+    'PREFERENCES':['- Only real specs you are sure of; say if something may have changed.'],
+    'FORMAT':['- A short table of what matters for my use, then your pick and why.'],
+    'A GOOD ANSWER':['- I can buy one today without second-guessing.'] }},
+  { id:'14.12', intent:'research', ch:14, t:'Health question', use:'What\'s known, what to try, and when to see someone.', s:{
+    'GOAL':['Help me understand: {task}'],
+    'DETAILS':['- Age range and anything relevant: [..]','- How long, how bad: [..]'],
+    'PREFERENCES':['- General info, not a diagnosis. Separate what\'s well known from what\'s uncertain.'],
+    'FORMAT':['- Likely explanations, safe things to try, and clear signs to see a doctor or get urgent help.'],
+    'A GOOD ANSWER':['- I know what to do next and what would be a warning sign.'] }},
+  { id:'13.1', intent:'recommend', ch:13, t:'Find the right tool', use:'Get real apps, sites or products recommended, not built.', s:{
     'GOAL':['Help me find: {task}'],
     'WHAT MATTERS TO ME':['- Budget: [free / under a set amount]','- Device: [iPhone / PC / both]','- My level: [beginner / intermediate]'],
     'PREFERENCES':['- Only real, existing options. Don\'t build or code anything.'],
     'FORMAT':['- 3 to 5 options: name, what it\'s best for, and cost.','- Then your top pick and how to get started with it.'],
     'A GOOD ANSWER':['- I can pick one and start using it today.'] }},
-  { id:'13.2', ch:13, t:'Learn a new skill', use:'A learning path with real resources for your level.', s:{
+  { id:'13.2', intent:'study', ch:13, t:'Learn a new skill', use:'A learning path with real resources for your level.', s:{
     'GOAL':['Help me learn: {task}'],
     'ABOUT ME':['- Current level: [..]','- Time per week: [..]','- How I like to learn: [videos / apps / reading / practice]'],
     'FORMAT':['- A beginner path and an intermediate path.','- Free resources first, with links where possible.'],
     'A GOOD ANSWER':['- I know exactly what to do this week.'] }},
-  { id:'13.3', ch:13, t:'Research a question', use:'A reliable summary with the key points and sources.', s:{
+  { id:'13.3', intent:'research', ch:13, t:'Research a question', use:'A reliable summary with the key points and sources.', s:{
     'GOAL':['Research: {task}'],
     'PREFERENCES':['- Use reliable sources and say where facts come from.','- Say clearly when something is uncertain or disputed.'],
     'FORMAT':['- A 2 to 3 sentence summary first.','- Then the key points.'],
     'A GOOD ANSWER':['- I could explain it to a friend.'] }},
-  { id:'13.4', ch:13, t:'Write a message', use:'An email, text or post written in the right tone.', s:{
+  { id:'13.4', intent:'write', ch:13, t:'Write a message', use:'An email, text or post written in the right tone.', s:{
     'GOAL':['Write this for me: {task}'],
     'DETAILS':['- Who it\'s for: [..]','- Tone: [friendly / professional / firm]','- Length: [short / medium]'],
     'FORMAT':['- The finished text, ready to send.','- One shorter alternative.'],
     'A GOOD ANSWER':['- I can send it without editing.'] }},
-  { id:'13.5', ch:13, t:'Make a decision', use:'Weigh options and get a clear recommendation.', s:{
+  { id:'13.5', intent:'decide', ch:13, t:'Make a decision', use:'Weigh options and get a clear recommendation.', s:{
     'GOAL':['Help me decide: {task}'],
     'OPTIONS':['- A: [..]','- B: [..]'],
     'WHAT MATTERS':['- [cost / time / quality / risk]'],
     'FORMAT':['- A pros and cons table, then your pick and why.'],
     'A GOOD ANSWER':['- I can decide today.'] }},
-  { id:'13.6', ch:13, t:'Plan a routine or trip', use:'A realistic day-by-day or step-by-step plan.', s:{
+  { id:'13.6', intent:'organize', ch:13, t:'Plan a routine or trip', use:'A realistic day-by-day or step-by-step plan.', s:{
     'GOAL':['Make me a plan: {task}'],
     'LIMITS':['- Time available: [..]','- Budget: [..]'],
     'FORMAT':['- A day-by-day or step-by-step plan.','- Keep it realistic.'],
     'A GOOD ANSWER':['- I can follow it starting tomorrow.'] }},
-  { id:'13.7', ch:13, t:'Quick question', use:'A direct answer without the fluff.', s:{
+  { id:'13.7', intent:'ask', ch:13, t:'Quick question', use:'A direct answer without the fluff.', s:{
     'GOAL':['{task}'],
     'FORMAT':['- Answer in 1 to 3 sentences first.','- Then a little detail only if it helps.'] }},
-  { id:'13.8', ch:13, t:'Brainstorm ideas', use:'Varied ideas to choose from.', s:{
+  { id:'13.8', intent:'brainstorm', ch:13, t:'Brainstorm ideas', use:'Varied ideas to choose from.', s:{
     'GOAL':['Give me ideas for: {task}'],
     'PREFERENCES':['- Mix safe ideas with a few bold ones.'],
     'FORMAT':['- 8 to 10 ideas, one line each.','- Mark your top 3.'] }},
@@ -1054,7 +1130,7 @@ const TOPICS = [
     rules:['Free options first; clearly mark anything that costs money, including trials and paid tiers.'] },
   { label:'Learning', target:'general', kw:/\b(learn\w*|study\w*|courses?|lessons?|languages?|spanish|french|japanese|german|skills?|practice)\b/i,
     rules:['Cover how to start as a beginner and how to keep progressing at an intermediate level.'] },
-  { label:'Phone', target:'general', kw:/\b(iphone|ios|phone|mobile|android)\b/i,
+  { label:'Phone', target:'general', kw:/\b(iphone|ios|android)\b|\b(phone|mobile)\b(?! (bill|plan|number|call|carrier|company|provider|case|screen))/i,
     rules:['It has to work on my phone.'] },
   { label:'Up to date', target:'general', kw:/\b(latest|current|newest|today|right now|recent|this year)\b/i,
     rules:['Use current information and say if something may have changed.'] },
@@ -1120,7 +1196,8 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
 const chapterOf = s => CHAPTERS.find(c => c.n === s.ch);
 // 'any' = code or art (the Session chapter and shared topics); General has its own
-const fits = s => { const t = chapterOf(s).target; return t === state.target || (t === 'any' && state.target !== 'general'); };
+let showGame = (() => { try { return localStorage.getItem('promptbible.gamepack') === '1'; } catch (e) { return false; } })();
+const fits = s => { const t = chapterOf(s).target; return (showGame || !s.game) && (t === state.target || (t === 'any' && state.target !== 'general')); };
 const topicFits = t => t.target === state.target || (t.target === 'any' && state.target !== 'general');
 const currentStructure = () => STRUCTURES.find(s => s.id === state.structure) || DEFAULTS[state.target];
 
@@ -1416,7 +1493,7 @@ function sizeOf(R, rough, ctxCount){
   const words = rough.split(/\s+/).filter(Boolean).length;
   const sentences = rough.split(/[.?!]+\s+|\n+/).filter(x => x.trim()).length;
   if (words && words <= 12 && sentences === 1 && !ctxCount && R.intent.id === 'ask' && !R.topics.length
-      && SIMPLE_START.test(rough.trim()) && !Object.keys(state.answers).length) return 'simple';
+      && SIMPLE_START.test(rough.trim()) && !Object.keys(state.answers).filter(k => k !== 'pick').length) return 'simple';
   if (words <= 30 && ctxCount <= 1) return 'lean';
   return 'full';
 }
@@ -1433,6 +1510,7 @@ function renderLean(S){
   const task = get('task').filter(l => !/^Why \(assumed\)|^Purpose \(assumed\)/.test(l));
   const ctx = get('context'), rules = get('rules'), out = get('output');
   const L = [task.join('\n')];
+  S.filter(s => s.role === 'material').forEach(s => L.push(s.title.charAt(0) + s.title.slice(1).toLowerCase() + ':\n' + s.lines.join('\n')));
   if (ctx.length)   L.push('About me:\n' + ctx.join('\n'));
   if (rules.length) L.push('Keep in mind:\n' + rules.join('\n'));
   if (out.length)   L.push('In your answer:\n' + out.join('\n'));
@@ -1529,6 +1607,10 @@ const STRUCT_SEED = {
   '13.1':'recommend app website tool free best which', '13.2':'learn skill language course beginner', '13.3':'research facts information compare summary',
   '13.4':'write email message text letter tone', '13.5':'decide choose should i pros cons', '13.6':'plan schedule routine trip itinerary week',
   '13.7':'what how why quick question answer', '13.8':'ideas brainstorm names gift fun',
+  '14.1':'reply customer review complaint upset angry refund', '14.2':'job apply application cover letter hiring interview', '14.3':'resume cv bullets experience job',
+  '14.4':'raise boss time off pay ask manager', '14.5':'bill charge dispute refund overcharged wrong fee', '14.6':'complaint landlord formal letter school company',
+  '14.7':'lease contract document letter explain terms', '14.8':'afford budget cost money month payment', '14.9':'test exam study quiz review notes',
+  '14.10':'conversation talk tell someone hard awkward', '14.11':'compare vs versus which better product buy', '14.12':'health symptom pain doctor sick',
   '1.2':'add a menu screen page popup', '1.3':'mechanic jump dash damage speed tune', '1.5':'save progress high score load remember',
   '2.2':'error console message undefined exception', '2.3':'iphone safari works on pc not phone touch', '2.4':'broke after update used to work last change',
   '3.1':'lag slow fps stutter performance frame rate', '3.2':'messy code clean tidy rename', '4.2':'mobile phone layout touch small screen',
@@ -1653,7 +1735,7 @@ function readIdea(rough, extra){
     correction: CORRECTION.test(rough), explore: EXPLORE.test(rough),
     vision: splitSentences(rough).filter(x => VISION.test(x) && x.length > 45 && x.length < 260)
   } : { keep:[], reqs:[], mustNot:[], emphasis:[], numbers:[], correction:false, explore:false, vision:[] };
-  return { goal, why, intent, topics, stepwise, org, conf: gi ? gi.conf : 1 };
+  return { goal, why, intent, topics, stepwise, org, conf: gi ? gi.conf : 1, ranked: gi ? gi.ranked : [] };
 }
 
 // ===================== C. BUILDER =====================
@@ -1663,7 +1745,25 @@ function readIdea(rough, extra){
 function hasMaterial(text){
   return text.length > 400 || (text.match(/\n/g) || []).length >= 3 || /[{};]\s*$|[{};]\s*\n|=>|\bdef \w+\(|\bfunction\s*\w*\s*\(|<\/?[a-z]+[ >]|"[^"]{60,}"/m.test(text);
 }
+// What the request points at but didn't include, in plain words for the paste box ("your resume")
+function needsPaste(text, target){
+  if (!text || hasMaterial(text)) return null;
+  const t = text.toLowerCase();
+  if (target === 'code') {
+    const thing = (t.match(/\b(?:this|my|the|our)\s+(?:\w+\s)?(function|code|script|file|component|page|query|class|method|loop|css|html|program|bot|form|login)\b/) || [])[1];
+    return thing ? 'the ' + thing + ' (or the part you mean)' : /^(fix|clean ?up|refactor|improve|optimi\w*) (it|this)\b/.test(t) ? 'the code' : null;
+  }
+  if (target === 'general') {
+    const doc = (t.match(/\b(?:my|this|the)\s+(resume|cv|essay|paper|cover letter|email|draft|bio|story|poem|letter|speech|post|report|assignment|homework|review|message|text)\b/) || [])[1];
+    return doc ? 'your ' + doc : null;
+  }
+  return null;
+}
+const pasted = () => { const el = $('material'); return el && !$('pasteBox').hidden ? el.value.trim() : ''; };
+const pasteSection = (need, text) => ({ title: ('Here is ' + (need || 'what I mean').replace(/ \(.*\)$/, '').replace(/^your /, 'my ')).toUpperCase(), role:'material', lines:[text] });
+
 function missingMaterial(text, target, intent){
+  if (pasted()) return null;
   if (!text || hasMaterial(text)) return null;
   const t = text.toLowerCase();
   if (target === 'code') {
@@ -1699,6 +1799,24 @@ function missingMaterial(text, target, intent){
 // right reads beat typing 62%, misreads 13%). So below this confidence, build a NEUTRAL prompt:
 // your words cleaned up, your own limits and priorities, and one plain "do what I asked" line.
 const SURE = 0.6;
+// ...but first ask: one tap on what you want back beats any guess. The answer is kept while
+// the start of your idea stays the same; a new idea asks again.
+const PICK_LABELS = {
+  general:{ recommend:'Suggest options', study:'Explain it', write:'Write it', decide:'Help me choose', organize:'Make a plan', brainstorm:'Give me ideas', research:'Check the facts', ask:'Quick answer' },
+  code:{ build:'Build it', fix:'Fix it', improve:'Improve it', design:'Design it', plan:'Plan it', learn:'Explain it' }
+};
+const PICK_NONE = { general:'Just answer', code:'Just do it' };
+const PICK_DEFAULT = { general:['study','recommend','write'], code:['build','fix','learn'] };
+function pickFor(rough){
+  const p = state.answers.pick;
+  return p && state.pickFor && rough.slice(0, 24).toLowerCase() === state.pickFor.slice(0, 24).toLowerCase() ? p : null;
+}
+function pickQuestion(R){
+  const labels = PICK_LABELS[state.target];
+  let ids = R.ranked.filter(r => r.p > 0.05 && labels[r.id]).slice(0, 3).map(r => r.id);
+  PICK_DEFAULT[state.target].forEach(id => { if (ids.length < 3 && !ids.includes(id)) ids.push(id); });
+  return { id:'pick', q:'Not sure what you want back. Which fits?', opts:[...ids.map(id => labels[id]), PICK_NONE[state.target]], pick:true };
+}
 const NEUTRAL_OUT = {
   general:'Answer exactly what I asked, directly and completely. If something important is missing, assume what fits a typical person in my situation and say so in one line.',
   code:'Do exactly what I asked. If it needs code, give complete, working code and say where it goes. If something important is missing, assume what fits best and say so in one line.'
@@ -1709,6 +1827,7 @@ function buildNeutral(R, rough, ctx, ctxCount){
   const O = R.org;
   S.push({ title: gen ? 'REQUEST' : 'TASK', role:'task', lines: O.reqs.length >= 2 ? ['Do each numbered item below.\n' + O.reqs.map((r, i) => `${i + 1}. ${r}`).join('\n')] : [R.goal] });
   if (R.why) S[0].lines.push('Why: ' + R.why.charAt(0).toUpperCase() + R.why.slice(1) + '.');
+  if (pasted()) S.push(pasteSection(needsPaste(rough, state.target), pasted()));
   if (ctx.have)  add('context', 'CONTEXT', '- ' + (gen ? 'What I already know or have: ' : 'Already working: ') + ctx.have);
   if (ctx.tried) add('context', 'CONTEXT', '- Tried so far / went wrong: ' + ctx.tried);
   if (ctx.refs)  add('context', 'CONTEXT', '- ' + (gen ? 'References: ' : 'Files or screens involved: ') + ctx.refs);
@@ -1733,8 +1852,16 @@ function build(){
   const ctx = { have:$('ctxHave').value.trim(), tried:$('ctxTried').value.trim(), refs:$('ctxRefs').value.trim() };
   const ctxCount = [ctx.have, ctx.tried, ctx.refs].filter(Boolean).length;
   const R = readIdea(rough, [ctx.have, ctx.tried, ctx.refs].join(' '));
-  R.neutral = !!rough && !art && !state.structure && !state.forceFull && !Object.keys(state.answers).length && R.conf < SURE;
-  if (R.neutral) return buildNeutral(R, rough, ctx, ctxCount);
+  // your one-tap answer to "which fits?" overrides the guess
+  // a template you chose carries its own job type
+  const TI = state.structure && (STRUCTURES.find(x => x.id === state.structure) || {}).intent;
+  if (TI && !art) { R.intent = (gen ? G_INTENTS : INTENTS).find(i => i.id === TI) || R.intent; R.conf = 1; }
+  const pick = art || TI ? null : pickFor(rough);
+  const pickId = pick && Object.entries(PICK_LABELS[state.target]).find(([, l]) => l === pick);
+  if (pickId) { R.intent = (gen ? G_INTENTS : INTENTS).find(i => i.id === pickId[0]); R.conf = 1; R.picked = true; }
+  const answered = Object.keys(state.answers).filter(k => k !== 'pick').length;
+  R.neutral = !!rough && !art && !state.structure && !state.forceFull && !answered && (pick === PICK_NONE[state.target] || (!pickId && R.conf < SURE));
+  if (R.neutral) { const r = buildNeutral(R, rough, ctx, ctxCount); if (r.size !== 'simple') r.qs = [pickQuestion(R)]; return r; }
   const M = missingMaterial(rough, state.target, R.intent.id);
   const picked = CHIPS[state.target].filter(c => state.chips.has(c.id) && !(M && c.id === 'full'));
   const T = currentStructure();
@@ -1795,6 +1922,7 @@ function build(){
 
   // 3. under the goal: the reason, or a blank asking for it (intent = precision)
   const task = S.find(s => s.role === 'task');
+  if (pasted()) S.splice(S.indexOf(task) + 1, 0, pasteSection(needsPaste(rough, state.target), pasted()));
   if (task) {
     if (R.why) task.lines.push('Why: ' + R.why.charAt(0).toUpperCase() + R.why.slice(1) + '.');
     else if (guessOn && rough) { task.lines.push((art ? 'Purpose (assumed): ' : 'Why (assumed): ') + WHY_GUESS[R.intent.id]); guesses++; }
@@ -1815,6 +1943,7 @@ function build(){
   // 4b. your quick-question answers (only the ones still relevant to this idea)
   const qs = activeQuestions(R, rough);
   qs.forEach(q => { const a = state.answers[q.id]; if (a) { addLine(q.to, q.line(a)); have[{ context:'context', rules:'limits', output:'output' }[q.to]] = true; } });
+  if (R.picked) qs.unshift(pickQuestion(R));
 
   // 5. topic lines + your chips go into rules / output / done
   R.topics.forEach(t => {
@@ -1822,7 +1951,7 @@ function build(){
     (t.rules || []).forEach(l => addLine('rules', l)); (t.done || []).forEach(l => addLine('done', l));
   });
   // General: always say what SHAPE of answer fits this kind of job (house rules only set the style)
-  if (gen && rough && GUESS.settings.guess && OUTPUT_GUESS[R.intent.id] && !state.answers.g_depth && !(M && M.output)) { addLine('output', OUTPUT_GUESS[R.intent.id]); guesses++; }
+  if (gen && rough && GUESS.settings.guess && OUTPUT_GUESS[R.intent.id] && !state.answers.g_depth && !(M && M.output) && !(state.structure && (T.s.FORMAT || T.s.OUTPUT || []).length)) { addLine('output', OUTPUT_GUESS[R.intent.id]); guesses++; }
   if (!guessOn && !art && !gen && /^(build|fix|design|improve)$/.test(R.intent.id)) addLine('rules', 'If anything is unclear, list your assumptions in 1 to 3 lines at the top, then do the whole task.');
   picked.filter(c => !(c.skipFor || []).includes(R.intent.id)).forEach(c => addLine({ limits:'rules', output:'output', done:'done', detail:'rules', context:'context' }[c.covers], c.line));
   if (M) { M.rules.forEach(l => addLine('rules', l)); if (M.output) { addLine('output', M.output); have.output = true; } }
@@ -2008,7 +2137,8 @@ function optCard(s, flag){
 }
 function renderOpts(){
   const R = last.R, sug = suggestions();
-  $('reading').innerHTML = R.neutral ? `Read as <span class="tagx intent">General request</span> <span class="tagx">not sure of the type, so no template</span>`
+  $('reading').innerHTML = R.picked ? `Read as <span class="tagx intent">${R.intent.label}</span> <span class="tagx">you picked</span>` + R.topics.map(t => `<span class="tagx">${t.label}</span>`).join('')
+    : R.neutral ? `Read as <span class="tagx intent">General request</span> <span class="tagx">not sure of the type, so no template</span>`
     : `Read as <span class="tagx intent">${R.intent.label}</span>` + R.topics.map(t => `<span class="tagx">${t.label}</span>`).join('');
   let html = optCard(DEFAULTS[state.target]);
   const cur = STRUCTURES.find(s => s.id === state.structure);
@@ -2045,13 +2175,13 @@ function goStep(n){
 
 // --- Library ---
 function renderChapters(){
-  const n = c => STRUCTURES.filter(s => s.ch === c.n).length;
+  const n = c => STRUCTURES.filter(s => s.ch === c.n && (showGame || !s.game)).length;
   const btn = (key, label, count) => `<button data-ch="${key}" aria-pressed="${state.ch == key}">${label}<small>${count}</small></button>`;
   $('chapters').innerHTML =
-    btn('all', 'Everything', STRUCTURES.length) +
-    `<div class="grp">General · any AI</div>` + CHAPTERS.filter(c => c.target === 'general').map(c => btn(c.n, c.name, n(c))).join('') +
-    `<div class="grp">Code · Claude</div>` + CHAPTERS.filter(c => c.target === 'code' || c.target === 'any').map(c => btn(c.n, c.name, n(c))).join('') +
-    `<div class="grp">Art · ChatGPT</div>` + CHAPTERS.filter(c => c.target === 'art').map(c => btn(c.n, c.name, n(c))).join('') +
+    btn('all', 'Everything', STRUCTURES.filter(s => showGame || !s.game).length) +
+    `<div class="grp">General · any AI</div>` + CHAPTERS.filter(c => (c.target === 'general') && n(c)).map(c => btn(c.n, c.name, n(c))).join('') +
+    `<div class="grp">Code · Claude</div>` + CHAPTERS.filter(c => (c.target === 'code' || c.target === 'any') && n(c)).map(c => btn(c.n, c.name, n(c))).join('') +
+    `<div class="grp">Art · ChatGPT</div>` + CHAPTERS.filter(c => (c.target === 'art') && n(c)).map(c => btn(c.n, c.name, n(c))).join('') +
     `<div class="grp">Yours</div>` + btn('saved', 'Saved prompts', state.library.length);
 }
 function previewOf(s){
@@ -2063,8 +2193,9 @@ function previewOf(s){
 }
 function renderLibrary(){
   const q = $('search').value.trim().toLowerCase();
-  const match = s => !q || (s.id + ' ' + s.t + ' ' + s.use + ' ' + JSON.stringify(s.s)).toLowerCase().includes(q);
-  $('libSub').textContent = `${STRUCTURES.length} structures in ${CHAPTERS.length} chapters · ${state.library.length} saved`;
+  const match = s => (showGame || !s.game) && (!q || (s.id + ' ' + s.t + ' ' + s.use + ' ' + JSON.stringify(s.s)).toLowerCase().includes(q));
+  const shown = STRUCTURES.filter(s => showGame || !s.game).length;
+  $('libSub').innerHTML = `${shown} structures · ${state.library.length} saved · <button class="linkbtn" id="gameToggle">${showGame ? 'Hide' : 'Show'} game dev pack</button>`;
   let html = '';
   const ORDER = c => c.target === 'general' ? 0 : 1;
   const chs = state.ch === 'all' ? CHAPTERS.slice().sort((a, b) => ORDER(a) - ORDER(b) || a.n - b.n) : state.ch === 'saved' ? [] : CHAPTERS.filter(c => c.n == state.ch);
@@ -2147,7 +2278,14 @@ function updateFieldLabels(){
 
 // Quick questions: re-draw only when the set of questions changes, so typing stays smooth
 let qKey = null;
+function renderPaste(){
+  const need = state.target === 'art' ? null : needsPaste($('rough').value.trim(), state.target);
+  const show = !!need || !!$('material').value.trim();
+  if ($('pasteBox').hidden === show) $('pasteBox').hidden = !show;
+  if (need) $('pasteLbl').textContent = 'Paste ' + need + ' here';
+}
 function renderQuestions(){
+  renderPaste();
   const qs = last ? last.qs : [];
   const key = qs.map(q => q.id + '=' + (state.answers[q.id] || '')).join('|') + (last && last.size === 'simple' ? '#s' : '');
   if (key === qKey) return;
@@ -2161,7 +2299,7 @@ function renderQuestions(){
 function clearAll(){
   DRAFT_FIELDS.forEach(id => $(id).value = '');
   state.structure = null;
-  state.answers = {}; state.forceFull = false; qKey = null;
+  state.answers = {}; state.pickFor = null; state.forceFull = false; qKey = null;
   state.chips = new Set(DEFAULT_CHIPS[state.target]);
   renderChips();
   $('more').open = false;
@@ -2205,7 +2343,7 @@ function scheduleRefresh(){
 // 2. Draft: your current idea, settings and step are kept, so closing the
 //    window or an auto-refresh never loses what you were typing.
 const DRAFT_KEY = 'promptbible.draft';
-const DRAFT_FIELDS = ['project','rough','ctxHave','ctxTried','ctxRefs'];
+const DRAFT_FIELDS = ['project','rough','ctxHave','ctxTried','ctxRefs','material'];
 let draftTimer = 0;
 function saveDraftNow(){
   clearTimeout(draftTimer);
@@ -2317,6 +2455,11 @@ $('menu').addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft')  { showTab('enhance'); $('tab-enhance').focus(); }
 });
 $('search').addEventListener('input', renderLibrary);
+$('libSub').addEventListener('click', e => {
+  if (e.target.id !== 'gameToggle') return;
+  showGame = !showGame; try { localStorage.setItem('promptbible.gamepack', showGame ? '1' : '0'); } catch (err) {}
+  renderLibrary();
+});
 $('chapters').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.ch = b.dataset.ch; state.open = null; renderLibrary(); } });
 $('entries').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
@@ -2366,6 +2509,10 @@ function analyze(item){
   }
 }
 function scoreGold(){
+  const keepGame = showGame; showGame = true;
+  try { return scoreGoldAll(); } finally { showGame = keepGame; }
+}
+function scoreGoldAll(){
   const tally = {}; METRICS.forEach(m => tally[m.id] = { ok:0, n:0 });
   const misses = [];
   GOLD.items.forEach(it => {
@@ -2676,7 +2823,7 @@ function changesMade(){
   if (O.numbers.length && /^(build|fix|design|improve)$/.test(R.intent.id)) c.push('Locked your numbers so they stay exact');
   const usedTips = R.topics.filter(t => !(t.label === 'Learning' && state.answers.g_level));
   if (usedTips.length) c.push(`Added tips for ${usedTips.map(t => t.label).join(', ')}`);
-  const ans = Object.keys(state.answers).length; if (ans) c.push(`Added your ${ans} quick answer${ans > 1 ? 's' : ''}`);
+  const ans = Object.keys(state.answers).filter(k => k !== 'pick').length; if (R.picked) c.push('Used the job you picked'); else if (R.neutral) c.push('Kept your request as is (no template), since the type wasn\'t clear'); if (ans) c.push(`Added your ${ans} quick answer${ans > 1 ? 's' : ''}`);
   if (last.guesses) c.push(`Filled in ${last.guesses} missing detail${last.guesses > 1 ? 's' : ''} (marked so the AI can check them)`);
   if (last.T.id) c.push(`Used the "${last.T.t}" structure`);
   if (last.size === 'lean') c.push('Kept it short, since quick asks work best that way');
@@ -2737,6 +2884,10 @@ const SAMPLES = {
   '13.1':'find me a free app to learn guitar','13.2':'help me learn to cook basic meals','13.3':'what are the benefits of creatine',
   '13.4':'text my landlord that the heater is broken','13.5':'should i buy a ps5 or a gaming pc','13.6':'plan a 3 day trip to chicago',
   '13.7':'how many ounces in a cup','13.8':'names for a coffee truck',
+  '14.1':'reply to a 1 star review about late delivery','14.2':'cover letter for a front desk job','14.3':'make my resume better for an office job',
+  '14.4':'ask my manager for a raise after a year','14.5':'my phone bill charged me twice this month','14.6':'complain to my landlord about no hot water for a week',
+  '14.7':'what does this lease clause about early termination mean','14.8':'can i afford a 400 a month car payment','14.9':'help me study for my biology final',
+  '14.10':'tell my roommate they need to pay rent on time','14.11':'airpods pro vs sony xm5 earbuds for the gym','14.12':'why do my knees hurt after running',
 };
 function exampleOf(s){
   const keep = { target:state.target, structure:state.structure, answers:state.answers, forceFull:state.forceFull, chips:state.chips, last };
@@ -2866,6 +3017,7 @@ $('qList').addEventListener('click', e => {
   const b = e.target.closest('[data-a]'); if (!b) return;
   const id = b.closest('[data-q]').dataset.q, a = b.dataset.a;
   if (state.answers[id] === a) delete state.answers[id]; else state.answers[id] = a;   // tap again to undo
+  if (id === 'pick') state.pickFor = $('rough').value.trim();
   refresh();
 });
 $('asisCopy').addEventListener('click', () => { copyText(tidy($('rough').value)); learnFromCopy(); });
