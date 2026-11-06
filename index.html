@@ -1492,7 +1492,7 @@ function sizeOf(R, rough, ctxCount){
   if (state.forceFull || state.target !== 'general' || state.structure) return 'full';
   const words = rough.split(/\s+/).filter(Boolean).length;
   const sentences = rough.split(/[.?!]+\s+|\n+/).filter(x => x.trim()).length;
-  if (words && words <= 12 && sentences === 1 && !ctxCount && R.intent.id === 'ask' && !R.topics.length
+  if (words && words <= 12 && sentences === 1 && !ctxCount && !pasted() && R.intent.id === 'ask' && !R.topics.length
       && SIMPLE_START.test(rough.trim()) && !Object.keys(state.answers).filter(k => k !== 'pick').length) return 'simple';
   if (words <= 30 && ctxCount <= 1) return 'lean';
   return 'full';
@@ -1840,7 +1840,7 @@ function buildNeutral(R, rough, ctx, ctxCount){
   if (R.stepwise) add('output', 'OUTPUT', '- Break it into clear, numbered steps.');
   add('output', 'OUTPUT', '- ' + NEUTRAL_OUT[gen ? 'general' : 'code']);
   const words = rough.split(/\s+/).filter(Boolean).length;
-  const simple = gen && words <= 12 && !ctxCount && !R.topics.length && !S.some(s => s.role === 'rules' || s.role === 'context') && SIMPLE_START.test(rough.trim());
+  const simple = gen && words <= 12 && !ctxCount && !R.topics.length && !S.some(s => s.role === 'rules' || s.role === 'context' || s.role === 'material') && SIMPLE_START.test(rough.trim());
   const have = { goal:true, context:true, limits:true, output:true, done:true, detail:true };
   return { S: cleanUp(S), have, R, T: currentStructure(), upgrades:0, guesses:0, qs:[], size: simple ? 'simple' : 'lean', neutral:true };
 }
